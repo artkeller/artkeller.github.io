@@ -122,11 +122,24 @@
             box-shadow: 0 20px 40px rgba(255, 48, 48, 0.15);
         }
 
+        /*
         .project-img {
             width: 100%;
             height: 220px;
             background-size: cover;
             background-position: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        */
+
+        .project-img {
+            width: 100%;
+            height: 300px; /* Oder die Höhe deines Bildes */
+            /*background-image: url('images/NOC_Ultra_Smart_v4_4_11.png');*/
+            background-repeat: no-repeat;
+            background-position: center center; /* Zentriert das Bild horizontal und vertikal */
+            background-size: auto; /* Verhindert das Hochskalieren (bleibt 1:1) */
+            background-color: #111; /* Optional: Dunkler Hintergrund für die leeren Seitenbereiche */
             border-bottom: 1px solid var(--glass-border);
         }
 
