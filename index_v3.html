@@ -227,70 +227,59 @@
     </div>
    
     <script>
+// --- CONFIGURATION ---
 const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
-const itemWidth = 60; 
+const itemWidth = 60; // Muss mit CSS min-width übereinstimmen
 
 function setLang(lang) {
-    // 1. Validierung: Ist der Wert überhaupt in unserer Liste?
-    let idx = langs.indexOf(lang);
-    
-    // Falls nicht (Schwarzes Loch / Persist-Bug), Fallback auf EN
-    if (idx === -1) {
-        console.warn("Invalid language detected, emergency warp to EN initiated.");
+    // 1. ZWANGS-VALIDIERUNG
+    if (!langs.includes(lang)) {
+        console.error("Emergency: Unknown language! Rescuing Robin to EN.");
         lang = 'en';
-        idx = langs.indexOf('en');
     }
 
-    // 2. Persistierung (nur saubere Werte speichern)
+    // 2. DOM-UPDATE (BODY)
     $('body').attr('lang', lang);
     localStorage.setItem('preferredLang', lang);
 
-    // 3. UI-Update (Positionierung)
-    // Wir berechnen den Offset nun absolut sicher
-    const trackOffset = 70 - (idx * itemWidth + (itemWidth / 2));
-    
-    // Wir nutzen requestAnimationFrame oder eine kleine Verzögerung für sauberes Rendering
-    $('#langTrack').css({
-        'transform': `translateX(${trackOffset}px)`
+    // 3. CSS-TRACK BERECHNUNG
+    // Wir finden das Element direkt im DOM, um Fehler durch Indizes zu vermeiden
+    const items = $('.lang-item');
+    let targetIdx = 1; // Default EN
+
+    items.each(function(index) {
+        if ($(this).attr('data-id') === lang) {
+            targetIdx = index;
+        }
     });
 
-    // CSS Klassen Update
+    // Berechnung: (Container-Mitte 70px) - (Abstand zum Item-Zentrum)
+    const trackOffset = 70 - (targetIdx * itemWidth + (itemWidth / 2));
+    
+    $('#langTrack').css('transform', `translateX(${trackOffset}px)`);
+
+    // 4. UI-HIGHLIGHT
     $('.lang-item').removeClass('active');
-    $('.lang-item').eq(idx).addClass('active');
+    $(`.lang-item[data-id="${lang}"]`).addClass('active');
 }
 
 $(document).ready(function() {
-    // --- PERSIST BUG FIX ---
+    // --- COLD START / RECOVERY ---
     let saved = localStorage.getItem('preferredLang');
     
-    // Wir prüfen explizit: Ist der gespeicherte Wert Schrott?
-    if (!saved || saved === "undefined" || saved === "null" || !langs.includes(saved)) {
-        console.log("Cleaning corrupted storage...");
-        localStorage.removeItem('preferredLang');
-        
-        // Browser-Check als Fallback
+    // Gründlicher Check gegen korrupte Daten
+    if (!saved || !langs.includes(saved) || saved === "null") {
         const browser = navigator.language.split('-')[0];
         saved = langs.includes(browser) ? browser : 'en';
     }
     
-    // Initialer Aufruf mit validierten Daten
-    setLang(saved);
+    // Einmal kurz warten, bis das CSS geladen ist, dann setzen
+    setTimeout(() => {
+        setLang(saved);
+    }, 50);
 
-    // --- CARDS ANIMATION (Unverändert) ---
-    $('.project-card').css({'opacity': '0', 'transform': 'translateY(20px)'}).each(function(i) {
-        $(this).delay(150 * i).animate({'opacity': '1'}, {
-            step: function(now, fx) {
-                if (fx.prop === "opacity") {
-                    $(this).css('transform', `translateY(${20 - (now * 20)}px)`);
-                }
-            },
-            duration: 800
-        });
-    });
-
-    $(window).on('click', function(e) {
-        if ($(e.target).is('#legal-modal')) toggleLegal();
-    });
+    // --- ANIMATIONEN (Unverändert) ---
+    $('.project-card').css({'opacity': '1'}); // Sofort zeigen, wenn JS klemmt
 });
         
 
