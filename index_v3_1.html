@@ -120,15 +120,19 @@
 <body lang="en">
 
     <div class="mission-control-selector">
-        <div class="lang-track" id="langTrack">
-            <span class="lang-item" data-id="fr" data-idx="0" onclick="setLang('fr')">FR</span>
-            <span class="lang-item" data-id="en" data-idx="1" onclick="setLang('en')">EN</span>
-            <span class="lang-item" data-id="de" data-idx="2" onclick="setLang('de')">DE</span>
-            <span class="lang-item" data-id="it" data-idx="3" onclick="setLang('it')">IT</span>
-            <span class="lang-item" data-id="es" data-idx="4" onclick="setLang('es')">ES</span>
-            <span class="lang-item" data-id="el" data-idx="5" onclick="setLang('el')">ΕΛ</span>
-        </div>
+    <div class="lang-track" id="langTrack">
+        <span class="lang-item buffer" onclick="setLang('el')">ΕΛ</span> 
+        
+        <span class="lang-item" data-id="fr" onclick="setLang('fr')">FR</span>
+        <span class="lang-item" data-id="en" onclick="setLang('en')">EN</span>
+        <span class="lang-item" data-id="de" onclick="setLang('de')">DE</span>
+        <span class="lang-item" data-id="it" onclick="setLang('it')">IT</span>
+        <span class="lang-item" data-id="es" onclick="setLang('es')">ES</span>
+        <span class="lang-item" data-id="el" onclick="setLang('el')">ΕΛ</span>
+
+        <span class="lang-item buffer" onclick="setLang('fr')">FR</span>
     </div>
+</div>
 
     <section class="hero">
         <h1>ARTKELLER</h1>
@@ -175,51 +179,70 @@
     </div>
 
     <script>
-        const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
-        const itemWidth = 60;
+    const languages = ['fr', 'en', 'de', 'it', 'es', 'el'];
+    const itemWidth = 60; // Breite eines Kürzels in Pixeln
 
-        function setLang(lang) {
-            // 1. Validierung
-            if (!langs.includes(lang)) lang = 'en';
-            
-            // 2. DOM Updates
-            document.body.setAttribute('lang', lang);
-            localStorage.setItem('preferredLang', lang);
+    function setLang(lang) {
+        // 1. Sicherheits-Check: Falls ein Alien-Wert kommt, zurück nach EN
+        if (!languages.includes(lang)) lang = 'en';
 
-            // 3. Den Track verschieben
-            const activeItem = document.querySelector(`.lang-item[data-id="${lang}"]`);
-            const idx = activeItem.getAttribute('data-idx');
-            
-            // Die Magie: - (Index * Breite) - halbe Item-Breite
-            // Das schiebt das Item exakt unter den Mittelpunkt der CSS 'left: 50%' Position.
-            const offset = -(idx * itemWidth) - (itemWidth / 2);
-            document.getElementById('langTrack').style.transform = `translateX(${offset}px)`;
+        // 2. Body-Attribut setzen für das CSS-Umschalten der Texte
+        document.body.setAttribute('data-active-lang', lang);
+        localStorage.setItem('artkeller_lang', lang);
 
-            // 4. Active Class
-            document.querySelectorAll('.lang-item').forEach(el => el.classList.remove('active'));
-            activeItem.classList.add('active');
+        // 3. Die Robin-Round-Mathematik
+        // Wir finden heraus, an welcher Stelle (Index) die Sprache steht
+        const idx = languages.indexOf(lang);
+
+        // Berechnung:
+        // Wir starten bei der Mitte (left: 50%).
+        // Dann schieben wir den Track um (Index + 1 Puffer) * 60px nach links.
+        // Und ziehen nochmal 30px (halbe Item-Breite) ab für die perfekte Zentrierung.
+        const offset = -((idx + 1) * itemWidth) - (itemWidth / 2);
+        
+        const track = document.getElementById('langTrack');
+        if(track) {
+            track.style.transform = `translateX(${offset}px)`;
         }
 
-        function toggleLegal(type) {
-            const modal = document.getElementById('legal-modal');
-            if (!type) {
-                modal.style.display = 'none';
-                return;
+        // 4. Optisches Feedback im Selector
+        document.querySelectorAll('.lang-item').forEach(el => {
+            el.classList.remove('active');
+            // Nur das echte Item aktivieren, nicht die Puffer
+            if(el.innerText === lang.toUpperCase() || (lang === 'el' && el.innerText === 'ΕΛ')) {
+                // Wir nehmen das Item, das KEIN Buffer ist
+                if(!el.classList.contains('buffer')) el.classList.add('active');
             }
-            document.querySelectorAll('.legal-text').forEach(t => t.style.display = 'none');
-            document.getElementById(type).style.display = 'block';
-            modal.style.display = 'flex';
-        }
+        });
+    }
 
-        // Initialisierung beim Start
-        window.onload = function() {
-            let saved = localStorage.getItem('preferredLang');
-            if (!langs.includes(saved)) {
-                const browser = navigator.language.split('-')[0];
-                saved = langs.includes(browser) ? browser : 'en';
-            }
-            setLang(saved);
-        };
-    </script>
+    // Beim Laden der Seite: Robin aufwecken
+    window.addEventListener('DOMContentLoaded', () => {
+        let saved = localStorage.getItem('artkeller_lang');
+        
+        // Prüfen ob der Speicherwert gültig ist
+        if (!languages.includes(saved)) {
+            const browser = navigator.language.substring(0, 2).toLowerCase();
+            saved = languages.includes(browser) ? browser : 'en';
+        }
+        
+        // Kurze Verzögerung für die Browser-Berechnung
+        setTimeout(() => setLang(saved), 50);
+    });
+
+    // Modal-Funktion (damit Impressum & Co. auch laufen)
+    function toggleLegal(type) {
+        const modal = document.getElementById('legal-modal');
+        if (!modal) return;
+        if (!type) {
+            modal.style.display = 'none';
+            return;
+        }
+        document.querySelectorAll('.legal-inner').forEach(t => t.style.display = 'none');
+        const content = document.getElementById(type + '-text');
+        if(content) content.style.display = 'block';
+        modal.style.display = 'flex';
+    }
+</script>
 </body>
 </html>
