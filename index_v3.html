@@ -226,59 +226,72 @@
         </div>
     </div>
 
+
+
+    
     <script>
-        const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
-        const itemWidth = 60; // Breite eines Items im CSS
+const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
+const itemWidth = 60; 
 
-        function setLang(lang) {
-            const idx = langs.indexOf(lang);
-            if (idx === -1) return;
+function setLang(lang) {
+    // Falls ein ungültiger Wert kommt oder wir "leer" laufen -> Fallback auf EN
+    let idx = langs.indexOf(lang);
+    if (idx === -1) {
+        lang = 'en';
+        idx = langs.indexOf('en');
+    }
 
-            $('body').attr('lang', lang);
-            localStorage.setItem('preferredLang', lang);
+    // Persistierung & DOM Update
+    $('body').attr('lang', lang);
+    localStorage.setItem('preferredLang', lang);
 
-            // Robin-Round Scroll Berechnung: 
-            // Der Track wird so verschoben, dass das gewählte Element exakt mittig im 140px Container steht.
-            // Formel: (Container-Mitte 70px) - (Abstand zum Item-Zentrum)
-            const trackOffset = 70 - (idx * itemWidth + (itemWidth / 2));
-            $('#langTrack').css('transform', `translateX(${trackOffset}px)`);
+    // Präzise Zentrierung im 140px Container
+    // Container-Mitte (70px) - (Abstand vom Start des Tracks bis zur Mitte des Items)
+    const trackOffset = 70 - (idx * itemWidth + (itemWidth / 2));
+    
+    $('#langTrack').css({
+        'transform': `translateX(${trackOffset}px)`
+    });
 
-            $('.lang-item').removeClass('active');
-            $('.lang-item').eq(idx).addClass('active');
-        }
+    // CSS Klassen Update
+    $('.lang-item').removeClass('active');
+    $('.lang-item').eq(idx).addClass('active');
+}
 
-        function toggleLegal(type) {
-            const modal = $('#legal-modal');
-            if (!type) { modal.fadeOut(300); return; }
-            $('.legal-text').hide();
-            $('#' + type).show();
-            modal.css('display', 'flex').hide().fadeIn(300);
-        }
+$(document).ready(function() {
+    // Rettungsanker: Falls im LocalStorage Müll steht, löschen wir ihn
+    let saved = localStorage.getItem('preferredLang');
+    if (saved === "null" || saved === "undefined" || !langs.includes(saved)) {
+        saved = null; 
+    }
 
-        $(document).ready(function() {
-            // 1. Initialisierung Sprache
-            let saved = localStorage.getItem('preferredLang');
-            if (!saved) {
-                const browser = navigator.language.split('-')[0];
-                saved = langs.includes(browser) ? browser : 'en';
-            }
-            setLang(saved);
+    if (!saved) {
+        const browser = navigator.language.split('-')[0];
+        saved = langs.includes(browser) ? browser : 'en';
+    }
+    
+    // Initialer Aufruf
+    setLang(saved);
 
-            // 2. Card Animation
-            $('.project-card').css({'opacity': '0', 'transform': 'translateY(20px)'}).each(function(i) {
-                $(this).delay(150 * i).animate({'opacity': '1'}, {
-                    step: function(now, fx) {
-                        $(this).css('transform', `translateY(${20 - (now * 20)}px)`);
-                    },
-                    duration: 800
-                });
-            });
-
-            // 3. Modal close on outside click
-            $(window).on('click', function(e) {
-                if ($(e.target).is('#legal-modal')) toggleLegal();
-            });
+    // --- CARDS ANIMATION ---
+    $('.project-card').css({'opacity': '0', 'transform': 'translateY(20px)'}).each(function(i) {
+        $(this).delay(150 * i).animate({'opacity': '1'}, {
+            step: function(now, fx) {
+                if (fx.prop === "opacity") {
+                    $(this).css('transform', `translateY(${20 - (now * 20)}px)`);
+                }
+            },
+            duration: 800
         });
+    });
+
+    // Close Modal on click outside
+    $(window).on('click', function(e) {
+        if ($(e.target).is('#legal-modal')) toggleLegal();
+    });
+});
+
+
     </script>
 </body>
 </html>
