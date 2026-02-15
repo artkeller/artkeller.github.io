@@ -14,12 +14,12 @@ The security of this project is guaranteed by its architectural constraints:
 In compliance with Art. 14 of the Cyber Resilience Act, this project maintains a formal process for handling potential security concerns.
 
 ### Reporting a Vulnerability
-Please report any security-related findings directly to: **thomas@artkeller.io**
+Please report any security-related findings directly to: **artkeller@gmx.e**
 
-### Incident Handling Process (Art. 14(1) & (2))
+### Incident Handling Process (Art. 14(1) & (2)
 1. **Response:** Acknowledgement of receipt within 48 hours.
 2. **Remediation:** Direct code intervention (100% internal code ownership) without third-party delay.
-3. **Communication:** Updates on vulnerability status and fixes are published via VEX (Vulnerability Exploitability eXchange) in the `/CRA` directory.
+3. **Communication:** Updates on vulnerability status and fixes are published via VEX (Vulnerability Exploitability eXchange) in the [/CRA](/CRA "/CRA") directory.
 
 ## 🌐 Infrastructure & Compliance
 - **Hosting:** Hosted on GitHub Pages (USA). 
