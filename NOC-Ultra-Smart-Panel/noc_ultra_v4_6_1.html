@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOC Ultra Smart v4.6.1</title>
+
+<style>
+:root {
+    --bg-color: #111;
+    --panel-bg: #1a1a1a;
+    --text-color: #eee;
+    --accent-red: #ff3030;
+    --accent-green: #00ff88;
+}
+
+body { font-family: Arial, sans-serif; background: var(--bg-color); color: var(--text-color); padding: 20px; margin: 0; }
+.controls { margin-bottom: 15px; }
+input { padding: 8px; width: 100%; max-width: 340px; box-sizing: border-box; background: #222; border: 1px solid #444; color: #fff; }
+button { padding: 8px 12px; margin-top: 5px; cursor: pointer; background: #333; color: #fff; border: 1px solid #555; transition: 0.3s; }
+button:hover { background: #444; }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Favorites Responsive */
+.favoritesBox { border: 1px solid #333; background: #151515; max-height: 120px; overflow-y: auto; padding: 8px; width: 100%; max-width: 600px; margin-bottom: 15px; box-sizing: border-box; }
+.favoriteRow { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; flex-wrap: nowrap; }
+.favoriteUrl { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Panels Responsive Grid */
+#monitors { display: flex; flex-direction: column; gap: 10px; }
+.panel { border: 1px solid #333; padding: 12px; background: var(--panel-bg); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; transition: background 0.4s; gap: 15px; }
+.panel.changed { background: #2a2a00; }
+
+.left { display: flex; gap: 10px; align-items: center; flex: 1 1 250px; }
+.right { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; justify-content: flex-end; }
+
+.led { width: 14px; height: 14px; border-radius: 50%; background: #555; flex-shrink: 0; }
+.green { background: var(--accent-green); }
+.yellow { background: #ffd000; }
+.blue { background: #3aa0ff; }
+.gray { background: #666; }
+.red { background: var(--accent-red); animation: blink 1s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+.status { font-size: 12px; color: #aaa; }
+.stats { font-size: 11px; color: #888; }
+
+canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%; height: auto; }
+
+/* Mobile View Adjustments */
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .panel { flex-direction: column; align-items: stretch; }
+    .right { justify-content: space-between; border-top: 1px solid #333; padding-top: 10px; }
+    canvas { max-width: 100%; }
+    input { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<h2 id="ui-title">NOC Ultra Smart v4.6.1</h2>
+
+<div class="controls">
+  <input id="urlInput" placeholder="https://example.com">
+  <button id="ui-btn-add" onclick="addURL()">Add Monitor</button>
+</div>
+
+<div class="controls">
+  <b id="ui-favs-label">Favoriten</b>
+  <div class="favoritesBox" id="favoritesList"></div>
+</div>
+
+<div id="monitors"></div>
+
+<script>
+/* ==========================
+   i18n Translation Engine
+========================== */
+const translations = {
+    de: { add: "Hinzufügen", favs: "Favoriten", placeholder: "URL eingeben...", err_url: "ungültig", err_net: "Netzwerkfehler", err_empty: "URL leer", err_offline: "kein Netzwerk", online: "OK", loading: "init", start: "Start" },
+    en: { add: "Add Monitor", favs: "Favorites", placeholder: "Enter URL...", err_url: "invalid", err_net: "Network Error", err_empty: "URL empty", err_offline: "no network", online: "OK", loading: "init", start: "Start" },
+    bg: { add: "Добави", favs: "Любими", placeholder: "Въведете URL...", err_url: "невалиден", err_net: "Мрежова грешка", err_empty: "Празен URL", err_offline: "няма мрежа", online: "OK", loading: "init", start: "Старт" },
+    cs: { add: "Přidat", favs: "Oblíbené", placeholder: "Zadejte URL...", err_url: "neplatná", err_net: "Chyba sítě", err_empty: "URL prázdná", err_offline: "žádná síť", online: "OK", loading: "init", start: "Start" },
+    da: { add: "Tilføj", favs: "Favoritter", placeholder: "Indtast URL...", err_url: "ugyldig", err_net: "Netværksfejl", err_empty: "URL tom", err_offline: "intet netværk", online: "OK", loading: "init", start: "Start" },
+    el: { add: "Προσθήκη", favs: "Αγαπημένα", placeholder: "Εισάγετε URL...", err_url: "άκυρο", err_net: "Σφάλμα δικτύου", err_empty: "κενό URL", err_offline: "χωρίς δίκτυο", online: "OK", loading: "init", start: "Έναρξη" },
+    es: { add: "Añadir", favs: "Favoritos", placeholder: "Introducir URL...", err_url: "no válida", err_net: "Error de red", err_empty: "URL vacía", err_offline: "sin red", online: "OK", loading: "init", start: "Iniciar" },
+    et: { add: "Lisa", favs: "Lemmikud", placeholder: "Sisesta URL...", err_url: "vigane", err_net: "Võrguviga", err_empty: "URL tühi", err_offline: "võrk puudub", online: "OK", loading: "init", start: "Alusta" },
+    fi: { add: "Lisää", favs: "Suosikit", placeholder: "Syötä URL...", err_url: "virheellinen", err_net: "Verkkovirhe", err_empty: "URL tyhjä", err_offline: "ei verkkoa", online: "OK", loading: "init", start: "Aloita" },
+    fr: { add: "Ajouter", favs: "Favoris", placeholder: "Entrez l'URL...", err_url: "invalide", err_net: "Erreur réseau", err_empty: "URL vide", err_offline: "pas de réseau", online: "OK", loading: "init", start: "Démarrer" },
+    ga: { add: "Cuir leis", favs: "An dár n-obair", placeholder: "Iontráil URL...", err_url: "neamhbhailí", err_net: "Earráid líonra", err_empty: "URL folamh", err_offline: "gan líonra", online: "OK", loading: "init", start: "Tosaigh" },
+    hr: { add: "Dodaj", favs: "Favoriti", placeholder: "Unesite URL...", err_url: "nevažeći", err_net: "Mrežna pogreška", err_empty: "URL prazan", err_offline: "nema mreže", online: "OK", loading: "init", start: "Pokreni" },
+    hu: { add: "Hozzáadás", favs: "Kedvencek", placeholder: "URL megadása...", err_url: "érvénytelen", err_net: "Hálózati hiba", err_empty: "URL üres", err_offline: "nincs hálózat", online: "OK", loading: "init", start: "Indítás" },
+    it: { add: "Aggiungi", favs: "Preferiti", placeholder: "Inserisci URL...", err_url: "non valido", err_net: "Errore di rete", err_empty: "URL vuoto", err_offline: "nessuna rete", online: "OK", loading: "init", start: "Avvia" },
+    lt: { add: "Pridėti", favs: "Mėgstamiausi", placeholder: "Įveskite URL...", err_url: "neteisingas", err_net: "Tinklo klaida", err_empty: "URL tuščias", err_offline: "nėra tinklo", online: "OK", loading: "init", start: "Pradėti" },
+    lv: { add: "Pievienot", favs: "Izlase", placeholder: "Ievadiet URL...", err_url: "nederīgs", err_net: "Tīkla kļūda", err_empty: "URL tukšs", err_offline: "nav tīkla", online: "OK", loading: "init", start: "Sākt" },
+    mt: { add: "Żid", favs: "Favoriti", placeholder: "Daħħal URL...", err_url: "invalidu", err_net: "Żball tan-netwerk", err_empty: "URL vojt", err_offline: "l-ebda netwerk", online: "OK", loading: "init", start: "Ibda" },
+    nl: { add: "Toevoegen", favs: "Favorieten", placeholder: "Voer URL in...", err_url: "ongeldig", err_net: "Netwerkfout", err_empty: "URL leeg", err_offline: "geen netwerk", online: "OK", loading: "init", start: "Start" },
+    pl: { add: "Dodaj", favs: "Ulubione", placeholder: "Wpisz URL...", err_url: "nieprawidłowy", err_net: "Błąd sieci", err_empty: "URL pusty", err_offline: "brak sieci", online: "OK", loading: "init", start: "Start" },
+    pt: { add: "Adicionar", favs: "Favoritos", placeholder: "Digite a URL...", err_url: "inválida", err_net: "Erro de rede", err_empty: "URL vazia", err_offline: "sem rede", online: "OK", loading: "init", start: "Iniciar" },
+    ro: { add: "Adaugă", favs: "Favorite", placeholder: "Introduceți URL...", err_url: "nevalid", err_net: "Eroare rețea", err_empty: "URL gol", err_offline: "fără rețea", online: "OK", loading: "init", start: "Start" },
+    sk: { add: "Pridať", favs: "Obľúbené", placeholder: "Zadajte URL...", err_url: "neplatná", err_net: "Chyba siete", err_empty: "URL prázdna", err_offline: "žiadna sieť", online: "OK", loading: "init", start: "Štart" },
+    sl: { add: "Dodaj", favs: "Priljubljene", placeholder: "Vnesite URL...", err_url: "neveljaven", err_net: "Omrežna napaka", err_empty: "URL prazen", err_offline: "ni omrežja", online: "OK", loading: "init", start: "Začni" },
+    sv: { add: "Lägg till", favs: "Favoriter", placeholder: "Ange URL...", err_url: "ogiltig", err_net: "Nätverksfel", err_empty: "URL tom", err_offline: "inget nätverk", online: "OK", loading: "init", start: "Start" }
+};
+
+
+const userLang = (navigator.language || navigator.userLanguage).split('-')[0];
+const t = translations[userLang] || translations.en;
+
+let monitors = [];
+let intervalMs = 5000;
+
+/* ==========================
+   UI Scheduler (neu)
+========================== */
+let resortTimer = null;
+function triggerGreenResort(){
+  if(resortTimer) clearTimeout(resortTimer);
+  resortTimer = setTimeout(()=>{ sortPanels(true); },30000);
+}
+
+/* ==========================
+   Utilities
+========================== */
+function isValidURL(str){
+  try{ const u=new URL(str); return u.protocol==="http:"||u.protocol==="https:"; }
+  catch{return false;}
+}
+
+function getDomain(url){
+  try{ return new URL(url).hostname; }
+  catch{ return ""; }
+}
+
+function schemaWeight(url){
+  try{ const p = new URL(url).protocol; return p==="http:" ? 0 : 1; } catch { return 2; }
+}
+
+function segmentWeight(domain){
+  if(domain.startsWith("127.")) return 0;
+  if(domain.startsWith("192.168.")) return 1;
+  return 2;
+}
+
+function ipCompare(a,b){
+  const ip2num = ip => ip.split('.').map(Number);
+  const aNum = ip2num(a);
+  const bNum = ip2num(b);
+  for(let i=0;i<4;i++){
+    if(aNum[i]!==bNum[i]) return aNum[i]-bNum[i];
+  }
+  return 0;
+}
+
+function setState(m,state,text){
+  if(m.state!==state){ m.div.classList.add("changed"); setTimeout(()=>m.div.classList.remove("changed"),400); }
+  m.state=state;
+  m.led.className="led "+state;
+  m.statusDiv.textContent=text;
+  sortPanels(false);
+}
+
+function statePriority(s){ return {red:0,yellow:1,blue:2,gray:3,green:4}[s]??5; }
+
+/* ==========================
+   Sort Panels
+========================== */
+function compareMonitors(a,b){
+  const sp = statePriority(a.state)-statePriority(b.state);
+  if(sp!==0) return sp;
+
+  if(a.state==="green" && b.state==="green"){
+    const ua = new URL(a.url);
+    const ub = new URL(b.url);
+
+    const schemaDiff = schemaWeight(a.url)-schemaWeight(b.url);
+    if(schemaDiff!==0) return schemaDiff;
+
+    const da = ua.hostname;
+    const db = ub.hostname;
+
+    const segDiff = segmentWeight(da)-segmentWeight(db);
+    if(segDiff!==0) return segDiff;
+
+    const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+    if(ipRegex.test(da) && ipRegex.test(db)){
+      return ipCompare(da,db);
+    }
+
+    return da.localeCompare(db);
+  }
+
+  return 0;
+}
+
+function sortPanels(applyGreenGrouping){
+  monitors.sort(compareMonitors);
+  const c=document.getElementById("monitors");
+  monitors.forEach(m=>c.appendChild(m.div));
+}
+
+/* ==========================
+   Graph
+========================== */
+function drawGraph(m){
+  const ctx=m.canvas.getContext("2d");
+  const w=m.canvas.width, h=m.canvas.height;
+  ctx.clearRect(0,0,w,h);
+  if(m.history.length<2) return;
+
+  const values=m.history;
+  const min=Math.min(...values);
+  const max=Math.max(...values);
+  const avg=Math.round(values.reduce((a,b)=>a+b,0)/values.length);
+  const range=max-min||1;
+
+  ctx.strokeStyle="#111";
+  for(let i=1;i<=3;i++){ const y=(h-20)*(i/4); ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(w-5,y); ctx.stroke(); }
+
+  const totalSec=Math.round(values.length*(intervalMs/1000));
+  for(let s=10;s<totalSec;s+=10){
+    const x=30+(s/totalSec)*(w-40); ctx.beginPath(); ctx.moveTo(x,5); ctx.lineTo(x,h-20); ctx.stroke();
+  }
+
+  ctx.strokeStyle="#333";
+  ctx.beginPath(); ctx.moveTo(30,5); ctx.lineTo(30,h-20); ctx.lineTo(w-5,h-20); ctx.stroke();
+
+  ctx.fillStyle="#777"; ctx.font="10px Arial";
+  ctx.fillText(max+" ms",2,12); ctx.fillText(min+" ms",2,h-22); ctx.fillText(totalSec+"s",w-40,h-5);
+
+  ctx.beginPath();
+  values.forEach((v,i)=>{ const x=30+i*((w-40)/values.length); const y=(h-20)-((v-min)/range)*(h-30); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+  ctx.strokeStyle="#00ff88"; ctx.stroke();
+
+  m.statsDiv.textContent="Min:"+min+" | Max:"+max+" | Avg:"+avg+" ms";
+}
+
+/* ==========================
+   Monitor Creation
+========================== */
+function createMonitor(url){
+  const div=document.createElement("div"); div.className="panel";
+  const left=document.createElement("div"); left.className="left";
+  const led=document.createElement("div"); led.className="led gray";
+  const text=document.createElement("div");
+  text.innerHTML=`<div>${url||"(leer)"}</div><div class="status">${t.loading}</div><div class="stats"></div>`;
+  const statusDiv=text.querySelector(".status");
+  const statsDiv=text.querySelector(".stats");
+  left.appendChild(led); left.appendChild(text);
+
+  const right=document.createElement("div");
+  const canvas=document.createElement("canvas"); canvas.width=280; canvas.height=90;
+  const btnFav=document.createElement("button"); btnFav.textContent="★"; btnFav.disabled=!isValidURL(url);
+  const btnDel=document.createElement("button"); btnDel.textContent="✖";
+  right.appendChild(canvas); right.appendChild(btnFav); right.appendChild(btnDel);
+
+  div.appendChild(left); div.appendChild(right);
+  document.getElementById("monitors").appendChild(div);
+
+  const monitor={
+    url,div,led,statusDiv,statsDiv,canvas,
+    history:[],state:"gray",startTime:Date.now()
+  };
+
+  btnDel.onclick=()=>{
+    monitors=monitors.filter(x=>x!==monitor);
+    div.remove();
+    saveState();
+    triggerGreenResort();
+  };
+
+  btnFav.onclick=()=>addFavorite(url);
+
+  return monitor;
+}
+
+/* ==========================
+   Monitor Check
+========================== */
+async function checkMonitor(m){
+  if(!m.url){ setState(m,"gray",t.err_empty); return; }
+  if(!isValidURL(m.url)){ setState(m,"blue",t.err_url); return; }
+  if(!navigator.onLine){ setState(m,"red",t.err_offline); return; }
+
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),3000);
+  const start=performance.now();
+
+  try{
+    await fetch(m.url,{method:"GET",mode:"no-cors",cache:"no-store",signal:controller.signal});
+    const time=Math.round(performance.now()-start);
+    m.history.push(time);
+    if(m.history.length>120) m.history.shift();
+    drawGraph(m);
+    setState(m,"green",t.online + " " + time + " ms");
+  }catch(e){
+    if(e.name==="AbortError") setState(m,"yellow","Timeout");
+    else setState(m,"red",t.err_net);
+  }
+
+  clearTimeout(timeout);
+}
+
+/* ==========================
+   Scheduler Monitoring
+========================== */
+function scheduleCycle(){
+  if(monitors.length===0) return;
+  const step = intervalMs / monitors.length;
+  monitors.forEach((m,i)=>{ setTimeout(()=>checkMonitor(m), i*step); });
+}
+setInterval(scheduleCycle, intervalMs);
+
+/* ==========================
+   Favorites mit LED + Ping + Favicon
+========================== */
+function loadFavorites(){ return JSON.parse(localStorage.getItem("noc_favorites")||"[]"); }
+function saveFavorites(list){ localStorage.setItem("noc_favorites",JSON.stringify(list)); }
+
+function refreshFavoritesUI(){
+  const container=document.getElementById("favoritesList");
+  container.innerHTML="";
+  const favs = loadFavorites().sort((a,b)=>{
+    const ua = new URL(a), ub = new URL(b);
+    const schemaDiff = schemaWeight(a)-schemaWeight(b);
+    if(schemaDiff!==0) return schemaDiff;
+    const da = ua.hostname, db = ub.hostname;
+    const segDiff = segmentWeight(da)-segmentWeight(db);
+    if(segDiff!==0) return segDiff;
+    const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+    if(ipRegex.test(da) && ipRegex.test(db)) return ipCompare(da,db);
+    return da.localeCompare(db);
+  });
+
+  favs.forEach(url=>{
+    const row=document.createElement("div"); 
+    row.className="favoriteRow";
+
+    const favLed=document.createElement("div"); favLed.className="led gray"; favLed.style.marginLeft="0px";
+    const favStart=document.createElement("button"); favStart.textContent=t.start; favStart.onclick=()=>createAndStart(url);
+    const favDel=document.createElement("button"); favDel.textContent="✖"; favDel.onclick=()=>{ const list=loadFavorites().filter(f=>f!==url); saveFavorites(list); refreshFavoritesUI(); };
+
+    const icon = document.createElement("img");
+    icon.style.width="16px"; icon.style.height="16px"; icon.style.borderRadius="2px"; icon.style.margin="0 4px";
+    icon.src="https://www.google.com/s2/favicons?sz=32&domain="+encodeURIComponent(url);
+    icon.onerror=()=>{ icon.src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%23666'/></svg>"; };
+
+    const label=document.createElement("div"); label.className="favoriteUrl"; label.textContent=url;
+
+    row.appendChild(favLed); row.appendChild(favStart); row.appendChild(favDel); row.appendChild(icon); row.appendChild(label);
+    container.appendChild(row);
+
+    setInterval(()=>{
+      const mon = monitors.find(x=>x.url===url);
+      if(mon) favLed.className=mon.led.className;
+      else favLed.className="led gray";
+    },30000);
+  });
+}
+
+function addFavorite(url){
+  if(!isValidURL(url)) return;
+  const favs = loadFavorites();
+  if(!favs.includes(url)){ favs.push(url); saveFavorites(favs); refreshFavoritesUI(); }
+}
+
+/* ==========================
+   State Save/Load
+========================== */
+function saveState(){ localStorage.setItem("noc_monitors",JSON.stringify(monitors.map(m=>m.url))); }
+function loadState(){ JSON.parse(localStorage.getItem("noc_monitors")||"[]").forEach(createAndStart); }
+
+/* ==========================
+   Add / Start
+========================== */
+function createAndStart(url){
+  const m=createMonitor(url);
+  monitors.push(m);
+  checkMonitor(m);
+  saveState();
+  triggerGreenResort();
+}
+
+function addURL(){
+  const url=document.getElementById("urlInput").value.trim();
+  document.getElementById("urlInput").value="";
+  createAndStart(url);
+}
+
+/* ==========================
+   Init
+========================== */
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("urlInput").placeholder = t.placeholder;
+    document.getElementById("ui-btn-add").textContent = t.add;
+    document.getElementById("ui-favs-label").textContent = t.favs;
+    document.getElementById("ui-title").textContent = `NOC Ultra Smart v4.6.0`;
+    loadState();
+    refreshFavoritesUI();
+});
+</script>
+</body>
+</html>
