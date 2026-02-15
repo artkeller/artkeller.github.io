@@ -225,30 +225,31 @@
             </div>
         </div>
     </div>
-
-
-
-    
+   
     <script>
 const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
 const itemWidth = 60; 
 
 function setLang(lang) {
-    // Falls ein ungültiger Wert kommt oder wir "leer" laufen -> Fallback auf EN
+    // 1. Validierung: Ist der Wert überhaupt in unserer Liste?
     let idx = langs.indexOf(lang);
+    
+    // Falls nicht (Schwarzes Loch / Persist-Bug), Fallback auf EN
     if (idx === -1) {
+        console.warn("Invalid language detected, emergency warp to EN initiated.");
         lang = 'en';
         idx = langs.indexOf('en');
     }
 
-    // Persistierung & DOM Update
+    // 2. Persistierung (nur saubere Werte speichern)
     $('body').attr('lang', lang);
     localStorage.setItem('preferredLang', lang);
 
-    // Präzise Zentrierung im 140px Container
-    // Container-Mitte (70px) - (Abstand vom Start des Tracks bis zur Mitte des Items)
+    // 3. UI-Update (Positionierung)
+    // Wir berechnen den Offset nun absolut sicher
     const trackOffset = 70 - (idx * itemWidth + (itemWidth / 2));
     
+    // Wir nutzen requestAnimationFrame oder eine kleine Verzögerung für sauberes Rendering
     $('#langTrack').css({
         'transform': `translateX(${trackOffset}px)`
     });
@@ -259,21 +260,23 @@ function setLang(lang) {
 }
 
 $(document).ready(function() {
-    // Rettungsanker: Falls im LocalStorage Müll steht, löschen wir ihn
+    // --- PERSIST BUG FIX ---
     let saved = localStorage.getItem('preferredLang');
-    if (saved === "null" || saved === "undefined" || !langs.includes(saved)) {
-        saved = null; 
-    }
-
-    if (!saved) {
+    
+    // Wir prüfen explizit: Ist der gespeicherte Wert Schrott?
+    if (!saved || saved === "undefined" || saved === "null" || !langs.includes(saved)) {
+        console.log("Cleaning corrupted storage...");
+        localStorage.removeItem('preferredLang');
+        
+        // Browser-Check als Fallback
         const browser = navigator.language.split('-')[0];
         saved = langs.includes(browser) ? browser : 'en';
     }
     
-    // Initialer Aufruf
+    // Initialer Aufruf mit validierten Daten
     setLang(saved);
 
-    // --- CARDS ANIMATION ---
+    // --- CARDS ANIMATION (Unverändert) ---
     $('.project-card').css({'opacity': '0', 'transform': 'translateY(20px)'}).each(function(i) {
         $(this).delay(150 * i).animate({'opacity': '1'}, {
             step: function(now, fx) {
@@ -285,12 +288,11 @@ $(document).ready(function() {
         });
     });
 
-    // Close Modal on click outside
     $(window).on('click', function(e) {
         if ($(e.target).is('#legal-modal')) toggleLegal();
     });
 });
-
+        
 
     </script>
 </body>
