@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtKeller | Space & Code</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        :root {
+            --space-black: #05070a;
+            --nasa-red: #ff3030;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--space-black);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Orbital Language Selector (Robin-Round) --- */
+        .mission-control-selector {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            width: 140px; /* Fokusbereich */
+            height: 45px;
+            z-index: 5000;
+            overflow: hidden;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 4px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-mask-image: linear-gradient(to right, transparent, black 30%, black 70%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 30%, black 70%, transparent);
+        }
+
+        .lang-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            will-change: transform;
+            align-items: center;
+        }
+
+        .lang-item {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #444;
+            cursor: pointer;
+            min-width: 60px; /* Feste Breite für präzises Scrolling */
+            text-align: center;
+            transition: 0.4s;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+
+        .lang-item.active {
+            color: var(--nasa-red);
+            text-shadow: 0 0 12px var(--nasa-red);
+            transform: scale(1.3);
+            font-size: 0.85rem;
+        }
+
+        /* Hilfslinien im Selector (Cockpit Style) */
+        .selector-ui-frame {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+        }
+        .selector-ui-frame::before, .selector-ui-frame::after {
+            content: '';
+            position: absolute;
+            top: 10px; bottom: 10px;
+            width: 1px;
+            background: rgba(255, 48, 48, 0.2);
+        }
+        .selector-ui-frame::before { left: 0; }
+        .selector-ui-frame::after { right: 0; }
+
+        /* --- Sprach-Logik Sichtbarkeit --- */
+        [data-lang] { display: none; }
+        body[lang="en"] [data-lang="en"] { display: block; }
+        body[lang="de"] [data-lang="de"] { display: block; }
+        body[lang="fr"] [data-lang="fr"] { display: block; }
+        body[lang="it"] [data-lang="it"] { display: block; }
+        body[lang="es"] [data-lang="es"] { display: block; }
+        body[lang="el"] [data-lang="el"] { display: block; }
+        
+        /* Inline-Korrektur */
+        body[lang="en"] span[data-lang="en"] { display: inline; }
+        body[lang="de"] span[data-lang="de"] { display: inline; }
+        body[lang="el"] span[data-lang="el"] { display: inline; }
+
+        /* --- Restliches UI (Optimiert) --- */
+        .hero {
+            position: relative;
+            height: 90vh;
+            background: linear-gradient(rgba(0,0,0,0.4), var(--space-black)), url('/images/54960149350_225b9abcee_4k.jpg'); 
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
+            border-bottom: 2px solid var(--nasa-red);
+        }
+
+        .hero h1 { font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; letter-spacing: -2px; margin-bottom: 10px; }
+        .hero p { font-size: 1.2rem; color: #ccc; max-width: 600px; font-weight: 300; min-height: 1.6em; }
+
+        .container { max-width: 1100px; margin: -60px auto 100px; padding: 0 20px; position: relative; z-index: 10; }
+        .section-title { text-align: center; margin-bottom: 50px; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 4px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+
+        .project-card {
+            background: var(--glass); border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none; color: white; display: block;
+        }
+        .project-card:hover { transform: translateY(-12px); border-color: var(--nasa-red); box-shadow: 0 20px 40px rgba(255, 48, 48, 0.15); }
+        .project-img { width: 100%; height: 300px; background-repeat: no-repeat; background-position: center center; background-size: auto; background-color: #111; border-bottom: 1px solid var(--glass-border); }
+        .project-info { padding: 25px; }
+        .status-dot { height: 8px; width: 8px; background-color: var(--nasa-red); border-radius: 50%; display: inline-block; margin-right: 10px; animation: blink 1.5s infinite; box-shadow: 0 0 8px var(--nasa-red); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+        footer { padding: 80px 20px; background: #020202; text-align: center; border-top: 1px solid #111; }
+        .footer-links a { color: #666; text-decoration: none; font-size: 0.9rem; transition: 0.3s; margin: 0 10px; }
+        .footer-links a:hover { color: var(--nasa-red); }
+
+        .legal-box { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 9000; align-items: center; justify-content: center; padding: 20px; }
+        .legal-content { background: #0a0a0a; border: 1px solid var(--nasa-red); padding: 40px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; border-radius: 24px; position: relative; }
+        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 2rem; cursor: pointer; color: #444; }
+    </style>
+</head>
+<body lang="en">
+
+    <div class="mission-control-selector">
+        <div class="lang-track" id="langTrack">
+            <span class="lang-item" onclick="setLang('fr')">FR</span>
+            <span class="lang-item" onclick="setLang('en')">EN</span>
+            <span class="lang-item" onclick="setLang('de')">DE</span>
+            <span class="lang-item" onclick="setLang('it')">IT</span>
+            <span class="lang-item" onclick="setLang('es')">ES</span>
+            <span class="lang-item" onclick="setLang('el')">ΕΛ</span>
+        </div>
+        <div class="selector-ui-frame"></div>
+    </div>
+
+    <section class="hero">
+        <h1>ARTKELLER</h1>
+        <p data-lang="en">Ideas arise from curiosity. Everything else is patience and structure.</p>
+        <p data-lang="de">Ideen entstehen aus Neugier. Alles andere ist Geduld und Struktur.</p>
+        <p data-lang="el">Οι ιδέες πηγάζουν από την περιέργεια. Όλα τα άλλα είναι υπομονή και δομή.</p>
+        <p data-lang="it">Le idee nascono dalla curiosità. Tutto il Resto è pazienza e struttura.</p>
+        <p data-lang="es">Las ideas surgen de la curiosidad. Todo lo demás es paciencia y estructura.</p>
+        <p data-lang="fr">Les idées naissent de la curiosité. Tout le reste est patience et structure.</p>
+    </section>
+
+    <div class="container">
+        <h2 class="section-title">
+            <span data-lang="en">Portfolio</span>
+            <span data-lang="de">Projekte</span>
+            <span data-lang="el">Έργα</span>
+            <span data-lang="it">Progetti</span>
+            <span data-lang="es">Proyectos</span>
+            <span data-lang="fr">Projets</span>
+        </h2>
+      
+        <div class="grid">
+            <a href="https://artkeller.github.io/NOC-Ultra-Smart-Panel/noc_ultra_v4_6_2.html" class="project-card">
+                <div class="project-img" style="background-image: url('/images/NOC_Ultra_Smart_v4_4_11.png');"></div>
+                <div class="project-info">
+                    <h3><span class="status-dot"></span> NOC Ultra Smart</h3>
+                    <div data-lang="en"><p>Serverless network monitoring interface. Pure HTML/JS.</p></div>
+                    <div data-lang="de"><p>Serverlose Netzwerk-Überwachung. Natives HTML/JS.</p></div>
+                    <div data-lang="el"><p>Διεπαφή παρακολούθησης δικτύου χωρίς διακομιστή. Καθαρό HTML/JS.</p></div>
+                    <div data-lang="it"><p>Interfaccia di monitoraggio di rete serverless. HTML/JS nativo.</p></div>
+                </div>
+            </a>
+
+            <a href="#" class="project-card">
+                <div class="project-img" style="background-image: url('https://via.placeholder.com/600x400/111/fff?text=Coming+Soon')"></div>
+                <div class="project-info">
+                    <h3 data-lang="en">Deep Space Project</h3>
+                    <h3 data-lang="de">Deep Space Projekt</h3>
+                    <h3 data-lang="el">Έργο Βαθέος Διαστήματος</h3>
+                    <p data-lang="en">Analyzing signal patterns. Under development.</p>
+                    <p data-lang="de">Analyse von Signalmustern. In Entwicklung.</p>
+                    <p data-lang="el">Ανάλυση προτύπων σημάτων. Υπό ανάπτυξη.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <p style="margin-bottom: 20px; color: #444;">&copy; 2026 artkeller.github.io</p>
+            <a href="javascript:void(0)" onclick="toggleLegal('impressum')">Legal</a>
+            <a href="javascript:void(0)" onclick="toggleLegal('datenschutz')">Privacy</a>
+        </div>
+    </footer>
+
+    <div id="legal-modal" class="legal-box">
+        <div class="legal-content">
+            <span class="close-btn" onclick="toggleLegal()">&times;</span>
+            <div id="impressum" class="legal-text">
+                <h2>Impressum</h2>
+                <p>Thomas Walloschke<br>Berlin, Germany</p>
+            </div>
+            <div id="datenschutz" class="legal-text" style="display:none;">
+                <h2>Datenschutz</h2>
+                <p>Host: GitHub Pages. No Cookies used.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
+        const itemWidth = 60; // Breite eines Items im CSS
+
+        function setLang(lang) {
+            const idx = langs.indexOf(lang);
+            if (idx === -1) return;
+
+            $('body').attr('lang', lang);
+            localStorage.setItem('preferredLang', lang);
+
+            // Robin-Round Scroll Berechnung: 
+            // Der Track wird so verschoben, dass das gewählte Element exakt mittig im 140px Container steht.
+            // Formel: (Container-Mitte 70px) - (Abstand zum Item-Zentrum)
+            const trackOffset = 70 - (idx * itemWidth + (itemWidth / 2));
+            $('#langTrack').css('transform', `translateX(${trackOffset}px)`);
+
+            $('.lang-item').removeClass('active');
+            $('.lang-item').eq(idx).addClass('active');
+        }
+
+        function toggleLegal(type) {
+            const modal = $('#legal-modal');
+            if (!type) { modal.fadeOut(300); return; }
+            $('.legal-text').hide();
+            $('#' + type).show();
+            modal.css('display', 'flex').hide().fadeIn(300);
+        }
+
+        $(document).ready(function() {
+            // 1. Initialisierung Sprache
+            let saved = localStorage.getItem('preferredLang');
+            if (!saved) {
+                const browser = navigator.language.split('-')[0];
+                saved = langs.includes(browser) ? browser : 'en';
+            }
+            setLang(saved);
+
+            // 2. Card Animation
+            $('.project-card').css({'opacity': '0', 'transform': 'translateY(20px)'}).each(function(i) {
+                $(this).delay(150 * i).animate({'opacity': '1'}, {
+                    step: function(now, fx) {
+                        $(this).css('transform', `translateY(${20 - (now * 20)}px)`);
+                    },
+                    duration: 800
+                });
+            });
+
+            // 3. Modal close on outside click
+            $(window).on('click', function(e) {
+                if ($(e.target).is('#legal-modal')) toggleLegal();
+            });
+        });
+    </script>
+</body>
+</html>
