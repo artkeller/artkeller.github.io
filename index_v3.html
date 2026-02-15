@@ -27,16 +27,15 @@
             overflow-x: hidden;
         }
 
-        /* --- Orbital Language Selector (Robin-Round) --- */
+        /* --- Orbital Selector (The Robin-Rescue-Engine) --- */
         .mission-control-selector {
             position: fixed;
             top: 25px;
             right: 25px;
-            width: 140px; /* Fokusbereich */
-            height: 45px;
-            z-index: 5000;
-            overflow: hidden;
-            background: rgba(0,0,0,0.7);
+            width: 180px; /* Etwas breiter für bessere Klickbarkeit */
+            height: 50px;
+            z-index: 9999;
+            background: rgba(0,0,0,0.8);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border-radius: 4px;
@@ -44,26 +43,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-mask-image: linear-gradient(to right, transparent, black 30%, black 70%, transparent);
-            mask-image: linear-gradient(to right, transparent, black 30%, black 70%, transparent);
+            overflow: hidden;
+            /* Sanfter Ausblend-Effekt an den Seiten */
+            mask-image: linear-gradient(to right, transparent, black 35%, black 65%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 35%, black 65%, transparent);
         }
 
         .lang-track {
             display: flex;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            position: absolute;
+            left: 50%; /* Startpunkt in der Mitte */
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             will-change: transform;
-            align-items: center;
         }
 
         .lang-item {
+            min-width: 60px;
+            text-align: center;
             font-size: 0.75rem;
             font-weight: 800;
             color: #444;
             cursor: pointer;
-            min-width: 60px; /* Feste Breite für präzises Scrolling */
-            text-align: center;
-            transition: 0.4s;
+            transition: 0.3s;
             letter-spacing: 1px;
+            padding: 10px 0;
             user-select: none;
         }
 
@@ -71,218 +74,152 @@
             color: var(--nasa-red);
             text-shadow: 0 0 12px var(--nasa-red);
             transform: scale(1.3);
-            font-size: 0.85rem;
         }
 
-        /* Hilfslinien im Selector (Cockpit Style) */
-        .selector-ui-frame {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-        }
-        .selector-ui-frame::before, .selector-ui-frame::after {
-            content: '';
-            position: absolute;
-            top: 10px; bottom: 10px;
-            width: 1px;
-            background: rgba(255, 48, 48, 0.2);
-        }
-        .selector-ui-frame::before { left: 0; }
-        .selector-ui-frame::after { right: 0; }
+        /* --- Sprach-Logik --- */
+        [data-lang] { display: none !important; }
+        body[lang="en"] [data-lang="en"] { display: block !important; }
+        body[lang="de"] [data-lang="de"] { display: block !important; }
+        body[lang="fr"] [data-lang="fr"] { display: block !important; }
+        body[lang="it"] [data-lang="it"] { display: block !important; }
+        body[lang="es"] [data-lang="es"] { display: block !important; }
+        body[lang="el"] [data-lang="el"] { display: block !important; }
 
-        /* --- Sprach-Logik Sichtbarkeit --- */
-        [data-lang] { display: none; }
-        body[lang="en"] [data-lang="en"] { display: block; }
-        body[lang="de"] [data-lang="de"] { display: block; }
-        body[lang="fr"] [data-lang="fr"] { display: block; }
-        body[lang="it"] [data-lang="it"] { display: block; }
-        body[lang="es"] [data-lang="es"] { display: block; }
-        body[lang="el"] [data-lang="el"] { display: block; }
-        
-        /* Inline-Korrektur */
-        body[lang="en"] span[data-lang="en"] { display: inline; }
-        body[lang="de"] span[data-lang="de"] { display: inline; }
-        body[lang="el"] span[data-lang="el"] { display: inline; }
-
-        /* --- Restliches UI (Optimiert) --- */
+        /* --- UI & Hero --- */
         .hero {
             position: relative;
-            height: 90vh;
+            height: 85vh;
             background: linear-gradient(rgba(0,0,0,0.4), var(--space-black)), url('/images/54960149350_225b9abcee_4k.jpg'); 
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
             border-bottom: 2px solid var(--nasa-red);
         }
-
-        .hero h1 { font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; letter-spacing: -2px; margin-bottom: 10px; }
-        .hero p { font-size: 1.2rem; color: #ccc; max-width: 600px; font-weight: 300; min-height: 1.6em; }
+        .hero h1 { font-size: clamp(3rem, 10vw, 5rem); font-weight: 700; letter-spacing: -2px; }
+        .hero p { font-size: 1.2rem; color: #ccc; max-width: 600px; font-weight: 300; }
 
         .container { max-width: 1100px; margin: -60px auto 100px; padding: 0 20px; position: relative; z-index: 10; }
         .section-title { text-align: center; margin-bottom: 50px; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 4px; }
         
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
         .project-card {
-            background: var(--glass); border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none; color: white; display: block;
+            background: var(--glass); border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); transition: 0.4s; text-decoration: none; color: white; display: block;
         }
-        .project-card:hover { transform: translateY(-12px); border-color: var(--nasa-red); box-shadow: 0 20px 40px rgba(255, 48, 48, 0.15); }
-        .project-img { width: 100%; height: 300px; background-repeat: no-repeat; background-position: center center; background-size: auto; background-color: #111; border-bottom: 1px solid var(--glass-border); }
-        .project-info { padding: 25px; }
-        .status-dot { height: 8px; width: 8px; background-color: var(--nasa-red); border-radius: 50%; display: inline-block; margin-right: 10px; animation: blink 1.5s infinite; box-shadow: 0 0 8px var(--nasa-red); }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .project-card:hover { transform: translateY(-10px); border-color: var(--nasa-red); }
+        .project-img { width: 100%; height: 250px; background-color: #111; background-position: center; background-repeat: no-repeat; }
 
-        footer { padding: 80px 20px; background: #020202; text-align: center; border-top: 1px solid #111; }
-        .footer-links a { color: #666; text-decoration: none; font-size: 0.9rem; transition: 0.3s; margin: 0 10px; }
+        footer { padding: 60px 20px; background: #020202; text-align: center; border-top: 1px solid #111; }
+        .footer-links a { color: #666; text-decoration: none; margin: 0 10px; cursor: pointer; }
         .footer-links a:hover { color: var(--nasa-red); }
 
-        .legal-box { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); z-index: 9000; align-items: center; justify-content: center; padding: 20px; }
-        .legal-content { background: #0a0a0a; border: 1px solid var(--nasa-red); padding: 40px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; border-radius: 24px; position: relative; }
-        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 2rem; cursor: pointer; color: #444; }
+        /* Modals */
+        .legal-box { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; }
+        .legal-content { background: #0a0a0a; border: 1px solid var(--nasa-red); padding: 40px; max-width: 600px; border-radius: 20px; position: relative; text-align: left; }
     </style>
 </head>
 <body lang="en">
 
     <div class="mission-control-selector">
         <div class="lang-track" id="langTrack">
-            <span class="lang-item" onclick="setLang('fr')">FR</span>
-            <span class="lang-item" onclick="setLang('en')">EN</span>
-            <span class="lang-item" onclick="setLang('de')">DE</span>
-            <span class="lang-item" onclick="setLang('it')">IT</span>
-            <span class="lang-item" onclick="setLang('es')">ES</span>
-            <span class="lang-item" onclick="setLang('el')">ΕΛ</span>
+            <span class="lang-item" data-id="fr" data-idx="0" onclick="setLang('fr')">FR</span>
+            <span class="lang-item" data-id="en" data-idx="1" onclick="setLang('en')">EN</span>
+            <span class="lang-item" data-id="de" data-idx="2" onclick="setLang('de')">DE</span>
+            <span class="lang-item" data-id="it" data-idx="3" onclick="setLang('it')">IT</span>
+            <span class="lang-item" data-id="es" data-idx="4" onclick="setLang('es')">ES</span>
+            <span class="lang-item" data-id="el" data-idx="5" onclick="setLang('el')">ΕΛ</span>
         </div>
-        <div class="selector-ui-frame"></div>
     </div>
 
     <section class="hero">
         <h1>ARTKELLER</h1>
-        <p data-lang="en">Ideas arise from curiosity. Everything else is patience and structure.</p>
-        <p data-lang="de">Ideen entstehen aus Neugier. Alles andere ist Geduld und Struktur.</p>
-        <p data-lang="el">Οι ιδέες πηγάζουν από την περιέργεια. Όλα τα άλλα είναι υπομονή και δομή.</p>
-        <p data-lang="it">Le idee nascono dalla curiosità. Tutto il Resto è pazienza e struttura.</p>
-        <p data-lang="es">Las ideas surgen de la curiosidad. Todo lo demás es paciencia y estructura.</p>
-        <p data-lang="fr">Les idées naissent de la curiosité. Tout le reste est patience et structure.</p>
+        <p data-lang="en">Ideas arise from curiosity.</p>
+        <p data-lang="de">Ideen entstehen aus Neugier.</p>
+        <p data-lang="el">Οι ιδέες πηγάζουν από την περιέργεια.</p>
+        <p data-lang="it">Le idee nascono dalla curiosità.</p>
+        <p data-lang="es">Las ideas surgen de la curiosidad.</p>
+        <p data-lang="fr">Les idées naissent de la curiosité.</p>
     </section>
 
     <div class="container">
-        <h2 class="section-title">
-            <span data-lang="en">Portfolio</span>
-            <span data-lang="de">Projekte</span>
-            <span data-lang="el">Έργα</span>
-            <span data-lang="it">Progetti</span>
-            <span data-lang="es">Proyectos</span>
-            <span data-lang="fr">Projets</span>
-        </h2>
-      
+        <h2 class="section-title">Portfolio</h2>
         <div class="grid">
-            <a href="https://artkeller.github.io/NOC-Ultra-Smart-Panel/noc_ultra_v4_6_2.html" class="project-card">
+            <div class="project-card">
                 <div class="project-img" style="background-image: url('/images/NOC_Ultra_Smart_v4_4_11.png');"></div>
                 <div class="project-info">
-                    <h3><span class="status-dot"></span> NOC Ultra Smart</h3>
-                    <div data-lang="en"><p>Serverless network monitoring interface. Pure HTML/JS.</p></div>
-                    <div data-lang="de"><p>Serverlose Netzwerk-Überwachung. Natives HTML/JS.</p></div>
-                    <div data-lang="el"><p>Διεπαφή παρακολούθησης δικτύου χωρίς διακομιστή. Καθαρό HTML/JS.</p></div>
-                    <div data-lang="it"><p>Interfaccia di monitoraggio di rete serverless. HTML/JS nativo.</p></div>
+                    <h3>NOC Ultra Panel</h3>
+                    <p data-lang="en">Serverless network monitoring.</p>
+                    <p data-lang="de">Serverlose Netzwerk-Überwachung.</p>
                 </div>
-            </a>
-
-            <a href="#" class="project-card">
-                <div class="project-img" style="background-image: url('https://via.placeholder.com/600x400/111/fff?text=Coming+Soon')"></div>
-                <div class="project-info">
-                    <h3 data-lang="en">Deep Space Project</h3>
-                    <h3 data-lang="de">Deep Space Projekt</h3>
-                    <h3 data-lang="el">Έργο Βαθέος Διαστήματος</h3>
-                    <p data-lang="en">Analyzing signal patterns. Under development.</p>
-                    <p data-lang="de">Analyse von Signalmustern. In Entwicklung.</p>
-                    <p data-lang="el">Ανάλυση προτύπων σημάτων. Υπό ανάπτυξη.</p>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
 
     <footer>
         <div class="footer-links">
-            <p style="margin-bottom: 20px; color: #444;">&copy; 2026 artkeller.github.io</p>
-            <a href="javascript:void(0)" onclick="toggleLegal('impressum')">Legal</a>
-            <a href="javascript:void(0)" onclick="toggleLegal('datenschutz')">Privacy</a>
+            <a onclick="toggleLegal('impressum')">Impressum</a>
+            <a onclick="toggleLegal('datenschutz')">Datenschutz</a>
         </div>
     </footer>
 
-    <div id="legal-modal" class="legal-box">
-        <div class="legal-content">
-            <span class="close-btn" onclick="toggleLegal()">&times;</span>
+    <div id="legal-modal" class="legal-box" onclick="toggleLegal()">
+        <div class="legal-content" onclick="event.stopPropagation()">
             <div id="impressum" class="legal-text">
                 <h2>Impressum</h2>
-                <p>Thomas Walloschke<br>Berlin, Germany</p>
+                <p>Thomas Walloschke, Berlin.</p>
             </div>
             <div id="datenschutz" class="legal-text" style="display:none;">
                 <h2>Datenschutz</h2>
-                <p>Host: GitHub Pages. No Cookies used.</p>
+                <p>No Tracking. No Cookies. Space only.</p>
             </div>
         </div>
     </div>
-   
+
     <script>
-// --- CONFIGURATION ---
-const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
-const itemWidth = 60; // Muss mit CSS min-width übereinstimmen
+        const langs = ['fr', 'en', 'de', 'it', 'es', 'el'];
+        const itemWidth = 60;
 
-function setLang(lang) {
-    // 1. ZWANGS-VALIDIERUNG
-    if (!langs.includes(lang)) {
-        console.error("Emergency: Unknown language! Rescuing Robin to EN.");
-        lang = 'en';
-    }
+        function setLang(lang) {
+            // 1. Validierung
+            if (!langs.includes(lang)) lang = 'en';
+            
+            // 2. DOM Updates
+            document.body.setAttribute('lang', lang);
+            localStorage.setItem('preferredLang', lang);
 
-    // 2. DOM-UPDATE (BODY)
-    $('body').attr('lang', lang);
-    localStorage.setItem('preferredLang', lang);
+            // 3. Den Track verschieben
+            const activeItem = document.querySelector(`.lang-item[data-id="${lang}"]`);
+            const idx = activeItem.getAttribute('data-idx');
+            
+            // Die Magie: - (Index * Breite) - halbe Item-Breite
+            // Das schiebt das Item exakt unter den Mittelpunkt der CSS 'left: 50%' Position.
+            const offset = -(idx * itemWidth) - (itemWidth / 2);
+            document.getElementById('langTrack').style.transform = `translateX(${offset}px)`;
 
-    // 3. CSS-TRACK BERECHNUNG
-    // Wir finden das Element direkt im DOM, um Fehler durch Indizes zu vermeiden
-    const items = $('.lang-item');
-    let targetIdx = 1; // Default EN
-
-    items.each(function(index) {
-        if ($(this).attr('data-id') === lang) {
-            targetIdx = index;
+            // 4. Active Class
+            document.querySelectorAll('.lang-item').forEach(el => el.classList.remove('active'));
+            activeItem.classList.add('active');
         }
-    });
 
-    // Berechnung: (Container-Mitte 70px) - (Abstand zum Item-Zentrum)
-    const trackOffset = 70 - (targetIdx * itemWidth + (itemWidth / 2));
-    
-    $('#langTrack').css('transform', `translateX(${trackOffset}px)`);
+        function toggleLegal(type) {
+            const modal = document.getElementById('legal-modal');
+            if (!type) {
+                modal.style.display = 'none';
+                return;
+            }
+            document.querySelectorAll('.legal-text').forEach(t => t.style.display = 'none');
+            document.getElementById(type).style.display = 'block';
+            modal.style.display = 'flex';
+        }
 
-    // 4. UI-HIGHLIGHT
-    $('.lang-item').removeClass('active');
-    $(`.lang-item[data-id="${lang}"]`).addClass('active');
-}
-
-$(document).ready(function() {
-    // --- COLD START / RECOVERY ---
-    let saved = localStorage.getItem('preferredLang');
-    
-    // Gründlicher Check gegen korrupte Daten
-    if (!saved || !langs.includes(saved) || saved === "null") {
-        const browser = navigator.language.split('-')[0];
-        saved = langs.includes(browser) ? browser : 'en';
-    }
-    
-    // Einmal kurz warten, bis das CSS geladen ist, dann setzen
-    setTimeout(() => {
-        setLang(saved);
-    }, 50);
-
-    // --- ANIMATIONEN (Unverändert) ---
-    $('.project-card').css({'opacity': '1'}); // Sofort zeigen, wenn JS klemmt
-});
-        
-
+        // Initialisierung beim Start
+        window.onload = function() {
+            let saved = localStorage.getItem('preferredLang');
+            if (!langs.includes(saved)) {
+                const browser = navigator.language.split('-')[0];
+                saved = langs.includes(browser) ? browser : 'en';
+            }
+            setLang(saved);
+        };
     </script>
 </body>
 </html>
