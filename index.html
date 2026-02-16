@@ -60,13 +60,53 @@
         }
         .project-card:hover { transform: translateY(-10px); border-color: var(--nasa-red); background: rgba(255,255,255,0.08); }
         
-        .project-img { 
+        .project-img-bak { 
             width: 100%; height: 280px; 
             background-color: #0a0a0a; 
             background-size: contain; /* Bild wird nicht mehr abgeschnitten */
             background-repeat: no-repeat;
             background-position: center;
             border-bottom: 1px solid var(--glass-border);
+        }
+        .project-img {
+            position: relative;
+            overflow: hidden;
+            background-size: cover; /* Damit das Orbit-Bild den Rahmen füllt */
+            background-position: center;
+        }
+
+        .orbital-text {
+            position: absolute;
+            top: 50%;
+            left: -30%;
+            transform: translateY(-50%);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.3); /* Sehr dezent, wie ein Wasserzeichen */
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            pointer-events: none;
+            white-space: nowrap;
+            /* Langsame, gleichmäßige Bewegung */
+            animation: orbital-drift 12s linear infinite;
+        }
+
+        @keyframes orbital-drift {
+            0% {
+                left: -30%;
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.3;
+            }
+            85% {
+                opacity: 0.3;
+            }
+            100% {
+                left: 110%;
+                opacity: 0;
+            }
         }
         .project-info { padding: 30px; }
         .project-info h3 { margin-bottom: 12px; color: var(--nasa-red); font-size: 1.5rem; }
