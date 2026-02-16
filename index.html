@@ -60,19 +60,17 @@
         }
         .project-card:hover { transform: translateY(-10px); border-color: var(--nasa-red); background: rgba(255,255,255,0.08); }
         
-        .project-img-bak { 
-            width: 100%; height: 280px; 
-            background-color: #0a0a0a; 
-            background-size: contain; /* Bild wird nicht mehr abgeschnitten */
-            background-repeat: no-repeat;
-            background-position: center;
-            border-bottom: 1px solid var(--glass-border);
-        }
+        /* Ersetze deinen aktuellen .project-img Block durch diesen hier: */
         .project-img {
             position: relative;
             overflow: hidden;
-            background-size: cover; /* Damit das Orbit-Bild den Rahmen füllt */
+            width: 100%;
+            height: 280px; /* <--- DAS FEHLTE: Die Höhe für den Bildrahmen */
+            background-color: #0a0a0a;
+            background-size: cover; 
             background-position: center;
+            background-repeat: no-repeat;
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .orbital-text {
@@ -169,8 +167,9 @@
             </a>
 
             <a href="https://github.com/artkeller/ESP32Features" class="project-card">
-                <div class="project-img" style="background-image: url('https://artkeller.github.io/images/54960149350_225b9abcee_4k.jpg');"></div>
-                <div class="orbital-text">ESP32</div>
+                <div class="project-img" style="background-image: url('https://artkeller.github.io/images/54960149350_225b9abcee_4k.jpg');">
+                    <div class="orbital-text">ESP32</div>
+                </div>
                 <div class="project-info">
                     <h3>IoT Orbital 2026</h3>
                     <p data-lang="de">Übersicht und Analyse der aktuellen ESP32-Modelle für IoT-Anwendungen.</p>
