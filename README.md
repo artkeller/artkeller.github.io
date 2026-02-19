@@ -6,7 +6,7 @@
 [![Risk-Assessed](https://img.shields.io/badge/Risk-Assessed-important?style=flat-square)](./CRA/RAM.md)
 [![Zero-Framework](https://img.shields.io/badge/Framework-Zero-orange?style=flat-square)](./index.html)
 
-## Puristisches Web-Engineering (12.8 KB)
+## Puristisches Web-Engineering
 
 Dieses Projekt demonstriert maximale Effizienz und volle Auditierbarkeit nach **ARTKELLER Standard**.
 
