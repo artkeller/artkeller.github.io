@@ -1,0 +1,158 @@
+<h1>Policy zum Einsatz von Zero Trust Architektur (ZTA) mit Künstlicher Intelligenz (KI) in Industrie 4.0</h1>
+<h2>Version, Stand und Genehmigung</h2>
+<p>Dieses Dokument stellt die Version 3.0 der Policy zum Einsatz von Zero Trust Architektur mit Künstlicher Intelligenz dar, die am 22. Februar 2026 erstellt wurde. Es wurde von der Geschäftsführung, dem Chief Information Security Officer (CISO) und dem Datenschutzbeauftragten genehmigt, um eine maximale Auditierbarkeit zu gewährleisten. Die Genehmigung erfolgte durch Unterschriften, die in der gedruckten Version dieses Dokuments vorliegen, und dient als Nachweis für die formelle Annahme aller hierin festgelegten Regelungen.</p>
+<h2>Rahmenbedingungen und Geltungsbereich</h2>
+<p>Diese Policy gilt für alle Komponenten der Zero Trust Architektur sowie für alle Systeme der Künstlichen Intelligenz, die in der Organisation entwickelt, beschafft, betrieben oder eingesetzt werden. Sie umfasst insbesondere Anwendungen in operativen Technologien und Umgebungen der Industrie 4.0, wie etwa in der Produktion, der Lieferkette, der prädiktiven Wartung und der Qualitätskontrolle mit Unterstützung durch Künstliche Intelligenz. Die rechtliche und normative Grundlage dieser Policy basiert auf der EU AI Act in der Fassung der Verordnung (EU) 2024/1689, insbesondere den Artikeln 9 bis 15 für Systeme mit hohem Risiko gemäß Annex III, die Use-Cases in kritischer Infrastruktur, Beschäftigung und Produktqualitätssicherung betreffen. Darüber hinaus orientiert sie sich an der ISO/IEC 42001:2023 für das Artificial Intelligence Management System, an der ISO/IEC 27001:2022 für das Information Security Management System sowie an der IEC 62443 für die Sicherheit in operativen Technologien. Sie integriert die Prinzipien der NIST SP 800-207 für Zero Trust Architecture und der DoD Zero Trust Reference Architecture. Der Geltungsbereich ist auf Systeme mit Relevanz für Künstliche Intelligenz oder Zero Trust Architektur beschränkt, wobei Systeme mit niedrigem Risiko vereinfachte Regelungen unterliegen, die in separaten Anhängen dieses Dokuments detailliert beschrieben werden.</p>
+<h2>Ziele und Grundsätze</h2>
+<p>Die primären Ziele dieser Policy bestehen darin, den sicheren, verantwortungsvollen und konformen Einsatz von Zero Trust Architektur und Künstlicher Intelligenz in industriellen Umgebungen zu gewährleisten. Es soll die Integrität, Verfügbarkeit und Vertraulichkeit von Daten und Systemen geschützt werden, während gleichzeitig die Nachvollziehbarkeit und Resilienz gegenüber Cyberbedrohungen erhöht wird. Alle regulatorischen Anforderungen der EU AI Act und der ISO 42001 werden vollständig eingehalten. Die Grundsätze dieser Policy orientieren sich an den Kernprinzipien der NIST Zero Trust Architecture und der ISO 42001 Annex A. Es gilt das Prinzip, niemals blind zu vertrauen, sondern immer explizit zu verifizieren, was durch dynamische und kontextbasierte Authentifizierung umgesetzt wird. Ein Angriff wird stets vorausgesetzt, was eine kontinuierliche Überwachung und die Vergabe minimaler Privilegien erfordert. Die Provenienz von Daten und Entscheidungen muss über den gesamten Lebenszyklus hinweg gesichert sein. Eine menschliche Aufsicht ist bei Entscheidungen mit hohem Risiko obligatorisch. Der kontinuierliche Verbesserungsprozess folgt dem Plan-Do-Check-Act-Zyklus, der in allen Prozessen dieser Policy verankert ist.</p>
+<h2>Motivation für den Einsatz von ZTA und KI</h2>
+<p>Der Einsatz von Zero Trust Architektur kombiniert mit Künstlicher Intelligenz in der Industrie 4.0 dient der Erhöhung der Sicherheit in vernetzten Produktionsumgebungen, in denen traditionelle Perimeter-Sicherheit nicht mehr ausreicht. Durch dynamische Verifizierung und KI-gestützte Kontextanalyse können Bedrohungen frühzeitig erkannt und minimiert werden. Diese Policy stellt sicher, dass der Einsatz ethisch, rechtlich und technisch verantwortungsvoll erfolgt und Risiken für Betriebssicherheit, Datenschutz und Grundrechte minimiert werden.</p>
+<h2>Zugriffssteuerung</h2>
+<p>Die Zugriffssteuerung erfolgt ausschließlich dynamisch und kontextbasiert gemäß den Prinzipien der Zero Trust Architektur. Jeder Zugriffsversuch wird vollständig verifiziert, unabhängig von Netzwerkposition oder vorheriger Authentifizierung. In der folgenden Tabelle werden die wesentlichen Anforderungen an die Zugriffssteuerung detailliert beschrieben, wobei jede Zelle vollständige Sätze enthält.</p>
+<table>
+<thead>
+<tr>
+<th>Anforderung an die Zugriffssteuerung</th>
+<th>Beschreibung der Anforderung</th>
+<th>Umsetzungsverpflichtung</th>
+<th>Verantwortlicher Bereich</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dynamische Policy-Durchsetzung</td>
+<td>Jeder Zugriff wird in Echtzeit anhand aktueller Kontextdaten (Identität, Gerät, Ort, Zeit, Verhalten) bewertet und genehmigt oder abgelehnt.</td>
+<td>Diese Anforderung ist verpflichtend für alle Systeme mit hohem Risiko.</td>
+<td>Chief Information Security Officer und DevOps-Team</td>
+</tr>
+<tr>
+<td>Least Privilege Prinzip</td>
+<td>Jeder Benutzer, jedes Gerät und jede Anwendung erhält nur die minimal notwendigen Rechte, die für die jeweilige Aufgabe erforderlich sind.</td>
+<td>Diese Anforderung ist verpflichtend und wird durch automatisierte Policy-Engines umgesetzt.</td>
+<td>Fachabteilungen und Security-Team</td>
+</tr>
+<tr>
+<td>Policy Decision Point und Enforcement</td>
+<td>Ein zentraler Policy Decision Point trifft die Entscheidung, während Policy Enforcement Points die Durchsetzung vor Ort übernehmen.</td>
+<td>Diese Architekturkomponenten müssen in allen relevanten Systemen implementiert sein.</td>
+<td>IT-Architektur und OT-Security</td>
+</tr>
+<tr>
+<td>Multi-Factor-Authentifizierung</td>
+<td>Für alle Zugriffe auf sensible Ressourcen ist eine starke Multi-Factor-Authentifizierung obligatorisch.</td>
+<td>Diese Anforderung gilt ohne Ausnahme für High-Risk-Systeme.</td>
+<td>Identity- und Access-Management-Team</td>
+</tr>
+</tbody></table>
+<h2>Integrität und Datenprovenienz</h2>
+<p>Die Integrität von Daten und Entscheidungen wird durch kontinuierliche Überwachung und kryptografische Maßnahmen sichergestellt. Die Provenienz aller Daten, die in KI-Systemen oder ZTA-Komponenten verwendet werden, muss nachvollziehbar und unveränderbar dokumentiert sein. In der folgenden Tabelle werden die Anforderungen an Integrität und Provenienz detailliert beschrieben.</p>
+<table>
+<thead>
+<tr>
+<th>Anforderung an Integrität und Provenienz</th>
+<th>Beschreibung der Anforderung</th>
+<th>Umsetzungsverpflichtung</th>
+<th>Verantwortlicher Bereich</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Datenprovenienz über Lifecycle</td>
+<td>Die Herkunft, Veränderung und Nutzung aller Daten muss lückenlos protokolliert werden.</td>
+<td>Diese Anforderung ist verpflichtend gemäß EU AI Act Art. 10 und ISO 42001 A.7.</td>
+<td>Datenschutzbeauftragter und Data-Governance-Team</td>
+</tr>
+<tr>
+<td>Integritätsprüfung in Echtzeit</td>
+<td>Alle Datenströme und KI-Entscheidungen werden auf Integrität geprüft, inklusive Hashing und Signaturen.</td>
+<td>Diese Anforderung gilt für alle OT- und IT-Datenflüsse.</td>
+<td>Security-Operations-Center</td>
+</tr>
+<tr>
+<td>Bias-Mitigation und Qualitätskontrolle</td>
+<td>Datenqualität und Bias werden kontinuierlich überwacht und gemindert.</td>
+<td>Diese Anforderung ist verpflichtend für High-Risk-KI-Systeme.</td>
+<td>AI Ethics Officer</td>
+</tr>
+</tbody></table>
+<h2>Nachvollziehbarkeit und Transparenz</h2>
+<p>Alle Entscheidungen der Künstlichen Intelligenz sowie alle Zugriffsentscheidungen der Zero Trust Architektur müssen nachvollziehbar und erklärbar sein. In der folgenden Tabelle werden die Anforderungen an Nachvollziehbarkeit detailliert beschrieben.</p>
+<table>
+<thead>
+<tr>
+<th>Anforderung an Nachvollziehbarkeit</th>
+<th>Beschreibung der Anforderung</th>
+<th>Umsetzungsverpflichtung</th>
+<th>Verantwortlicher Bereich</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Audit-Logs und Explainability</td>
+<td>Jede Entscheidung wird protokolliert und erklärbar gemacht, inklusive Model Cards für KI-Modelle.</td>
+<td>Diese Anforderung ist verpflichtend gemäß EU AI Act Art. 13 und ISO 42001 A.8.</td>
+<td>AI Development und Audit-Team</td>
+</tr>
+<tr>
+<td>Kontinuierliche Dokumentation</td>
+<td>Alle relevanten Ereignisse und Kontextdaten werden zeitlich gestempelt und unveränderbar gespeichert.</td>
+<td>Diese Anforderung gilt für mindestens 5 Jahre.</td>
+<td>Compliance und Legal</td>
+</tr>
+</tbody></table>
+<h2>Sicherheit und kontinuierliche Überwachung</h2>
+<p>Die Sicherheit wird durch kontinuierliche Überwachung, Incident-Response und automatisierte Maßnahmen gewährleistet. In der folgenden Tabelle werden die Anforderungen an Sicherheit detailliert beschrieben.</p>
+<table>
+<thead>
+<tr>
+<th>Anforderung an Sicherheit</th>
+<th>Beschreibung der Anforderung</th>
+<th>Umsetzungsverpflichtung</th>
+<th>Verantwortlicher Bereich</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Kontinuierliche Überwachung</td>
+<td>Alle Aktivitäten werden in Echtzeit überwacht, Anomalien werden automatisch erkannt.</td>
+<td>Diese Anforderung ist verpflichtend gemäß NIST SP 800-207 und IEC 62443.</td>
+<td>Security-Operations-Center</td>
+</tr>
+<tr>
+<td>Incident Management</td>
+<td>Bei Sicherheitsvorfällen wird ein definierter Response-Prozess aktiviert, inklusive CAPA.</td>
+<td>Diese Anforderung gilt für alle Incidents.</td>
+<td>CISO und Incident-Response-Team</td>
+</tr>
+<tr>
+<td>Micro-Segmentation</td>
+<td>Netzwerke und Ressourcen sind mikro-segmentiert, um Lateral Movement zu verhindern.</td>
+<td>Diese Anforderung ist verpflichtend in OT-Umgebungen.</td>
+<td>Netzwerk- und OT-Team</td>
+</tr>
+</tbody></table>
+<h2>Review, Aktualisierung und Verantwortlichkeiten</h2>
+<p>Diese Policy wird mindestens jährlich sowie bei signifikanten Änderungen, neuen regulatorischen Anforderungen oder Incidents überprüft und aktualisiert. Der Review-Prozess umfasst eine Bewertung der Wirksamkeit und eine Anpassung an neue Risiken. In der folgenden Tabelle werden die Key Performance Indicators detailliert beschrieben.</p>
+<table>
+<thead>
+<tr>
+<th>Key Performance Indicator</th>
+<th>Beschreibung des Indicators</th>
+<th>Zielwert, der für diesen Indicator festgelegt ist</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prozentsatz dynamisch verifizierter Zugriffe</td>
+<td>Dieser Indicator misst den Anteil der Zugriffe, die vollständig dynamisch verifiziert wurden.</td>
+<td>Der Zielwert für diesen Indicator beträgt 100 Prozent.</td>
+</tr>
+<tr>
+<td>Time-to-Detect für Anomalien</td>
+<td>Dieser Indicator misst die Zeit bis zur Erkennung von Anomalien oder Verletzungen.</td>
+<td>Der Zielwert für diesen Indicator liegt unter 5 Minuten.</td>
+</tr>
+<tr>
+<td>Prozentsatz nachvollziehbarer KI-Entscheidungen</td>
+<td>Dieser Indicator misst den Anteil erklärbarer und protokollierter Entscheidungen.</td>
+<td>Der Zielwert für diesen Indicator beträgt über 95 Prozent.</td>
+</tr>
+</tbody></table>
+<p>Der kontinuierliche Verbesserungsprozess umfasst Lessons Learned, Management Reviews und Corrective Actions gemäß ISO 42001 Clause 9 und 10, die in Protokollen dokumentiert werden.</p>
+<h2>Anhang: Referenzen und Changelog</h2>
+<p>Die Referenzen umfassen die EU AI Act unter <a href="https://artificialintelligenceact.eu">https://artificialintelligenceact.eu</a>, die NIST SP 800-207, die ISO/IEC 42001:2023 mit Annex A, die DoD Zero Trust Reference Architecture sowie die IEC 62443-Serie. Der Changelog dokumentiert Änderungen: In Version 3.0 wurden alle Inhalte zu vollständigen Sätzen und Tabellen erweitert, um maximale Auditierbarkeit und juristische Lesbarkeit zu gewährleisten, einschließlich Mapping zu Standards und formaler Strukturen.</p>
