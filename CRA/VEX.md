@@ -21,7 +21,7 @@ Aufgrund der Architektur sind folgende Bedrohungskategorien systembedingt **nich
 Das Fehlen von `npm` ist unser größtes Sicherheits-Asset. Während ein durchschnittliches Projekt heute ca. 1.000 bis 1.500 transitive Abhängigkeiten besitzt (deren Integrität kaum zu prüfen ist), verfügt dieses Projekt über **Null** Code-Abhängigkeiten.
 
 **Haftungs-Nachweis:**
-Da jede Zeile Code direkt kontrolliert und ohne automatisierte Build-Pipelines von Drittanbietern erstellt wurde, kann die Integrität der 12,8 KB Software-Basis zu 100% garantiert werden.
+Da jede Zeile Code direkt kontrolliert und ohne automatisierte Build-Pipelines von Drittanbietern erstellt wurde, kann die Integrität der 16,7 KB Software-Basis zu 100% garantiert werden.
 
 ## 4. Assessment Summary
 Es liegen keine bekannten Schwachstellen vor. Die Angriffsfläche ist auf das absolute Minimum (statisches HTML/CSS/JS) reduziert.
