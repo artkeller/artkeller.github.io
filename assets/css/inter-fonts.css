@@ -1,21 +1,53 @@
+/* latin - Weight 300 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(./fonts/inter-300-latin.woff2) format('woff2'),  /* Primär: Moderne Browser */
+       url(./fonts/inter-300-latin.ttf) format('truetype');  /* Fallback: Ältere Browser */
+}
+/* latin - Weight 400 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(./fonts/inter-400-latin.woff2) format('woff2'),  /* Primär: Moderne Browser */
+       url(./fonts/inter-400-latin.ttf) format('truetype');  /* Fallback: Ältere Browser */
+}
+/* latin - Weight 700 */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(./fonts/inter-700-latin.woff2) format('woff2'),  /* Primär: Moderne Browser */
+       url(./fonts/inter-700-latin.ttf) format('truetype');  /* Fallback: Ältere Browser */
+}
+/*
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 300;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuOKfMZg.ttf) format('truetype');
-}
+}*/
+/*
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf) format('truetype');
-}
+}*/
+/*
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 700;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf) format('truetype');
-}
+}*/
+
+
