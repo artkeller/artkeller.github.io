@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plattform Industrie 4.0</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #FFFFFF;
+            color: #808080;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        header {
+            background-color: #003366;
+            color: #FFFFFF;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        header img {
+            max-width: 300px;
+            height: auto;
+        }
+        header h1 {
+            margin: 10px 0;
+            font-size: 2.5em;
+        }
+        .languages {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .lang-item {
+            color: #FFFFFF;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            border-radius: 3px;
+        }
+        .lang-item:hover {
+            background: #00A0E4;
+        }
+        .lang-item.active {
+            background: #00A0E4;
+            transform: scale(1.1);
+        }
+        .motto {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #003366;
+        }
+        .motto p, .projects h2, .project-card p {
+            display: none;
+        }
+        .projects {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .projects h2 {
+            text-align: center;
+            width: 100%;
+            color: #003366;
+            grid-column: 1 / -1;
+        }
+        .project-card {
+            background-color: #F5F5F5;
+            border: 1px solid #00A0E4;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, border-color 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #003366;
+        }
+        .project-card h3 {
+            color: #003366;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #003366;
+            color: #FFFFFF;
+            font-size: 0.8em;
+        }
+        @media (max-width: 768px) {
+            .projects {
+                grid-template-columns: 1fr;
+            }
+            .languages {
+                flex-wrap: wrap;
+            }
+        }
+        /* Language visibility */
+        body[data-active-lang="en"] [data-lang="en"],
+        body[data-active-lang="de"] [data-lang="de"],
+        body[data-active-lang="fr"] [data-lang="fr"],
+        body[data-active-lang="it"] [data-lang="it"],
+        body[data-active-lang="es"] [data-lang="es"],
+        body[data-active-lang="el"] [data-lang="el"] {
+            display: block !important;
+        }
+    </style>
+</head>
+<body data-active-lang="en">
+    <header>
+        <img src="https://www-live.dfki.de/fileadmin/user_upload/DFKI/Medien/Netzwerke_und_Initiativen/Plattform_Industrie_4.0/PlattformInd40_FB.jpg" alt="Plattform Industrie 4.0 Logo">
+        <h1>Plattform Industrie 4.0</h1>
+        <div class="languages">
+            <span class="lang-item" onclick="setLang('fr')" data-id="fr">FR</span>
+            <span class="lang-item" onclick="setLang('en')" data-id="en">EN</span>
+            <span class="lang-item" onclick="setLang('de')" data-id="de">DE</span>
+            <span class="lang-item" onclick="setLang('it')" data-id="it">IT</span>
+            <span class="lang-item" onclick="setLang('es')" data-id="es">ES</span>
+            <span class="lang-item" onclick="setLang('el')" data-id="el">EL</span>
+        </div>
+    </header>
+
+    <section class="motto">
+        <p data-lang="en">Ideas arise from curiosity. Structure makes them reality.</p>
+        <p data-lang="de">Ideen entstehen aus Neugier. Struktur macht sie zur Realität.</p>
+        <p data-lang="fr">Les idées naissent de la curiosité. La structure en fait une réalité.</p>
+        <p data-lang="it">Le idee nascono dalla curiosità. La struttura le rende realtà.</p>
+        <p data-lang="es">Las ideas surgen de la curiosidad. La estructura las hace realidad.</p>
+        <p data-lang="el">Οι ιδέες πηγάζουν από την περιέργεια. Η δομή τις κάνει πραγματικότητα.</p>
+    </section>
+
+    <section class="projects">
+        <h2 data-lang="en">Projects</h2>
+        <h2 data-lang="de">Projekte</h2>
+        <h2 data-lang="fr">Projets</h2>
+        <h2 data-lang="it">Progetti</h2>
+        <h2 data-lang="es">Proyectos</h2>
+        <h2 data-lang="el">Έργα</h2>
+        
+        <a href="https://artkeller.github.io/NOC-Ultra-Smart-Panel/noc_ultra_v4_6_2.html" class="project-card">
+            <h3>NOC Ultra Smart</h3>
+            <p data-lang="en">Serverless network monitoring for critical infrastructures.</p>
+            <p data-lang="de">Serverlose Netzwerk-Überwachung für kritische Infrastrukturen.</p>
+            <p data-lang="fr">Surveillance réseau sans serveur pour infrastructures critiques.</p>
+            <p data-lang="it">Monitoraggio di rete serverless per infrastrutture critiche.</p>
+            <p data-lang="es">Monitoreo de red sin servidor para infraestructuras críticas.</p>
+            <p data-lang="el">Παρακολούθηση δικτύου χωρίς διακομιστή για κρίσιμες υποδομές.</p>
+        </a>
+        
+        <a href="https://github.com/artkeller/ESP32Features" class="project-card">
+            <h3>IoT Orbital 2026</h3>
+            <p data-lang="en">Technical overview and analysis of current ESP32 models for IoT applications.</p>
+            <p data-lang="de">Übersicht und Analyse der aktuellen ESP32-Modelle für IoT-Anwendungen.</p>
+            <p data-lang="fr">Aperçu technique et analyse des modèles ESP32 actuels pour les applications IoT.</p>
+            <p data-lang="it">Panoramica tecnica e analisi degli attuali modelli ESP32 per applicazioni IoT.</p>
+            <p data-lang="es">Resumen técnico y análisis de los modelos actuales de ESP32 para aplicaciones IoT.</p>
+            <p data-lang="el">Τεχνική επισκόπηση και ανάλυση των τρεχόντων μοντέλων ESP32 για εφαρμογές IoT.</p>
+        </a>
+        
+        <a href="https://github.com/artkeller/CYFRAM" class="project-card">
+            <h3>Cypress F-RAM Master Library</h3>
+            <p data-lang="en">Library and tools for non-volatile FRAM memory in embedded systems.</p>
+            <p data-lang="de">Speicherbibliothek und Werkzeuge für nichtflüchtigen FRAM-Speicher in Embedded-Systemen.</p>
+            <p data-lang="fr">Bibliothèque et outils pour mémoire FRAM non volatile dans les systèmes embarqués.</p>
+            <p data-lang="it">Libreria e strumenti per memoria FRAM non volatile nei sistemi embedded.</p>
+            <p data-lang="es">Biblioteca y herramientas para memoria FRAM no volátil en sistemas embebidos.</p>
+            <p data-lang="el">Βιβλιοθήκη και εργαλεία για μη πτητική μνήμη FRAM σε ενσωματωμένα συστήματα.</p>
+        </a>
+        
+        <a href="https://github.com/artkeller/Plattform_Industrie_4.0/tree/main/ZTA%2BKI_2026" class="project-card">
+            <h3>Plattform Industrie 4.0 – ZTA+KI 2026</h3>
+            <p data-lang="en">Zero Trust Architecture with AI assistance for secure, compliant and resilient Industry 4.0 systems (EU AI Act, ISO 42001, IEC 62443).</p>
+            <p data-lang="de">Zero Trust Architektur mit KI-Assistenz für sichere, konforme und resiliente Industrie-4.0-Systeme (EU AI Act, ISO 42001, IEC 62443).</p>
+            <p data-lang="fr">Architecture Zero Trust avec assistance IA pour systèmes Industrie 4.0 sécurisés, conformes et résilients (EU AI Act, ISO 42001, IEC 62443).</p>
+            <p data-lang="it">Architettura Zero Trust con assistenza IA per sistemi Industria 4.0 sicuri, conformi e resilienti (EU AI Act, ISO 42001, IEC 62443).</p>
+            <p data-lang="es">Arquitectura Zero Trust con asistencia de IA para sistemas Industria 4.0 seguros, conformes y resilientes (EU AI Act, ISO 42001, IEC 62443).</p>
+            <p data-lang="el">Αρχιτεκτονική Zero Trust με υποστήριξη ΤΝ για ασφαλή, συμμορφούμενα και ανθεκτικά συστήματα Βιομηχανίας 4.0 (EU AI Act, ISO 42001, IEC 62443).</p>
+        </a>
+    </section>
+
+    <footer>
+        &copy; 2026 Plattform Industrie 4.0
+    </footer>
+
+    <script>
+        function setLang(lang) {
+            document.body.setAttribute('data-active-lang', lang);
+            localStorage.setItem('artkeller_lang', lang);
+            document.querySelectorAll('.lang-item').forEach(item => {
+                item.classList.toggle('active', item.getAttribute('data-id') === lang);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('artkeller_lang') || 'en';
+            setLang(savedLang);
+        });
+    </script>
+</body>
+</html>
+
