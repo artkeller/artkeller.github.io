@@ -59,7 +59,7 @@ canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%
 </head>
 <body>
 
-  <!-- === CPU Mini-Indikator (Thread-Busy-Annäherung) – nur bei relevanter Last sichtbar === -->
+  <!-- === Verbesserter CPU/RAM-Indikator (Idle-Callback + Busy-Loop) === -->
   <div id="cpu-mini" style="
     position: fixed;
     top: 8px;
@@ -71,10 +71,10 @@ canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%
     border-radius: 3px;
     overflow: hidden;
     z-index: 99999;
-    display: none;           /* startet unsichtbar – wird nur bei Busy > ~40-50% eingeblendet */
+    display: none;           /* unsichtbar bis relevante Last */
   "></div>
 
-  <!-- Rest deines bestehenden Body-Inhalts ... -->
+  <!-- Rest deines Body-Inhalts ... -->
 
 <h2 id="ui-title">NOC Ultra Smart v4.6.2</h2>
 
@@ -437,14 +437,13 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshFavoritesUI();
     scheduleCycle(); // Start des dynamischen Schedulers
 });
-
-  
 </script>
-    <!-- === CPU-Indikator Script (Main-Thread-Busy-Messung) === -->
+
+  <!-- === Verbesserter CPU-Indikator Script (requestIdleCallback + Busy-Loop + Memory) === -->
   <script>
   (function() {
     const container = document.getElementById('cpu-mini');
-    if (!container) return; // Sicherheitscheck
+    if (!container) return;
 
     const canvas = document.createElement('canvas');
     canvas.width = 64;
@@ -452,63 +451,96 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = canvas.getContext('2d');
     container.appendChild(canvas);
 
-    function drawBar(pct) {
-      ctx.clearRect(0, 0, 64, 10);
+    let busyHistory = [];  // Letzte 4 Messungen mitteln → anhaltend
+    const HISTORY_SIZE = 4;
+    const IDLE_TIMEOUT_MS = 200;  // Timeout für Idle-Callback → bei hoher Last abläuft
 
-      // Dunkler Hintergrund
+    function drawBar(avgBusy) {
+      ctx.clearRect(0, 0, 64, 10);
       ctx.fillStyle = '#181818';
       ctx.fillRect(0, 0, 64, 10);
 
-      // Farbe je nach Last
-      let color = '#444';
-      if (pct >= 85) color = '#c62828';      // rot – kritisch
-      else if (pct >= 70) color = '#f57c00'; // orange
-      else if (pct >= 45) color = '#fbc02d'; // gelb
-      else color = '#388e3c';                // grün – ok
+      let color = '#388e3c';  // grün
+      if (avgBusy >= 85) color = '#c62828';      // rot
+      else if (avgBusy >= 70) color = '#f57c00'; // orange
+      else if (avgBusy >= 55) color = '#fbc02d'; // gelb
 
-      const width = Math.round((pct / 100) * 64);
+      const width = Math.round((avgBusy / 100) * 64);
       ctx.fillStyle = color;
       ctx.fillRect(0, 0, width, 10);
 
-      // Leichter Glanz-Effekt oben
       ctx.fillStyle = 'rgba(255,255,255,0.15)';
       ctx.fillRect(0, 0, width, 1);
     }
 
-    function measureThreadBusy() {
-      const testDurationMs = 12; // kurz genug für flüssiges Dashboard, lang genug für Messung
+    // Busy-Loop: Misst, wie viel Zeit der Thread "verliert"
+    function measureBusyLoop() {
+      const testMs = 35;  // Länger → sensitiver bei anhaltender Last
       const start = performance.now();
       let dummy = 0;
-      while (performance.now() - start < testDurationMs) {
-        dummy += Math.random(); // minimaler Workload
+      while (performance.now() - start < testMs) {
+        dummy += Math.sin(dummy);  // Etwas Rechenarbeit
       }
       const elapsed = performance.now() - start;
+      return Math.min(98, Math.max(5, Math.round(100 - (testMs / elapsed * 100))));
+    }
 
-      // Wenn elapsed deutlich > testDurationMs → System nimmt dem Thread Zeit weg → hohe Last
-      const idleFactor = testDurationMs / elapsed;
-      const busyPct = Math.min(98, Math.max(5, Math.round(100 - (idleFactor * 100))));
-      return busyPct;
+    // requestIdleCallback: Detektiert, ob Idle-Time da ist
+    function measureIdleBusy(callback) {
+      let idleScore = 0;
+      const start = performance.now();
+
+      window.requestIdleCallback((deadline) => {
+        const delay = performance.now() - start;
+        if (deadline.didTimeout || delay > IDLE_TIMEOUT_MS * 0.8) {
+          idleScore = 80 + Math.min(20, (delay / IDLE_TIMEOUT_MS) * 20);  // Hoch bei Timeout/Delay
+        } else if (deadline.timeRemaining() < 10) {
+          idleScore = 50 + (10 - deadline.timeRemaining()) * 5;  // Mittel bei wenig Remaining
+        }
+        callback(idleScore);
+      }, { timeout: IDLE_TIMEOUT_MS });
+    }
+
+    // Optional: Heap-Memory (nur Chromium) – boostet Score bei low RAM
+    function getMemoryBoost() {
+      if ('memory' in performance) {
+        const { usedJSHeapSize, jsHeapSizeLimit } = performance.memory;
+        const heapUsage = (usedJSHeapSize / jsHeapSizeLimit) * 100;
+        return heapUsage > 80 ? 20 : heapUsage > 60 ? 10 : 0;  // Extra bei hohem Heap
+      }
+      return 0;
     }
 
     function updateCpuMini() {
-      const load = measureThreadBusy();
+      measureIdleBusy((idleBusy) => {
+        const loopBusy = measureBusyLoop();
+        const memoryBoost = getMemoryBoost();
+        const currentBusy = Math.max(idleBusy, loopBusy) + memoryBoost;
 
-      // Nur zeigen, wenn halbwegs relevant (vermeidet permanentes Grün)
-      if (load >= 42) {
-        container.style.display = 'block';
-        drawBar(load);
-      } else {
-        container.style.display = 'none';
-      }
+        busyHistory.push(currentBusy);
+        if (busyHistory.length > HISTORY_SIZE) busyHistory.shift();
+
+        const avgBusy = busyHistory.reduce((a, b) => a + b, 0) / busyHistory.length;
+
+        if (avgBusy >= 52) {  // Früher sichtbar (gelb ab ~55)
+          container.style.display = 'block';
+          drawBar(avgBusy);
+        } else {
+          container.style.display = 'none';
+        }
+      });
     }
 
-    // Erste Messung sofort
+    // Erste Messung
     updateCpuMini();
 
-    // Dann alle 10 Sekunden (passt zu deinen Latency-Polls)
+    // Alle 10 Sekunden (passt zu deinem Dashboard)
     setInterval(updateCpuMini, 10000);
   })();
   </script>
+
+</body>
+  
 
 </body>
 </body>
