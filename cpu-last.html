@@ -1,104 +1,152 @@
-<!-- 
-  Winziger CPU-Minigraph oben rechts – nur wenn Pressure API halbwegs brauchbar ist
-  Sonst: komplett weg (kein DOM-Element)
--->
+<!-- Debug-fähige Version: Widget immer sichtbar wenn DEBUG_MODE = true -->
 <div id="cpu-mini" style="
   position: fixed;
   top: 6px;
   right: 8px;
-  width: 64px;
-  height: 10px;
+  width: 80px;
+  height: 14px;
   background: #111;
-  border: 1px solid #222;
-  border-radius: 2px;
+  border: 1px solid #333;
+  border-radius: 3px;
   overflow: hidden;
-  z-index: 9999;
-  display: block;           /* standardmäßig unsichtbar */
-">*</div>
+  z-index: 99999;
+  display: none;
+  font-family: monospace;
+  font-size: 9px;
+  color: #777;
+"></div>
 
 <script>
 // ────────────────────────────────────────────────
-// Sehr schlanker Canvas-Balken (kein Chart.js!)
+// === Debug-Schalter ===
+const DEBUG_MODE = true;   // <--- hier auf true setzen zum Debuggen
+
+// ────────────────────────────────────────────────
 const container = document.getElementById('cpu-mini');
 const canvas = document.createElement('canvas');
-canvas.width = 64;
-canvas.height = 10;
+canvas.width = 80;
+canvas.height = 14;
 const ctx = canvas.getContext('2d');
 container.appendChild(canvas);
 
-let usingPressure = false;
-let lastValue = 0;
+const statusText = document.createElement('div');
+statusText.style.position = 'absolute';
+statusText.style.top = '0';
+statusText.style.left = '0';
+statusText.style.right = '0';
+statusText.style.bottom = '0';
+statusText.style.display = 'flex';
+statusText.style.alignItems = 'center';
+statusText.style.justifyContent = 'center';
+statusText.style.pointerEvents = 'none';
+container.appendChild(statusText);
 
-function drawBar(pct) {
-  ctx.clearRect(0, 0, 64, 10);
+function drawBar(pct, state = '', source = '') {
+  ctx.clearRect(0, 0, 80, 14);
 
-  // Hintergrund (dunkel)
-  ctx.fillStyle = '#1a1a1a';
-  ctx.fillRect(0, 0, 64, 10);
+  // dunkler Hintergrund
+  ctx.fillStyle = '#181818';
+  ctx.fillRect(0, 0, 80, 14);
 
-  // Farbiger Balken
-  let color;
-  if      (pct >= 90) color = '#c62828';
+  // Balken
+  let color = '#444';
+  if (pct >= 90) color = '#c62828';
   else if (pct >= 75) color = '#f57c00';
   else if (pct >= 50) color = '#fbc02d';
-  else                color = '#388e3c';
+  else if (pct >= 25) color = '#388e3c';
+  else color = '#555';
 
-  const width = Math.round((pct / 100) * 64);
+  const width = Math.round((pct / 100) * 80);
   ctx.fillStyle = color;
-  ctx.fillRect(0, 0, width, 10);
+  ctx.fillRect(0, 0, width, 14);
 
-  // ganz dünner heller Rand oben/unten für bessere Sichtbarkeit
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.fillRect(0, 0, width, 1);
-  ctx.fillRect(0, 9, width, 1);
+  // Status-Text (nur im Debug-Modus sichtbar + Konsole)
+  let displayText = source ? source : '?';
+  if (state) displayText += ` ${state} ${Math.round(pct)}%`;
+
+  statusText.textContent = displayText;
+  statusText.style.color = pct > 70 ? '#fff' : '#aaa';
+
+  console.log(`[CPU Pressure] ${source} | state=${state} | pct=${Math.round(pct)} | raw=${pct.toFixed(1)}`);
+}
+
+function showWidget() {
+  container.style.display = 'block';
+}
+
+function hideWidget() {
+  if (!DEBUG_MODE) {
+    container.style.display = 'none';
+  }
 }
 
 // ────────────────────────────────────────────────
-// PressureObserver – mit "Brauchbarkeits-Check"
-if ('PressureObserver' in window) {
+let hasPressure = 'PressureObserver' in window;
+let everSawNonNominal = false;
+let sampleCount = 0;
+
+if (hasPressure) {
+  console.log("[CPU Debug] PressureObserver ist im Browser vorhanden");
+
   const observer = new PressureObserver(records => {
+    sampleCount++;
     if (records.length === 0) return;
 
     const state = records[records.length - 1].state;
     const map = {
-      nominal:   25,
-      fair:      55,
-      serious:   82,
-      critical:  96
+      nominal:   22,
+      fair:      52,
+      serious:   81,
+      critical:  97
     };
 
     const pct = map[state] || 0;
 
-    // "halbwegs sinnvoll"-Heuristik:
-    // Mindestens einmal "fair" oder höher innerhalb der ersten ~45 Sekunden
-    // oder mehrmals nicht nur nominal
-    if (pct >= 50 || lastValue >= 45) {
-      usingPressure = true;
-      container.style.display = 'block';
+    // Loggen IMMER (für Debug)
+    console.log(`[Pressure #${sampleCount}] state=${state}, pct=${pct}`);
+
+    if (state !== 'nominal') {
+      everSawNonNominal = true;
     }
 
-    lastValue = pct;
-    if (usingPressure) {
-      drawBar(pct);
+    // Entscheidung: Widget zeigen?
+    if (DEBUG_MODE || everSawNonNominal || sampleCount > 8) {
+      showWidget();
+      drawBar(pct, state, 'Pressure');
+    } else {
+      hideWidget();
+      drawBar(0, '', 'wait…');
     }
   });
 
-  // sampleInterval etwas höher → weniger Akku/CPU auf Mobile
-  observer.observe('cpu', { sampleInterval: 4000 })
-    .catch(() => {
-      // Fehler → gar nichts anzeigen
-      usingPressure = false;
+  observer.observe('cpu', { sampleInterval: 3000 })
+    .then(() => {
+      console.log("[CPU Debug] observe('cpu') erfolgreich gestartet");
+      if (DEBUG_MODE) showWidget();
+    })
+    .catch(err => {
+      console.warn("[CPU Debug] observe('cpu') FEHLER:", err);
+      hasPressure = false;
+      if (DEBUG_MODE) {
+        showWidget();
+        drawBar(0, '', 'API Fehler');
+      }
     });
 
-  // Timeout: Wenn nach 45 Sekunden immer noch nur nominal → als unbrauchbar einstufen
+  // Nach 60 Sekunden: wenn immer noch nur nominal → als unbrauchbar markieren
   setTimeout(() => {
-    if (!usingPressure && lastValue <= 30) {
-      // Android-Falle oder Desktop im Leerlauf → ausblenden
-      container.style.display = 'none';
-      observer.disconnect();
+    if (!everSawNonNominal && sampleCount > 5) {
+      console.log("[CPU Debug] Nur nominal nach 60s → vermutlich unbrauchbar (z.B. Android)");
+      if (!DEBUG_MODE) hideWidget();
+      else drawBar(15, 'nominal', 'nur nominal');
     }
-  }, 45000);
-}
+  }, 60000);
 
-// Fallback: gar nichts tun → Element bleibt unsichtbar
+} else {
+  console.log("[CPU Debug] PressureObserver existiert NICHT im Browser");
+  if (DEBUG_MODE) {
+    showWidget();
+    drawBar(0, '', 'keine API');
+  }
+}
 </script>
