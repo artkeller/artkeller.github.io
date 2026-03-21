@@ -241,6 +241,7 @@
         <span class="close-modal" onclick="toggleLegal()">&times;</span>
 
         <!-- IMPRESSUM / LEGAL NOTICE -->
+        <!--
         <div id="impressum-text" class="legal-inner">
             <h2 style="color:var(--nasa-red); margin-bottom:20px;">
                 <span data-lang="en">Legal Notice</span><span data-lang="de">Impressum</span>
@@ -267,6 +268,27 @@
                 <span data-lang="el">Υπεύθυνος περιεχομένου: Thomas Walloschke.</span>
             </p>
         </div>
+        --->
+
+        <p style="margin-top:20px;">
+    <strong><span data-lang="de">Kontakt:</span><span data-lang="en">Contact:</span></strong><br>
+    
+    <a href="javascript:void(0)" onclick="decodeEmail(this)" id="contact-link" style="color:var(--nasa-red); text-decoration:none; border-bottom: 1px dotted var(--nasa-red);">
+        <span data-lang="en">Click to show E-Mail</span>
+        <span data-lang="de">Klicken zum Anzeigen</span>
+        <span data-lang="fr">Cliquer pour afficher</span>
+        <span data-lang="it">Clicca per mostrare</span>
+        <span data-lang="es">Clic para mostrar</span>
+        <span data-lang="el">Κάντε κλικ για εμφάνιση</span>
+    </a><br>
+
+    <span data-lang="en">Or via GitHub Profile.</span>
+    <span data-lang="de">Oder über das GitHub-Profil.</span>
+    <span data-lang="fr">Ou via le profil GitHub.</span>
+    <span data-lang="it">O tramite il profilo GitHub.</span>
+    <span data-lang="es">O a través del perfil de GitHub.</span>
+    <span data-lang="el">Ή μέσω του προφίλ στο GitHub.</span>
+</p>
 
         <!-- DATENSCHUTZ / PRIVACY -->
         <div id="datenschutz-text" class="legal-inner" style="display:none;">
@@ -333,6 +355,23 @@
             const target = document.getElementById(type + '-text');
             if(target) target.style.display = 'block';
             modal.style.display = 'flex';
+        }
+
+        function decodeEmail(el) {
+            // Base64 für artkeller@gmx.de
+            const encoded = "YXJ0a2VsbGVyQGdteC5kZQ==";
+            const email = atob(encoded);
+    
+            // 1. Link-Ziel setzen
+            window.location.href = "mailto:" + email;
+    
+            // 2. Anzeige im HTML aktualisieren (Text durch E-Mail ersetzen)
+            el.innerHTML = email;
+    
+            // 3. Onclick entfernen, damit weitere Klicks normal als mailto funktionieren
+            el.onclick = null;
+            el.setAttribute("onclick", ""); 
+            el.style.borderBottom = "none";
         }
 
         window.addEventListener('DOMContentLoaded', () => {
