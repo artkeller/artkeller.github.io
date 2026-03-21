@@ -129,7 +129,7 @@ let intervalMs = 5000;
 const minStepMs = 200; // Mindestverzögerung zwischen Pings
 
 /* ==========================
-   UI Scheduler (Dynamisch v4.6.2)
+   UI Scheduler
 ========================== */
 let resortTimer = null;
 function triggerGreenResort(){
@@ -426,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
     urlInput.placeholder = t.placeholder;
     btnAdd.textContent = t.add;
     document.getElementById("ui-favs-label").textContent = t.favs;
-    document.getElementById("ui-title").textContent = `NOC Ultra Smart v4.6.2`;
+    document.getElementById("ui-title").textContent = `NOC Ultra Smart v4.7.0`;
 
     // Bugfix: Button-Status bei Eingabe prüfen
     urlInput.addEventListener("input", () => {
