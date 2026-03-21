@@ -93,8 +93,13 @@
             animation: orbital-drift 16s linear infinite;
         }
 
-        /* Erlaubt Sprach-Spans innerhalb von Zeilen (Inline-Modus) */
-        p [data-lang], h2 [data-lang], strong [data-lang], a [data-lang] { 
+        /* Nur die AKTIVE Sprache soll inline angezeigt werden, wenn sie in Text-Elementen steht */
+        body[data-active-lang="en"] p [data-lang="en"], body[data-active-lang="de"] p [data-lang="de"],
+        body[data-active-lang="fr"] p [data-lang="fr"], body[data-active-lang="it"] p [data-lang="it"],
+        body[data-active-lang="es"] p [data-lang="es"], body[data-active-lang="el"] p [data-lang="el"],
+        body[data-active-lang="en"] h2 [data-lang="en"], body[data-active-lang="de"] h2 [data-lang="de"],
+        body[data-active-lang="en"] strong [data-lang="en"], body[data-active-lang="de"] strong [data-lang="de"],
+        body[data-active-lang="en"] a [data-lang="en"], body[data-active-lang="de"] a [data-lang="de"] { 
             display: inline !important; 
         }
 
