@@ -104,7 +104,12 @@
         }
 
         /* Erzwingt, dass Footer-Links immer nebeneinander stehen, egal welche Sprache */
-        footer .footer-links a span[data-lang] {
+        body[data-active-lang="en"] footer [data-lang="en"],
+        body[data-active-lang="de"] footer [data-lang="de"],
+        body[data-active-lang="fr"] footer [data-lang="fr"],
+        body[data-active-lang="it"] footer [data-lang="it"],
+        body[data-active-lang="es"] footer [data-lang="es"],
+        body[data-active-lang="el"] footer [data-lang="el"] {
             display: inline !important;
         }
 
