@@ -93,6 +93,11 @@
             animation: orbital-drift 16s linear infinite;
         }
 
+        /* Erlaubt Sprach-Spans innerhalb von Zeilen (Inline-Modus) */
+        p [data-lang], h2 [data-lang], strong [data-lang], a [data-lang] { 
+            display: inline !important; 
+        }
+
         @keyframes orbital-drift {
             0% {
                 left: -30%;
