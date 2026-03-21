@@ -353,7 +353,7 @@ function refreshFavoritesUI(){
     const da = ua.hostname, db = ub.hostname;
     const segDiff = segmentWeight(da)-segmentWeight(db);
     if(segDiff!==0) return segDiff;
-    const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+    const ipRegex = /^\d+\.\d+\.\d+\.\d+$/; //
     if(ipRegex.test(da) && ipRegex.test(db)) return ipCompare(da,db);
     return da.localeCompare(db);
   });
