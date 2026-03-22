@@ -90,7 +90,7 @@
          body[data-active-lang="en"] a [data-lang="en"], body[data-active-lang="de"] a [data-lang="de"] { 
          display: inline !important; 
          }
-         /* Erzwingt, dass Footer-Links immer nebeneinander stehen, egal welche Sprache */
+         /* Erzwingt, dass Footer-Links immer nebeneinander stehen */
          body[data-active-lang="en"] footer [data-lang="en"],
          body[data-active-lang="de"] footer [data-lang="de"],
          body[data-active-lang="fr"] footer [data-lang="fr"],
@@ -347,6 +347,7 @@
              let saved = localStorage.getItem('artkeller_lang') || 'en';
              setLang(saved);
          });
+         // Copyright 2026 artkeller@gmx.de 
       </script>
    </body>
 </html>
