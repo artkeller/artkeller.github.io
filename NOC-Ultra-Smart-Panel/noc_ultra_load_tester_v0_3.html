@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Performance Lab (Advanced)</title>
+
+<style>
+body {
+  margin:0;
+  font-family:system-ui;
+  background:#0b0d12;
+  color:#eee;
+}
+
+.grid {
+  display:grid;
+  gap:12px;
+  padding:12px;
+}
+
+.card {
+  background:#161a22;
+  padding:12px;
+  border-radius:12px;
+}
+
+canvas {
+  width:100%;
+  height:150px;
+  background:#05070a;
+  border-radius:6px;
+}
+
+.row {
+  display:flex;
+  justify-content:space-between;
+}
+
+.value { font-weight:bold; color:#fff; }
+.small { font-size:12px; color:#aaa; }
+</style>
+</head>
+
+<body>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="row"><div>CPU Drift</div><div id="cpuVal">-</div></div>
+    <canvas id="cpuChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Event Loop Lag</div><div id="lagVal">-</div></div>
+    <canvas id="lagChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Heat-up</div><div id="heatVal">-</div></div>
+    <canvas id="heatChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Policy</div><div id="policyVal">-</div></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><div>Load</div><div id="loadVal">0%</div></div>
+    <input type="range" id="loadSlider" min="0" max="100" value="0">
+    <div class="small">30=light · 60=heavy · 90=meltdown</div>
+  </div>
+
+</div>
+
+<script>
+// ---------------- LOAD ----------------
+let load = 0;
+document.getElementById("loadSlider").oninput = e=>{
+  load = +e.target.value;
+  loadVal.textContent = load+"%";
+};
+
+function simulateLoad(){
+  if(!load) return;
+
+  const intensity = Math.pow(load/100,2);
+  const work = 200000 + intensity*4000000;
+
+  let x=0;
+  for(let i=0;i<work;i++){ x+=Math.sqrt(i); }
+
+  if(load>70){
+    const block=(load-70)*3;
+    const t=performance.now();
+    while(performance.now()-t<block){}
+  }
+}
+
+// ---------------- MEASURE ----------------
+function measureCPU(){
+  const t=performance.now();
+  for(let i=0;i<200000;i++){}
+  simulateLoad();
+  return performance.now()-t;
+}
+
+function measureLag(){
+  return new Promise(res=>{
+    const t=performance.now();
+    setTimeout(()=>res(performance.now()-t),0);
+  });
+}
+
+// ---------------- DATA ----------------
+const MAX=120;
+let hist={cpu:[],lag:[],heat:[]};
+
+let base=null;
+let heatFactor=1;
+
+// ---------------- POLICY ----------------
+function getPolicy(c,l){
+  if(c>1.8||l>2) return 3;
+  if(c>1.4||l>1.5) return 2;
+  if(c>1.2) return 1;
+  return 0;
+}
+
+// ---------------- DRAW ----------------
+function draw(canvas,data,policyData){
+  const ctx=canvas.getContext("2d");
+  const w=canvas.width=canvas.offsetWidth;
+  const h=canvas.height=canvas.offsetHeight;
+
+  ctx.clearRect(0,0,w,h);
+
+  // GRID
+  ctx.strokeStyle="rgba(255,255,255,0.07)";
+  for(let i=0;i<=5;i++){
+    let y=h/5*i;
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(w,y);
+    ctx.stroke();
+  }
+
+  // POLICY BG
+  data.forEach((_,i)=>{
+    const x=(i/MAX)*w;
+    const next=((i+1)/MAX)*w;
+
+    const p=policyData[i]||0;
+
+    const colors=["rgba(0,150,0,0.15)","rgba(200,200,0,0.15)","rgba(255,140,0,0.15)","rgba(255,0,0,0.15)"];
+    ctx.fillStyle=colors[p];
+    ctx.fillRect(x,0,next-x,h);
+  });
+
+  // LINE
+  ctx.strokeStyle="#00e5ff";
+  ctx.lineWidth=2;
+  ctx.beginPath();
+
+  data.forEach((v,i)=>{
+    const x=(i/MAX)*w;
+    const y=h - Math.min(3,v)/3*h;
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  ctx.stroke();
+}
+
+// ---------------- LOOP ----------------
+let policyHist=[];
+
+async function tick(){
+
+  const cpu=measureCPU();
+  const lag=await measureLag();
+
+  // Heat-up Simulation (langsam!)
+  heatFactor += load>50 ? 0.01 : -0.005;
+  heatFactor=Math.max(1,Math.min(2,heatFactor));
+
+  hist.cpu.push(cpu*heatFactor);
+  hist.lag.push(lag);
+  hist.heat.push(heatFactor);
+
+  if(hist.cpu.length>MAX){
+    hist.cpu.shift(); hist.lag.shift(); hist.heat.shift();
+    policyHist.shift();
+  }
+
+  if(!base && hist.cpu.length>10){
+    base={
+      cpu:hist.cpu.reduce((a,b)=>a+b)/hist.cpu.length,
+      lag:hist.lag.reduce((a,b)=>a+b)/hist.lag.length
+    };
+  }
+
+  if(base){
+    const c=(hist.cpu.at(-1)/base.cpu);
+    const l=(hist.lag.at(-1)/base.lag);
+
+    const p=getPolicy(c,l);
+    policyHist.push(p);
+
+    cpuVal.textContent=c.toFixed(2);
+    lagVal.textContent=l.toFixed(2);
+    heatVal.textContent=heatFactor.toFixed(2);
+    policyVal.textContent=["STABLE","SOFT","REDUCE","MINIMAL"][p];
+
+    draw(cpuChart,hist.cpu.map(v=>v/base.cpu),policyHist);
+    draw(lagChart,hist.lag.map(v=>v/base.lag),policyHist);
+    draw(heatChart,hist.heat,policyHist);
+  }
+}
+
+// 2 Sekunden → direktes Feedback
+setInterval(tick,2000);
+tick();
+
+</script>
+
+</body>
+</html>
