@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Adaptive Performance Lab</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0f1115;
+  color: #e0e0e0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+.card {
+  background: #1a1d23;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+canvas {
+  width: 100%;
+  height: 140px;
+  border-radius: 6px;
+  background: #0a0c10;
+}
+
+input[type=range] {
+  width: 100%;
+}
+
+.value {
+  font-weight: bold;
+  color: #fff;
+}
+
+.small {
+  font-size: 12px;
+  color: #aaa;
+}
+</style>
+</head>
+
+<body>
+
+<div class="grid">
+
+  <div class="card">
+    <div class="row">
+      <div>CPU Drift</div>
+      <div class="value" id="cpuVal">-</div>
+    </div>
+    <canvas id="cpuChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>Storage Drift</div>
+      <div class="value" id="storageVal">-</div>
+    </div>
+    <canvas id="storageChart"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>Policy</div>
+      <div class="value" id="policyVal">-</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div>Load</div>
+      <div class="value" id="loadVal">0%</div>
+    </div>
+    <input type="range" id="loadSlider" min="0" max="100" value="0">
+    <div class="small">0 = idle · 30 = light · 60 = heavy · 90 = meltdown</div>
+  </div>
+
+</div>
+
+<script>
+// --------------------
+// LOAD SYSTEM (stärker!)
+// --------------------
+let loadLevel = 0;
+
+document.getElementById('loadSlider').oninput = (e) => {
+  loadLevel = +e.target.value;
+  document.getElementById('loadVal').textContent = loadLevel + "%";
+};
+
+function simulateLoad() {
+  if (loadLevel === 0) return;
+
+  // exponentielle Skalierung!
+  const intensity = Math.pow(loadLevel / 100, 2);
+
+  const work = 200000 + intensity * 3000000;
+
+  let x = 0;
+
+  for (let i = 0; i < work; i++) {
+    x += Math.sqrt(i);
+  }
+
+  // optional: harte Blocking-Spikes bei hohen Levels
+  if (loadLevel > 70) {
+    const blockTime = (loadLevel - 70) * 2;
+    const start = performance.now();
+    while (performance.now() - start < blockTime) {}
+  }
+}
+
+// --------------------
+// MEASUREMENTS
+// --------------------
+function measureCPU() {
+  const start = performance.now();
+
+  let x = 0;
+  for (let i = 0; i < 300000; i++) {
+    x += i;
+  }
+
+  simulateLoad();
+
+  return performance.now() - start;
+}
+
+function measureStorage() {
+  try {
+    const data = "x".repeat(15000);
+    const start = performance.now();
+
+    localStorage.setItem("t", data);
+    localStorage.removeItem("t");
+
+    return performance.now() - start;
+  } catch {
+    return 999;
+  }
+}
+
+// --------------------
+// DATA
+// --------------------
+const MAX = 60;
+let history = { cpu: [], storage: [] };
+let baseline = null;
+
+function avg(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+
+function drift(v,b){return b ? v/b : 1;}
+
+function policy(c,s){
+  if (c>1.8||s>2) return "MINIMAL_MODE";
+  if (c>1.4||s>1.5) return "REDUCE_LOAD";
+  if (c>1.2) return "SOFT_ADAPT";
+  return "STABLE";
+}
+
+// --------------------
+// CHART (mit GRID!)
+// --------------------
+function drawChart(canvas, data) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width = canvas.offsetWidth;
+  const h = canvas.height = canvas.offsetHeight;
+
+  ctx.clearRect(0,0,w,h);
+
+  // GRID
+  ctx.strokeStyle = "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i <= 5; i++) {
+    const y = (h/5)*i;
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(w,y);
+    ctx.stroke();
+  }
+
+  // LINE
+  ctx.strokeStyle = "#00e5ff";
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+
+  data.forEach((v,i)=>{
+    const x = (i/MAX)*w;
+    const y = h - Math.min(2.5,v)/2.5*h;
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  ctx.stroke();
+}
+
+// --------------------
+// LOOP
+// --------------------
+function tick() {
+
+  const cpu = measureCPU();
+  const storage = measureStorage();
+
+  history.cpu.push(cpu);
+  history.storage.push(storage);
+
+  if (history.cpu.length > MAX) {
+    history.cpu.shift();
+    history.storage.shift();
+  }
+
+  if (!baseline && history.cpu.length >= 5) {
+    baseline = {
+      cpu: avg(history.cpu),
+      storage: avg(history.storage)
+    };
+  }
+
+  if (baseline) {
+    const c = drift(cpu, baseline.cpu);
+    const s = drift(storage, baseline.storage);
+
+    document.getElementById("cpuVal").textContent = c.toFixed(2);
+    document.getElementById("storageVal").textContent = s.toFixed(2);
+    document.getElementById("policyVal").textContent = policy(c,s);
+
+    drawChart(
+      document.getElementById("cpuChart"),
+      history.cpu.map(v=>drift(v,baseline.cpu))
+    );
+
+    drawChart(
+      document.getElementById("storageChart"),
+      history.storage.map(v=>drift(v,baseline.storage))
+    );
+  }
+}
+
+// 15 Sekunden Zyklus
+setInterval(tick, 15000);
+tick();
+
+</script>
+
+</body>
+</html>
