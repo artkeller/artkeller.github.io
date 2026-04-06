@@ -2,7 +2,7 @@
 
 Nachfolgend die Namen aller 28 Sprachdateien (JSON-Format), die auf dem Server im gleichen Verzeichnis wie die HTML-Datei liegen müssen. 
 
-Die Dateinamen lauten 
+## Dateinamen lauten 
 
 - language_de.json, 
 - language_en.json,
@@ -32,5 +32,10 @@ Die Dateinamen lauten
 - language_zh.json,
 - language_ko.json.
   
+## Inhalte
 
-Jede Datei enthält die exakt gleichen Schlüssel wie das defaultTranslations-Objekt plus die zusätzlichen Tooltip‑Schlüssel. Die Übersetzungen sind vollständig und entsprechen den in der vorherigen Version eingepflegten multilingualen Texten. Sie können die Dateien direkt verwenden.
+Jede Datei enthält die exakt gleichen Schlüssel wie das defaultTranslations-Objekt plus die zusätzlichen Tooltip‑Schlüssel. 
+
+Die Übersetzungen sind vollständig und entsprechen den in der vorherigen Version eingepflegten multilingualen Texten. 
+
+Die Dateien sind direkt verwendbar.
