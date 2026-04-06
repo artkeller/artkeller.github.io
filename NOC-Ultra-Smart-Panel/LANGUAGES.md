@@ -2,7 +2,7 @@
 
 Nachfolgend die Namen aller 28 Sprachdateien (JSON-Format), die auf dem Server im gleichen Verzeichnis wie die HTML-Datei liegen müssen. 
 
-## Dateinamen lauten 
+## Dateinamen 
 
 - language_de.json, 
 - language_en.json,
