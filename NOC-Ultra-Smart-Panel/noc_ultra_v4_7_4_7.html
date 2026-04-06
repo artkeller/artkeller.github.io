@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title id="head-title">NOC Ultra Smart Panel</title>
+
+<style>
+/* ========== CSS – angepasst für CPU-Position und Dropdowns ========== */
+:root {
+    --bg-color: #111;
+    --panel-bg: #1a1a1a;
+    --text-color: #eee;
+    --accent-red: #ff3030;
+    --accent-green: #00ff88;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.static-header {
+    flex-shrink: 0;
+}
+
+.controls {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input {
+    padding: 8px;
+    width: 100%;
+    max-width: 340px;
+    background: #222;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    transition: 0.3s;
+}
+
+button:hover { background: #444; }
+button:disabled { opacity: 0.3; cursor: not-allowed; background: #222; }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 14px;
+    flex-shrink: 0;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.2s;
+    border-radius: 14px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 10px;
+    width: 10px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #00aa55;
+}
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+.switch-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.switch-label {
+    font-size: 9px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.favoritesBox {
+    border: 1px solid #333;
+    background: #151515;
+    overflow-y: auto;
+    padding: 8px;
+    width: 100%;
+    transition: max-height 0.4s ease-out, opacity 0.2s ease, padding 0.2s ease;
+    max-height: 120px;
+    opacity: 1;
+}
+.favoritesBox.collapsed {
+    max-height: 0 !important;
+    padding: 0 8px;
+    opacity: 0;
+    overflow-y: hidden;
+    border-top: none;
+    border-bottom: none;
+}
+
+.favoriteRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    flex-wrap: nowrap;
+}
+.favoriteUrl {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+a.favoriteUrl {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+a.favoriteUrl:hover {
+    text-decoration: underline;
+}
+.warning-icon {
+    color: #ffaa00;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.monitors-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+.monitors-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+    position: relative;
+}
+.monitors-spinner {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+.monitors-spinner canvas {
+    width: 14px;
+    height: 14px;
+    display: block;
+    border: none;
+    background: transparent;
+}
+.monitors-count {
+    font-size: 0.9em;
+    background: #2a2a2a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: normal;
+}
+.monitors-menu-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 4px;
+    height: auto;
+}
+.monitors-menu-btn:hover {
+    color: #fff;
+    background: none;
+}
+#monitors {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+.panel {
+    border: 1px solid #333;
+    padding: 12px;
+    background: var(--panel-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    transition: background 0.4s;
+    gap: 15px;
+}
+.panel.changed { background: #2a2a00; }
+
+.left { display: flex; gap: 10px; align-items: center; flex: 1 1 250px; }
+.right { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; justify-content: flex-end; }
+
+.led {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #555;
+    flex-shrink: 0;
+}
+.green { background: var(--accent-green); }
+.yellow { background: #ffd000; }
+.blue { background: #3aa0ff; }
+.gray { background: #666; }
+.red { background: var(--accent-red); animation: blink 1s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+.status { font-size: 12px; color: #aaa; }
+.stats { font-size: 11px; color: #888; }
+
+canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%; height: auto; }
+
+/* Titelzeile – CPU direkt neben dem Titel, kein space-between */
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+    background: #222;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #444;
+    user-select: none;
+}
+.menu-icon:hover { background: #333; }
+.title-with-hover {
+    cursor: default;
+}
+.cpu-container {
+    width: 92px;
+    height: 18px;
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: none;
+}
+.cpu-container.visible {
+    display: block;
+}
+.cpu-canvas {
+    width: 100%;
+    height: 100%;
+}
+.cpu-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: bold;
+    color: #ddd;
+    text-shadow: 0 0 4px #000;
+}
+
+.fav-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+}
+.fav-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+    position: relative;
+}
+.fav-spinner {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+.fav-spinner canvas {
+    width: 14px;
+    height: 14px;
+    display: block;
+    border: none;
+    background: transparent;
+}
+.fav-counters {
+    font-size: 0.9em;
+    background: #2a2a2a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: normal;
+}
+.fav-menu-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 4px;
+    height: auto;
+}
+.fav-menu-btn:hover {
+    color: #fff;
+    background: none;
+}
+/* Dropdown-Menüs – Position wird dynamisch per JS gesetzt */
+.dropdown-menu {
+    position: absolute;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px;
+    min-width: 180px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.dropdown-menu button {
+    background: #333;
+    border: 1px solid #555;
+    color: #eee;
+    padding: 6px 10px;
+    text-align: left;
+    width: 100%;
+    font-size: 13px;
+}
+.dropdown-menu button:hover {
+    background: #444;
+}
+
+.http-warning-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #aa6600;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-family: monospace;
+    pointer-events: none;
+}
+
+.app-footer {
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    padding: 8px 0;
+    border-top: 1px solid #333;
+    margin-top: 10px;
+}
+.app-footer a {
+    color: #aaa;
+    text-decoration: none;
+    margin: 0 8px;
+}
+.app-footer a:hover { text-decoration: underline; color: #ddd; }
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+.menu-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+.menu-panel {
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 12px;
+    width: 280px;
+    padding: 16px;
+    color: #eee;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+.menu-panel h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 6px;
+}
+.menu-section {
+    margin-bottom: 16px;
+}
+.menu-section label {
+    display: block;
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 6px;
+}
+.menu-section select, .menu-section button {
+    width: 100%;
+    background: #333;
+    border: 1px solid #555;
+    color: #eee;
+    padding: 6px;
+    border-radius: 4px;
+}
+.menu-section button {
+    cursor: pointer;
+    background: #2a2a2a;
+}
+.menu-section button:hover { background: #3a3a3a; }
+.version-display {
+    font-family: monospace;
+    background: #2a2a2a;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: center;
+}
+.close-menu {
+    margin-top: 12px;
+    background: #c62828;
+    border: none;
+    color: white;
+    width: 100%;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.close-menu:hover { background: #b71c1c; }
+
+@media (max-width: 600px) {
+    .http-warning-toast { white-space: normal; max-width: 90%; text-align: center; }
+    body { padding: 10px; }
+    .panel { flex-direction: column; align-items: stretch; }
+    .right { justify-content: space-between; border-top: 1px solid #333; padding-top: 10px; }
+    canvas { max-width: 100%; }
+    input { max-width: 100%; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .switch-container { align-items: flex-start; }
+    .monitors-header { flex-wrap: wrap; }
+    .title-row { flex-wrap: wrap; gap: 10px; }
+    .dropdown-menu { right: auto; left: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="static-header">
+    <div id="cpu-mini" style="position: fixed; top: 8px; right: 12px; width: 64px; height: 10px; background: #111; border: 1px solid #222; border-radius: 3px; overflow: hidden; z-index: 99999; display: none;"></div>
+
+    <div class="title-row">
+        <div class="menu-icon" id="menuIcon">☰</div>
+        <h2 id="ui-title" class="title-with-hover" style="margin:0;">NOC Ultra Smart Panel</h2>
+        <div class="cpu-container" id="cpuContainer">
+            <canvas id="cpu-canvas" width="92" height="18" class="cpu-canvas"></canvas>
+            <div class="cpu-label" id="cpu-label">CPU</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="switch-container">
+            <span class="switch-label">Auto-Fav</span>
+            <label class="switch">
+                <input type="checkbox" id="autoFavToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <input id="urlInput" placeholder="https://example.com">
+        <button id="ui-btn-add" disabled>Add Monitor</button>
+    </div>
+
+    <div class="controls" style="flex-direction: column; align-items: stretch;">
+        <div class="fav-container" id="favContainer">
+            <div class="fav-header">
+                <div class="fav-spinner"><canvas id="favSpinnerCanvas" width="14" height="14"></canvas></div>
+                <b id="favTitle">Favoriten</b>
+                <span id="favCounters" class="fav-counters">(0 | 0)</span>
+                <button id="favMenuBtn" class="fav-menu-btn" title="Favoriten-Menü">⋯</button>
+            </div>
+            <div class="favoritesBox" id="favoritesList"></div>
+        </div>
+    </div>
+</div>
+
+<div class="monitors-wrapper">
+    <div class="monitors-header">
+        <div class="monitors-spinner"><canvas id="monitorSpinnerCanvas" width="14" height="14"></canvas></div>
+        <b id="monitorsTitle">Monitore</b>
+        <span id="monitorCount" class="monitors-count">(0)</span>
+        <button id="monitorsMenuBtn" class="monitors-menu-btn" title="Monitore-Menü">⋯</button>
+    </div>
+    <div id="monitors"></div>
+</div>
+
+<footer class="app-footer" id="appFooter">
+    <a href="#" id="footerImpressum">Impressum</a> |
+    <a href="#" id="footerDatenschutz">Datenschutz</a> |
+    <a href="#" id="footerNutzung">Nutzungsbedingungen</a> |
+    <a href="#" id="footerCookies">Cookies</a>
+</footer>
+
+<div id="menuOverlay" class="menu-overlay">
+    <div class="menu-panel">
+        <h3 id="menuTitle">Menü</h3>
+        <div class="menu-section">
+            <label id="menuLangLabel">🌐 Sprache / Language</label>
+            <select id="langSelect"></select>
+        </div>
+        <div class="menu-section">
+            <label id="menuModeLabel">🎛️ Mode</label>
+            <select id="modeSelect">
+                <option value="Base">Base</option>
+                <option value="Smart" selected>Smart</option>
+                <option value="Panel">Panel</option>
+            </select>
+        </div>
+        <div class="menu-section">
+            <label id="menuSettingsLabel">⚙️ Einstellungen</label>
+            <button id="settingsPlaceholder" disabled>Kommt später</button>
+        </div>
+        <div class="menu-section">
+            <label id="menuVersionLabel">📌 Version</label>
+            <div class="version-display" id="versionDisplay">v4.7.4.7</div>
+            <div id="copyrightLine" style="font-size:10px; color:#888; margin-top:6px;">© 2025 by artkeller@gmx.de</div>
+        </div>
+        <button id="closeMenuBtn" class="close-menu">Schließen</button>
+    </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const VERSION = "v4.7.4.7";
+  const CURRENT_YEAR = new Date().getFullYear();
+
+  // ========== 28 Sprachen – vollständige Übersetzungen ==========
+  const translations = {
+    de: {
+      add: "Hinzufügen", favs: "Favoriten", monitors: "Monitore", placeholder: "URL eingeben...",
+      err_url: "ungültig", err_net: "Netzwerkfehler", err_empty: "URL leer", err_offline: "kein Netzwerk",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Unsichere HTTP-URL – klicken Sie erneut, um sie trotzdem hinzuzufügen.",
+      menuTitle: "Menü", menuLang: "🌐 Sprache / Language", menuMode: "🎛️ Mode",
+      menuSettings: "⚙️ Einstellungen", menuVersion: "📌 Version", close: "Schließen",
+      footerImpressum: "Impressum", footerDatenschutz: "Datenschutz", footerNutzung: "Nutzungsbedingungen", footerCookies: "Cookies",
+      autoLabel: "Auto (Browser)",
+      favMenuDefault: "Standard laden", favMenuSave: "Speichern", favMenuLoad: "Laden", favMenuDelete: "Alle löschen",
+      monMenuSave: "Monitore speichern", monMenuLoadAdd: "Monitore hinzufügen", monMenuLoadSub: "Monitore ersetzen", monMenuDelete: "Alle Monitore löschen",
+      monDeleteConfirm: "Alle Monitore wirklich löschen?"
+    },
+    en: {
+      add: "Add Monitor", favs: "Favorites", monitors: "Monitors", placeholder: "Enter URL...",
+      err_url: "invalid", err_net: "Network Error", err_empty: "URL empty", err_offline: "no network",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Insecure HTTP URL – click again to add it anyway.",
+      menuTitle: "Menu", menuLang: "🌐 Language", menuMode: "🎛️ Mode",
+      menuSettings: "⚙️ Settings", menuVersion: "📌 Version", close: "Close",
+      footerImpressum: "Imprint", footerDatenschutz: "Privacy", footerNutzung: "Terms", footerCookies: "Cookies",
+      autoLabel: "Auto (Browser)",
+      favMenuDefault: "Load default", favMenuSave: "Save", favMenuLoad: "Load", favMenuDelete: "Delete all",
+      monMenuSave: "Save monitors", monMenuLoadAdd: "Add monitors", monMenuLoadSub: "Substitute monitors", monMenuDelete: "Delete all monitors",
+      monDeleteConfirm: "Delete all monitors?"
+    },
+    bg: { // Български
+      add: "Добави", favs: "Любими", monitors: "Монитори", placeholder: "Въведете URL...",
+      err_url: "невалиден", err_net: "Мрежова грешка", err_empty: "Празен URL", err_offline: "няма мрежа",
+      online: "OK", loading: "init", start: "Старт",
+      warn_http: "⚠️ Несигурен HTTP URL – щракнете отново, за да го добавите въпреки това.",
+      menuTitle: "Меню", menuLang: "🌐 Език", menuMode: "🎛️ Режим",
+      menuSettings: "⚙️ Настройки", menuVersion: "📌 Версия", close: "Затвори",
+      footerImpressum: "Импресум", footerDatenschutz: "Поверителност", footerNutzung: "Условия", footerCookies: "Бисквитки",
+      autoLabel: "Автоматично (браузър)",
+      favMenuDefault: "Зареждане на стандартните", favMenuSave: "Запазване", favMenuLoad: "Зареждане", favMenuDelete: "Изтриване на всички",
+      monMenuSave: "Запазване на мониторите", monMenuLoadAdd: "Добавяне на монитори", monMenuLoadSub: "Замяна на монитори", monMenuDelete: "Изтриване на всички монитори",
+      monDeleteConfirm: "Наистина ли искате да изтриете всички монитори?"
+    },
+    cs: { // Čeština – Platzhalter, bitte anpassen
+      add: "Přidat", favs: "Oblíbené", monitors: "Monitory", placeholder: "Zadejte URL...",
+      err_url: "neplatná", err_net: "Chyba sítě", err_empty: "URL prázdna", err_offline: "žádná síť",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Nezabezpečená HTTP adresa – klikněte znovu pro přidání.",
+      menuTitle: "Menu", menuLang: "🌐 Jazyk", menuMode: "🎛️ Režim",
+      menuSettings: "⚙️ Nastavení", menuVersion: "📌 Verze", close: "Zavřít",
+      footerImpressum: "Impresum", footerDatenschutz: "Ochrana údajů", footerNutzung: "Podmínky", footerCookies: "Cookies",
+      autoLabel: "Auto (prohlížeč)",
+      favMenuDefault: "Načíst výchozí", favMenuSave: "Uložit", favMenuLoad: "Načíst", favMenuDelete: "Smazat vše",
+      monMenuSave: "Uložit monitory", monMenuLoadAdd: "Přidat monitory", monMenuLoadSub: "Nahradit monitory", monMenuDelete: "Smazat všechny monitory",
+      monDeleteConfirm: "Smazat všechny monitory?"
+    },
+    da: { // Dansk
+      add: "Tilføj", favs: "Favoritter", monitors: "Monitorer", placeholder: "Indtast URL...",
+      err_url: "ugyldig", err_net: "Netværksfejl", err_empty: "URL tom", err_offline: "intet netværk",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Usikker HTTP URL – klik igen for at tilføje alligevel.",
+      menuTitle: "Menu", menuLang: "🌐 Sprog", menuMode: "🎛️ Tilstand",
+      menuSettings: "⚙️ Indstillinger", menuVersion: "📌 Version", close: "Luk",
+      footerImpressum: "Impressum", footerDatenschutz: "Privatliv", footerNutzung: "Vilkår", footerCookies: "Cookies",
+      autoLabel: "Auto (browser)",
+      favMenuDefault: "Indlæs standard", favMenuSave: "Gem", favMenuLoad: "Indlæs", favMenuDelete: "Slet alle",
+      monMenuSave: "Gem monitorer", monMenuLoadAdd: "Tilføj monitorer", monMenuLoadSub: "Erstat monitorer", monMenuDelete: "Slet alle monitorer",
+      monDeleteConfirm: "Slet alle monitorer?"
+    },
+    el: { // Ελληνικά
+      add: "Προσθήκη", favs: "Αγαπημένα", monitors: "Οθόνες", placeholder: "Εισάγετε URL...",
+      err_url: "άκυρο", err_net: "Σφάλμα δικτύου", err_empty: "κενό URL", err_offline: "χωρίς δίκτυο",
+      online: "OK", loading: "init", start: "Έναρξη",
+      warn_http: "⚠️ Μη ασφαλής διεύθυνση HTTP – κάντε κλικ ξανά για προσθήκη.",
+      menuTitle: "Μενού", menuLang: "🌐 Γλώσσα", menuMode: "🎛️ Λειτουργία",
+      menuSettings: "⚙️ Ρυθμίσεις", menuVersion: "📌 Έκδοση", close: "Κλείσιμο",
+      footerImpressum: "Αποτύπωμα", footerDatenschutz: "Απόρρητο", footerNutzung: "Όροι", footerCookies: "Cookies",
+      autoLabel: "Αυτόματο (πρόγραμμα περιήγησης)",
+      favMenuDefault: "Φόρτωση προεπιλογής", favMenuSave: "Αποθήκευση", favMenuLoad: "Φόρτωση", favMenuDelete: "Διαγραφή όλων",
+      monMenuSave: "Αποθήκευση οθονών", monMenuLoadAdd: "Προσθήκη οθονών", monMenuLoadSub: "Αντικατάσταση οθονών", monMenuDelete: "Διαγραφή όλων των οθονών",
+      monDeleteConfirm: "Διαγραφή όλων των οθονών;"
+    },
+    es: { // Español
+      add: "Añadir", favs: "Favoritos", monitors: "Monitores", placeholder: "Introducir URL...",
+      err_url: "no válida", err_net: "Error de red", err_empty: "URL vacía", err_offline: "sin red",
+      online: "OK", loading: "init", start: "Iniciar",
+      warn_http: "⚠️ URL HTTP insegura – haga clic nuevamente para agregarla.",
+      menuTitle: "Menú", menuLang: "🌐 Idioma", menuMode: "🎛️ Modo",
+      menuSettings: "⚙️ Ajustes", menuVersion: "📌 Versión", close: "Cerrar",
+      footerImpressum: "Aviso legal", footerDatenschutz: "Privacidad", footerNutzung: "Términos", footerCookies: "Cookies",
+      autoLabel: "Auto (navegador)",
+      favMenuDefault: "Cargar predeterminados", favMenuSave: "Guardar", favMenuLoad: "Cargar", favMenuDelete: "Eliminar todos",
+      monMenuSave: "Guardar monitores", monMenuLoadAdd: "Agregar monitores", monMenuLoadSub: "Sustituir monitores", monMenuDelete: "Eliminar todos los monitores",
+      monDeleteConfirm: "¿Eliminar todos los monitores?"
+    },
+    et: { // Eesti
+      add: "Lisa", favs: "Lemmikud", monitors: "Monitorid", placeholder: "Sisesta URL...",
+      err_url: "vigane", err_net: "Võrguviga", err_empty: "URL tühi", err_offline: "võrk puudub",
+      online: "OK", loading: "init", start: "Alusta",
+      warn_http: "⚠️ Ebaturvaline HTTP URL – klõpsake uuesti lisamiseks.",
+      menuTitle: "Menüü", menuLang: "🌐 Keel", menuMode: "🎛️ Režiim",
+      menuSettings: "⚙️ Seaded", menuVersion: "📌 Versioon", close: "Sulge",
+      footerImpressum: "Impressum", footerDatenschutz: "Privaatsus", footerNutzung: "Tingimused", footerCookies: "Küpsised",
+      autoLabel: "Auto (brauser)",
+      favMenuDefault: "Laadi vaikimisi", favMenuSave: "Salvesta", favMenuLoad: "Laadi", favMenuDelete: "Kustuta kõik",
+      monMenuSave: "Salvesta monitorid", monMenuLoadAdd: "Lisa monitorid", monMenuLoadSub: "Asenda monitorid", monMenuDelete: "Kustuta kõik monitorid",
+      monDeleteConfirm: "Kustuta kõik monitorid?"
+    },
+    fi: { // Suomi
+      add: "Lisää", favs: "Suosikit", monitors: "Monitorit", placeholder: "Syötä URL...",
+      err_url: "virheellinen", err_net: "Verkkovirhe", err_empty: "URL tyhjä", err_offline: "ei verkkoa",
+      online: "OK", loading: "init", start: "Aloita",
+      warn_http: "⚠️ Turvaton HTTP URL – napsauta uudelleen lisätäksesi.",
+      menuTitle: "Valikko", menuLang: "🌐 Kieli", menuMode: "🎛️ Tila",
+      menuSettings: "⚙️ Asetukset", menuVersion: "📌 Versio", close: "Sulje",
+      footerImpressum: "Impressumi", footerDatenschutz: "Tietosuoja", footerNutzung: "Ehdot", footerCookies: "Evästeet",
+      autoLabel: "Auto (selain)",
+      favMenuDefault: "Lataa oletus", favMenuSave: "Tallenna", favMenuLoad: "Lataa", favMenuDelete: "Poista kaikki",
+      monMenuSave: "Tallenna monitorit", monMenuLoadAdd: "Lisää monitorit", monMenuLoadSub: "Korvaa monitorit", monMenuDelete: "Poista kaikki monitorit",
+      monDeleteConfirm: "Poista kaikki monitorit?"
+    },
+    fr: { // Français
+      add: "Ajouter", favs: "Favoris", monitors: "Moniteurs", placeholder: "Entrez l'URL...",
+      err_url: "invalide", err_net: "Erreur réseau", err_empty: "URL vide", err_offline: "pas de réseau",
+      online: "OK", loading: "init", start: "Démarrer",
+      warn_http: "⚠️ URL HTTP non sécurisée – cliquez à nouveau pour l'ajouter quand même.",
+      menuTitle: "Menu", menuLang: "🌐 Langue", menuMode: "🎛️ Mode",
+      menuSettings: "⚙️ Paramètres", menuVersion: "📌 Version", close: "Fermer",
+      footerImpressum: "Mentions légales", footerDatenschutz: "Confidentialité", footerNutzung: "Conditions", footerCookies: "Cookies",
+      autoLabel: "Auto (navigateur)",
+      favMenuDefault: "Charger par défaut", favMenuSave: "Enregistrer", favMenuLoad: "Charger", favMenuDelete: "Tout supprimer",
+      monMenuSave: "Enregistrer les moniteurs", monMenuLoadAdd: "Ajouter des moniteurs", monMenuLoadSub: "Remplacer les moniteurs", monMenuDelete: "Supprimer tous les moniteurs",
+      monDeleteConfirm: "Supprimer tous les moniteurs ?"
+    },
+    hr: { // Hrvatski
+      add: "Dodaj", favs: "Favoriti", monitors: "Monitora", placeholder: "Unesite URL...",
+      err_url: "nevažeći", err_net: "Mrežna pogreška", err_empty: "URL prazan", err_offline: "nema mreže",
+      online: "OK", loading: "init", start: "Pokreni",
+      warn_http: "⚠️ Nesiguran HTTP URL – kliknite ponovno za dodavanje.",
+      menuTitle: "Izbornik", menuLang: "🌐 Jezik", menuMode: "🎛️ Način",
+      menuSettings: "⚙️ Postavke", menuVersion: "📌 Verzija", close: "Zatvori",
+      footerImpressum: "Impresum", footerDatenschutz: "Privatnost", footerNutzung: "Uvjeti", footerCookies: "Kolačići",
+      autoLabel: "Auto (preglednik)",
+      favMenuDefault: "Učitaj zadano", favMenuSave: "Spremi", favMenuLoad: "Učitaj", favMenuDelete: "Izbriši sve",
+      monMenuSave: "Spremi monitore", monMenuLoadAdd: "Dodaj monitore", monMenuLoadSub: "Zamijeni monitore", monMenuDelete: "Izbriši sve monitore",
+      monDeleteConfirm: "Izbriši sve monitore?"
+    },
+    hu: { // Magyar
+      add: "Hozzáadás", favs: "Kedvencek", monitors: "Monitorok", placeholder: "URL megadása...",
+      err_url: "érvénytelen", err_net: "Hálózati hiba", err_empty: "URL üres", err_offline: "nincs hálózat",
+      online: "OK", loading: "init", start: "Indítás",
+      warn_http: "⚠️ Nem biztonságos HTTP URL – kattintson újra a hozzáadáshoz.",
+      menuTitle: "Menü", menuLang: "🌐 Nyelv", menuMode: "🎛️ Mód",
+      menuSettings: "⚙️ Beállítások", menuVersion: "📌 Verzió", close: "Bezárás",
+      footerImpressum: "Impresszum", footerDatenschutz: "Adatvédelem", footerNutzung: "Feltételek", footerCookies: "Sütik",
+      autoLabel: "Auto (böngésző)",
+      favMenuDefault: "Alapértelmezett betöltése", favMenuSave: "Mentés", favMenuLoad: "Betöltés", favMenuDelete: "Összes törlése",
+      monMenuSave: "Monitorok mentése", monMenuLoadAdd: "Monitorok hozzáadása", monMenuLoadSub: "Monitorok cseréje", monMenuDelete: "Összes monitor törlése",
+      monDeleteConfirm: "Törli az összes monitort?"
+    },
+    it: { // Italiano
+      add: "Aggiungi", favs: "Preferiti", monitors: "Monitor", placeholder: "Inserisci URL...",
+      err_url: "non valido", err_net: "Errore di rete", err_empty: "URL vuoto", err_offline: "nessuna rete",
+      online: "OK", loading: "init", start: "Avvia",
+      warn_http: "⚠️ URL HTTP non sicura – clicca di nuovo per aggiungerla.",
+      menuTitle: "Menu", menuLang: "🌐 Lingua", menuMode: "🎛️ Modalità",
+      menuSettings: "⚙️ Impostazioni", menuVersion: "📌 Versione", close: "Chiudi",
+      footerImpressum: "Impressum", footerDatenschutz: "Privacy", footerNutzung: "Termini", footerCookies: "Cookie",
+      autoLabel: "Auto (browser)",
+      favMenuDefault: "Carica predefiniti", favMenuSave: "Salva", favMenuLoad: "Carica", favMenuDelete: "Elimina tutti",
+      monMenuSave: "Salva monitor", monMenuLoadAdd: "Aggiungi monitor", monMenuLoadSub: "Sostituisci monitor", monMenuDelete: "Elimina tutti i monitor",
+      monDeleteConfirm: "Eliminare tutti i monitor?"
+    },
+    lt: { // Lietuvių
+      add: "Pridėti", favs: "Mėgstamiausi", monitors: "Monitoriai", placeholder: "Įveskite URL...",
+      err_url: "neteisingas", err_net: "Tinklo klaida", err_empty: "URL tuščias", err_offline: "nėra tinklo",
+      online: "OK", loading: "init", start: "Pradėti",
+      warn_http: "⚠️ Nesaugus HTTP URL – spustelėkite dar kartą, kad pridėtumėte.",
+      menuTitle: "Meniu", menuLang: "🌐 Kalba", menuMode: "🎛️ Režimas",
+      menuSettings: "⚙️ Nustatymai", menuVersion: "📌 Versija", close: "Uždaryti",
+      footerImpressum: "Impresas", footerDatenschutz: "Privatumas", footerNutzung: "Sąlygos", footerCookies: "Slapukai",
+      autoLabel: "Auto (naršyklė)",
+      favMenuDefault: "Įkelti numatytuosius", favMenuSave: "Išsaugoti", favMenuLoad: "Įkelti", favMenuDelete: "Ištrinti visus",
+      monMenuSave: "Išsaugoti monitorius", monMenuLoadAdd: "Pridėti monitorius", monMenuLoadSub: "Pakeisti monitorius", monMenuDelete: "Ištrinti visus monitorius",
+      monDeleteConfirm: "Ištrinti visus monitorius?"
+    },
+    lv: { // Latviešu
+      add: "Pievienot", favs: "Izlase", monitors: "Monitorus", placeholder: "Ievadiet URL...",
+      err_url: "nederīgs", err_net: "Tīkla kļūda", err_empty: "URL tukšs", err_offline: "nav tīkla",
+      online: "OK", loading: "init", start: "Sākt",
+      warn_http: "⚠️ Nedrošs HTTP URL – noklikšķiniet vēlreiz, lai pievienotu.",
+      menuTitle: "Izvēlne", menuLang: "🌐 Valoda", menuMode: "🎛️ Režīms",
+      menuSettings: "⚙️ Iestatījumi", menuVersion: "📌 Versija", close: "Aizvērt",
+      footerImpressum: "Impresums", footerDatenschutz: "Privātums", footerNutzung: "Noteikumi", footerCookies: "Sīkfaili",
+      autoLabel: "Auto (pārlūks)",
+      favMenuDefault: "Ielādēt noklusējumu", favMenuSave: "Saglabāt", favMenuLoad: "Ielādēt", favMenuDelete: "Dzēst visus",
+      monMenuSave: "Saglabāt monitorus", monMenuLoadAdd: "Pievienot monitorus", monMenuLoadSub: "Aizstāt monitorus", monMenuDelete: "Dzēst visus monitorus",
+      monDeleteConfirm: "Dzēst visus monitorus?"
+    },
+    mt: { // Malti
+      add: "Żid", favs: "Favoriti", monitors: "Monitor", placeholder: "Daħħal URL...",
+      err_url: "invalidu", err_net: "Żball tan-netwerk", err_empty: "URL vojt", err_offline: "l-ebda netwerk",
+      online: "OK", loading: "init", start: "Ibda",
+      warn_http: "⚠️ URL HTTP mhux sigur – ikklikkja mill-ġdid biex iżżid.",
+      menuTitle: "Menu", menuLang: "🌐 Lingwa", menuMode: "🎛️ Mod",
+      menuSettings: "⚙️ Settings", menuVersion: "📌 Verżjoni", close: "Agħlaq",
+      footerImpressum: "Impressum", footerDatenschutz: "Privatezza", footerNutzung: "Termini", footerCookies: "Cookies",
+      autoLabel: "Awto (browser)",
+      favMenuDefault: "Tagħbija default", favMenuSave: "Salva", favMenuLoad: "Tagħbija", favMenuDelete: "Ħassar kollox",
+      monMenuSave: "Salva monitors", monMenuLoadAdd: "Żid monitors", monMenuLoadSub: "Sostitwixxi monitors", monMenuDelete: "Ħassar il-monitors kollha",
+      monDeleteConfirm: "Tħassar il-monitors kollha?"
+    },
+    nl: { // Nederlands
+      add: "Toevoegen", favs: "Favorieten", monitors: "Monitors", placeholder: "Voer URL in...",
+      err_url: "ongeldig", err_net: "Netwerkfout", err_empty: "URL leeg", err_offline: "geen netwerk",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Onveilige HTTP URL – klik opnieuw om toe te voegen.",
+      menuTitle: "Menu", menuLang: "🌐 Taal", menuMode: "🎛️ Modus",
+      menuSettings: "⚙️ Instellingen", menuVersion: "📌 Versie", close: "Sluiten",
+      footerImpressum: "Impressum", footerDatenschutz: "Privacy", footerNutzung: "Voorwaarden", footerCookies: "Cookies",
+      autoLabel: "Auto (browser)",
+      favMenuDefault: "Standaard laden", favMenuSave: "Opslaan", favMenuLoad: "Laden", favMenuDelete: "Alles verwijderen",
+      monMenuSave: "Monitors opslaan", monMenuLoadAdd: "Monitors toevoegen", monMenuLoadSub: "Monitors vervangen", monMenuDelete: "Alle monitors verwijderen",
+      monDeleteConfirm: "Alle monitors verwijderen?"
+    },
+    pl: { // Polski
+      add: "Dodaj", favs: "Ulubione", monitors: "Monitory", placeholder: "Wpisz URL...",
+      err_url: "nieprawidłowy", err_net: "Błąd sieci", err_empty: "URL pusty", err_offline: "brak sieci",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Niebezpieczny adres HTTP – kliknij ponownie, aby dodać.",
+      menuTitle: "Menu", menuLang: "🌐 Język", menuMode: "🎛️ Tryb",
+      menuSettings: "⚙️ Ustawienia", menuVersion: "📌 Wersja", close: "Zamknij",
+      footerImpressum: "Impressum", footerDatenschutz: "Prywatność", footerNutzung: "Warunki", footerCookies: "Pliki cookie",
+      autoLabel: "Auto (przeglądarka)",
+      favMenuDefault: "Załaduj domyślne", favMenuSave: "Zapisz", favMenuLoad: "Załaduj", favMenuDelete: "Usuń wszystkie",
+      monMenuSave: "Zapisz monitory", monMenuLoadAdd: "Dodaj monitory", monMenuLoadSub: "Zastąp monitory", monMenuDelete: "Usuń wszystkie monitory",
+      monDeleteConfirm: "Usunąć wszystkie monitory?"
+    },
+    pt: { // Português
+      add: "Adicionar", favs: "Favoritos", monitors: "Monitores", placeholder: "Digite a URL...",
+      err_url: "inválida", err_net: "Erro de rede", err_empty: "URL vazia", err_offline: "sem rede",
+      online: "OK", loading: "init", start: "Iniciar",
+      warn_http: "⚠️ URL HTTP insegura – clique novamente para adicionar.",
+      menuTitle: "Menu", menuLang: "🌐 Idioma", menuMode: "🎛️ Modo",
+      menuSettings: "⚙️ Configurações", menuVersion: "📌 Versão", close: "Fechar",
+      footerImpressum: "Impressum", footerDatenschutz: "Privacidade", footerNutzung: "Termos", footerCookies: "Cookies",
+      autoLabel: "Auto (navegador)",
+      favMenuDefault: "Carregar padrão", favMenuSave: "Salvar", favMenuLoad: "Carregar", favMenuDelete: "Excluir todos",
+      monMenuSave: "Salvar monitores", monMenuLoadAdd: "Adicionar monitores", monMenuLoadSub: "Substituir monitores", monMenuDelete: "Excluir todos os monitores",
+      monDeleteConfirm: "Excluir todos os monitores?"
+    },
+    ro: { // Română
+      add: "Adaugă", favs: "Favorite", monitors: "Monitoare", placeholder: "Introduceți URL...",
+      err_url: "nevalid", err_net: "Eroare rețea", err_empty: "URL gol", err_offline: "fără rețea",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ URL HTTP nesigur – faceți clic din nou pentru a adăuga.",
+      menuTitle: "Meniu", menuLang: "🌐 Limbă", menuMode: "🎛️ Mod",
+      menuSettings: "⚙️ Setări", menuVersion: "📌 Versiune", close: "Închide",
+      footerImpressum: "Impressum", footerDatenschutz: "Confidențialitate", footerNutzung: "Termeni", footerCookies: "Cookie-uri",
+      autoLabel: "Auto (browser)",
+      favMenuDefault: "Încarcă implicit", favMenuSave: "Salvează", favMenuLoad: "Încarcă", favMenuDelete: "Șterge toate",
+      monMenuSave: "Salvează monitoarele", monMenuLoadAdd: "Adaugă monitoare", monMenuLoadSub: "Înlocuiește monitoarele", monMenuDelete: "Șterge toate monitoarele",
+      monDeleteConfirm: "Ștergeți toate monitoarele?"
+    },
+    sk: { // Slovenčina
+      add: "Pridať", favs: "Obľúbené", monitors: "Monitory", placeholder: "Zadajte URL...",
+      err_url: "neplatná", err_net: "Chyba siete", err_empty: "URL prázdna", err_offline: "žiadna sieť",
+      online: "OK", loading: "init", start: "Štart",
+      warn_http: "⚠️ Nezabezpečená HTTP adresa – kliknite znova pre pridanie.",
+      menuTitle: "Menu", menuLang: "🌐 Jazyk", menuMode: "🎛️ Režim",
+      menuSettings: "⚙️ Nastavenia", menuVersion: "📌 Verzia", close: "Zavrieť",
+      footerImpressum: "Impresum", footerDatenschutz: "Ochrana údajov", footerNutzung: "Podmienky", footerCookies: "Cookies",
+      autoLabel: "Auto (prehliadač)",
+      favMenuDefault: "Načítať predvolené", favMenuSave: "Uložiť", favMenuLoad: "Načítať", favMenuDelete: "Vymazať všetky",
+      monMenuSave: "Uložiť monitory", monMenuLoadAdd: "Pridať monitory", monMenuLoadSub: "Nahradiť monitory", monMenuDelete: "Vymazať všetky monitory",
+      monDeleteConfirm: "Vymazať všetky monitory?"
+    },
+    sl: { // Slovenščina
+      add: "Dodaj", favs: "Priljubljene", monitors: "Monitorji", placeholder: "Vnesite URL...",
+      err_url: "neveljaven", err_net: "Omrežna napaka", err_empty: "URL prazen", err_offline: "ni omrežja",
+      online: "OK", loading: "init", start: "Začni",
+      warn_http: "⚠️ Nevaren HTTP URL – kliknite znova za dodajanje.",
+      menuTitle: "Meni", menuLang: "🌐 Jezik", menuMode: "🎛️ Način",
+      menuSettings: "⚙️ Nastavitve", menuVersion: "📌 Različica", close: "Zapri",
+      footerImpressum: "Impresum", footerDatenschutz: "Zasebnost", footerNutzung: "Pogoji", footerCookies: "Piškotki",
+      autoLabel: "Avto (brskalnik)",
+      favMenuDefault: "Naloži privzeto", favMenuSave: "Shrani", favMenuLoad: "Naloži", favMenuDelete: "Izbriši vse",
+      monMenuSave: "Shrani monitorje", monMenuLoadAdd: "Dodaj monitorje", monMenuLoadSub: "Zamenjaj monitorje", monMenuDelete: "Izbriši vse monitorje",
+      monDeleteConfirm: "Izbrišem vse monitorje?"
+    },
+    sv: { // Svenska
+      add: "Lägg till", favs: "Favoriter", monitors: "Monitorer", placeholder: "Ange URL...",
+      err_url: "ogiltig", err_net: "Nätverksfel", err_empty: "URL tom", err_offline: "inget nätverk",
+      online: "OK", loading: "init", start: "Start",
+      warn_http: "⚠️ Osäker HTTP URL – klicka igen för att lägga till.",
+      menuTitle: "Meny", menuLang: "🌐 Språk", menuMode: "🎛️ Läge",
+      menuSettings: "⚙️ Inställningar", menuVersion: "📌 Version", close: "Stäng",
+      footerImpressum: "Impressum", footerDatenschutz: "Integritet", footerNutzung: "Villkor", footerCookies: "Cookies",
+      autoLabel: "Auto (webbläsare)",
+      favMenuDefault: "Ladda standard", favMenuSave: "Spara", favMenuLoad: "Ladda", favMenuDelete: "Ta bort alla",
+      monMenuSave: "Spara monitorer", monMenuLoadAdd: "Lägg till monitorer", monMenuLoadSub: "Ersätt monitorer", monMenuDelete: "Ta bort alla monitorer",
+      monDeleteConfirm: "Ta bort alla monitorer?"
+    },
+    ru: { // Русский
+      add: "Добавить", favs: "Избранное", monitors: "Мониторы", placeholder: "Введите URL...",
+      err_url: "недействительный", err_net: "Ошибка сети", err_empty: "URL пуст", err_offline: "нет сети",
+      online: "OK", loading: "init", start: "Старт",
+      warn_http: "⚠️ Небезопасный HTTP URL – нажмите еще раз, чтобы добавить.",
+      menuTitle: "Меню", menuLang: "🌐 Язык", menuMode: "🎛️ Режим",
+      menuSettings: "⚙️ Настройки", menuVersion: "📌 Версия", close: "Закрыть",
+      footerImpressum: "Импрессум", footerDatenschutz: "Конфиденциальность", footerNutzung: "Условия", footerCookies: "Куки",
+      autoLabel: "Авто (браузер)",
+      favMenuDefault: "Загрузить стандартные", favMenuSave: "Сохранить", favMenuLoad: "Загрузить", favMenuDelete: "Удалить все",
+      monMenuSave: "Сохранить мониторы", monMenuLoadAdd: "Добавить мониторы", monMenuLoadSub: "Заменить мониторы", monMenuDelete: "Удалить все мониторы",
+      monDeleteConfirm: "Удалить все мониторы?"
+    },
+    ja: { // 日本語
+      add: "追加", favs: "お気に入り", monitors: "モニター", placeholder: "URLを入力...",
+      err_url: "無効", err_net: "ネットワークエラー", err_empty: "URLが空", err_offline: "オフライン",
+      online: "OK", loading: "init", start: "開始",
+      warn_http: "⚠️ 安全でないHTTP URL – もう一度クリックして追加します。",
+      menuTitle: "メニュー", menuLang: "🌐 言語", menuMode: "🎛️ モード",
+      menuSettings: "⚙️ 設定", menuVersion: "📌 バージョン", close: "閉じる",
+      footerImpressum: "インプレッサム", footerDatenschutz: "プライバシー", footerNutzung: "利用規約", footerCookies: "クッキー",
+      autoLabel: "自動（ブラウザ）",
+      favMenuDefault: "デフォルトを読み込む", favMenuSave: "保存", favMenuLoad: "読み込む", favMenuDelete: "すべて削除",
+      monMenuSave: "モニターを保存", monMenuLoadAdd: "モニターを追加", monMenuLoadSub: "モニターを置き換え", monMenuDelete: "すべてのモニターを削除",
+      monDeleteConfirm: "すべてのモニターを削除しますか？"
+    },
+    zh: { // 中文
+      add: "添加", favs: "收藏夹", monitors: "监视器", placeholder: "输入URL...",
+      err_url: "无效", err_net: "网络错误", err_empty: "URL为空", err_offline: "无网络",
+      online: "OK", loading: "init", start: "开始",
+      warn_http: "⚠️ 不安全的HTTP URL – 再次点击以添加。",
+      menuTitle: "菜单", menuLang: "🌐 语言", menuMode: "🎛️ 模式",
+      menuSettings: "⚙️ 设置", menuVersion: "📌 版本", close: "关闭",
+      footerImpressum: "版本说明", footerDatenschutz: "隐私", footerNutzung: "条款", footerCookies: "Cookie",
+      autoLabel: "自动（浏览器）",
+      favMenuDefault: "加载默认", favMenuSave: "保存", favMenuLoad: "加载", favMenuDelete: "全部删除",
+      monMenuSave: "保存监视器", monMenuLoadAdd: "添加监视器", monMenuLoadSub: "替换监视器", monMenuDelete: "删除所有监视器",
+      monDeleteConfirm: "删除所有监视器？"
+    },
+    ko: { // 한국어
+      add: "추가", favs: "즐겨찾기", monitors: "모니터", placeholder: "URL 입력...",
+      err_url: "잘못됨", err_net: "네트워크 오류", err_empty: "URL 비어 있음", err_offline: "네트워크 없음",
+      online: "OK", loading: "init", start: "시작",
+      warn_http: "⚠️ 안전하지 않은 HTTP URL – 다시 클릭하여 추가하십시오.",
+      menuTitle: "메뉴", menuLang: "🌐 언어", menuMode: "🎛️ 모드",
+      menuSettings: "⚙️ 설정", menuVersion: "📌 버전", close: "닫기",
+      footerImpressum: "임프레섬", footerDatenschutz: "개인정보", footerNutzung: "약관", footerCookies: "쿠키",
+      autoLabel: "자동 (브라우저)",
+      favMenuDefault: "기본값 로드", favMenuSave: "저장", favMenuLoad: "로드", favMenuDelete: "모두 삭제",
+      monMenuSave: "모니터 저장", monMenuLoadAdd: "모니터 추가", monMenuLoadSub: "모니터 대체", monMenuDelete: "모든 모니터 삭제",
+      monDeleteConfirm: "모든 모니터를 삭제하시겠습니까?"
+    }
+  };
+  // Fallback für nicht definierte Sprachen (sollte nicht vorkommen, aber sicher)
+  for (let code of ["bg","cs","da","el","es","et","fi","fr","hr","hu","it","lt","lv","mt","nl","pl","pt","ro","sk","sl","sv","ru","ja","zh","ko"]) {
+    if (!translations[code]) translations[code] = translations.en;
+  }
+
+  let currentLang = localStorage.getItem("noc_lang");
+  let isAutoLang = false;
+  if (!currentLang || currentLang === "auto") {
+    isAutoLang = true;
+    currentLang = (navigator.language || "en").split('-')[0];
+    if (!translations[currentLang]) currentLang = "en";
+  }
+  let t = translations[currentLang];
+
+  // DOM-Elemente
+  let urlInput, btnAdd, monitorsContainer, cpuContainer;
+  let favCountersSpan = null;
+  let autoFavToggle = null;
+  let favMenuBtn = null;
+  let monitorsMenuBtn = null;
+
+  // ========== HTTP-Warnung ==========
+  let pendingWarning = null;
+  function showHttpWarning(buttonElement, url) {
+    if (pendingWarning && pendingWarning.button === buttonElement && pendingWarning.url === url) {
+      if (pendingWarning.toast) pendingWarning.toast.remove();
+      if (pendingWarning.timeout) clearTimeout(pendingWarning.timeout);
+      if (pendingWarning.clickHandler) document.removeEventListener('click', pendingWarning.clickHandler);
+      if (pendingWarning.keyHandler) document.removeEventListener('keydown', pendingWarning.keyHandler);
+      pendingWarning = null;
+      return true;
+    }
+    if (pendingWarning) {
+      if (pendingWarning.toast) pendingWarning.toast.remove();
+      if (pendingWarning.timeout) clearTimeout(pendingWarning.timeout);
+      if (pendingWarning.clickHandler) document.removeEventListener('click', pendingWarning.clickHandler);
+      if (pendingWarning.keyHandler) document.removeEventListener('keydown', pendingWarning.keyHandler);
+      pendingWarning = null;
+    }
+    const toast = document.createElement('div');
+    toast.className = 'http-warning-toast';
+    toast.textContent = t.warn_http;
+    document.body.appendChild(toast);
+    const timeout = setTimeout(() => {
+      if (pendingWarning && pendingWarning.toast === toast) {
+        toast.remove();
+        if (pendingWarning.clickHandler) document.removeEventListener('click', pendingWarning.clickHandler);
+        if (pendingWarning.keyHandler) document.removeEventListener('keydown', pendingWarning.keyHandler);
+        pendingWarning = null;
+      }
+    }, 5000);
+    function onAnyAction(e) {
+      let targetButton = e.target.closest('button');
+      if (targetButton === buttonElement) return;
+      if (pendingWarning && pendingWarning.toast === toast) {
+        toast.remove();
+        clearTimeout(timeout);
+        document.removeEventListener('click', pendingWarning.clickHandler);
+        document.removeEventListener('keydown', pendingWarning.keyHandler);
+        pendingWarning = null;
+      }
+    }
+    function onKey(e) { if (e.key === 'Escape') onAnyAction(e); }
+    document.addEventListener('click', onAnyAction);
+    document.addEventListener('keydown', onKey);
+    pendingWarning = { button: buttonElement, url: url, toast: toast, timeout: timeout, clickHandler: onAnyAction, keyHandler: onKey };
+    return false;
+  }
+
+  // ========== Hilfsfunktionen ==========
+  function isHttpUrl(url) {
+    try { return new URL(url).protocol === "http:"; } catch { return false; }
+  }
+  function getWarningIcon(url) {
+    return isHttpUrl(url) ? '<span class="warning-icon">⚠️</span>' : '';
+  }
+  function getDomain(url) {
+    try { return new URL(url).hostname; } catch { return ""; }
+  }
+
+  // ========== Spinner ==========
+  let monitorSpinnerCtx = null;
+  let monitorSpinnerAnimationId = null;
+  let currentCycleDuration = 0;
+  let cycleStartTimestamp = 0;
+  let favSpinnerStep = 0;
+  let favSpinnerInterval = null;
+  const favSpinnerCanvas = document.getElementById('favSpinnerCanvas');
+  let favSpinnerCtx = null;
+  const monitorSpinnerCanvas = document.getElementById('monitorSpinnerCanvas');
+  const monitorCountSpan = document.getElementById('monitorCount');
+
+  let collapseTimer = null;
+  const favContainer = document.getElementById('favContainer');
+  const favBox = document.getElementById('favoritesList');
+
+  const MIN_CYCLE_MS = 5000;
+  const MIN_STEP_SAME_DOMAIN = 200;
+  const MIN_STEP_DIFFERENT = 50;
+
+  let monitors = [];
+  let resortTimer = null;
+  let favIntervals = [];
+
+  function drawFavSpinnerSegment(step) {
+    if (!favSpinnerCtx) return;
+    const w = 14, h = 14;
+    favSpinnerCtx.clearRect(0, 0, w, h);
+    favSpinnerCtx.beginPath();
+    favSpinnerCtx.arc(w/2, h/2, w/2 - 1, 0, 2 * Math.PI);
+    favSpinnerCtx.fillStyle = '#333';
+    favSpinnerCtx.fill();
+    favSpinnerCtx.strokeStyle = '#666';
+    favSpinnerCtx.stroke();
+    if (step === 0) return;
+    const anglePerStep = (Math.PI * 2) / 6;
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + anglePerStep * step;
+    favSpinnerCtx.beginPath();
+    favSpinnerCtx.moveTo(w/2, h/2);
+    favSpinnerCtx.arc(w/2, h/2, w/2 - 1, startAngle, endAngle);
+    favSpinnerCtx.fillStyle = '#00aa55';
+    favSpinnerCtx.fill();
+  }
+  function startFavSpinner() {
+    if (favSpinnerInterval) clearInterval(favSpinnerInterval);
+    favSpinnerStep = 0;
+    drawFavSpinnerSegment(0);
+    favSpinnerInterval = setInterval(() => {
+      favSpinnerStep = (favSpinnerStep + 1) % 6;
+      drawFavSpinnerSegment(favSpinnerStep);
+    }, 5000);
+  }
+
+  function drawMonitorSpinner(progress) {
+    if (!monitorSpinnerCtx) return;
+    const w = 14, h = 14;
+    monitorSpinnerCtx.clearRect(0, 0, w, h);
+    monitorSpinnerCtx.beginPath();
+    monitorSpinnerCtx.arc(w/2, h/2, w/2 - 1, 0, 2 * Math.PI);
+    monitorSpinnerCtx.fillStyle = '#333';
+    monitorSpinnerCtx.fill();
+    monitorSpinnerCtx.strokeStyle = '#666';
+    monitorSpinnerCtx.stroke();
+    if (progress <= 0) return;
+    const endAngle = -Math.PI / 2 + (Math.PI * 2 * progress);
+    monitorSpinnerCtx.beginPath();
+    monitorSpinnerCtx.moveTo(w/2, h/2);
+    monitorSpinnerCtx.arc(w/2, h/2, w/2 - 1, -Math.PI / 2, endAngle);
+    monitorSpinnerCtx.fillStyle = '#00aa55';
+    monitorSpinnerCtx.fill();
+  }
+  function startMonitorSpinnerAnimation(durationMs) {
+    if (monitorSpinnerAnimationId) cancelAnimationFrame(monitorSpinnerAnimationId);
+    currentCycleDuration = durationMs;
+    cycleStartTimestamp = performance.now();
+    function animate(now) {
+      const elapsed = now - cycleStartTimestamp;
+      let progress = Math.min(1, elapsed / currentCycleDuration);
+      drawMonitorSpinner(progress);
+      if (progress < 1) monitorSpinnerAnimationId = requestAnimationFrame(animate);
+      else drawMonitorSpinner(1);
+    }
+    monitorSpinnerAnimationId = requestAnimationFrame(animate);
+  }
+
+  // ========== Favoriten-Collapse ==========
+  function collapseFavoritesBox() {
+    if (favBox && !favBox.classList.contains('collapsed')) favBox.classList.add('collapsed');
+  }
+  function expandFavoritesBox() {
+    if (favBox && favBox.classList.contains('collapsed')) favBox.classList.remove('collapsed');
+  }
+  function resetCollapseTimer() {
+    if (collapseTimer) clearTimeout(collapseTimer);
+    collapseTimer = setTimeout(() => collapseFavoritesBox(), 5000);
+  }
+  function handleContainerMouseEnter() {
+    expandFavoritesBox();
+    if (collapseTimer) clearTimeout(collapseTimer);
+  }
+  function handleContainerMouseLeave() {
+    resetCollapseTimer();
+  }
+  function handleBoxMouseEnter() {
+    expandFavoritesBox();
+    if (collapseTimer) clearTimeout(collapseTimer);
+  }
+  function handleBoxMouseLeave() {
+    resetCollapseTimer();
+  }
+
+  // ========== Monitor-Kernlogik ==========
+  function isValidURL(str){
+    try { const u=new URL(str); return u.protocol==="http:"||u.protocol==="https:"; }
+    catch { return false; }
+  }
+  function schemaWeight(url){ try { return new URL(url).protocol === "http:" ? 0 : 1; } catch { return 2; } }
+  function segmentWeight(domain){ if(domain.startsWith("127.")) return 0; if(domain.startsWith("192.168.")) return 1; return 2; }
+  function ipCompare(a,b){
+    const aNum = a.split('.').map(Number), bNum = b.split('.').map(Number);
+    for(let i=0;i<4;i++) if(aNum[i]!==bNum[i]) return aNum[i]-bNum[i];
+    return 0;
+  }
+  function statePriority(s){ return {red:0,yellow:1,blue:2,gray:3,green:4}[s] ?? 5; }
+
+  function updateFavCounters() {
+    if (!favCountersSpan) return;
+    const favs = loadFavorites();
+    favCountersSpan.textContent = `(${favs.length} | ${monitors.filter(m => favs.includes(m.url)).length})`;
+  }
+  function updateMonitorCount() {
+    if (monitorCountSpan) monitorCountSpan.textContent = `(${monitors.length})`;
+  }
+
+  function setState(m, state, text){
+    if(m.state!==state){
+      m.div.classList.add("changed");
+      setTimeout(()=>m.div.classList.remove("changed"),400);
+    }
+    m.state = state;
+    m.led.className = "led "+state;
+    m.statusDiv.textContent = text;
+    sortPanels(false);
+  }
+  function drawGraph(m){
+    const ctx = m.canvas.getContext("2d");
+    const w = m.canvas.width, h = m.canvas.height;
+    ctx.clearRect(0,0,w,h);
+    if(m.history.length<2) return;
+    const values = m.history;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const avg = Math.round(values.reduce((a,b)=>a+b,0)/values.length);
+    const range = max-min || 1;
+    ctx.strokeStyle="#111";
+    for(let i=1;i<=3;i++){ const y=(h-20)*(i/4); ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(w-5,y); ctx.stroke(); }
+    const activeInterval = currentCycleDuration;
+    const totalSec = Math.round(values.length*(activeInterval/1000));
+    for(let s=10;s<totalSec;s+=10){ const x=30+(s/totalSec)*(w-40); ctx.beginPath(); ctx.moveTo(x,5); ctx.lineTo(x,h-20); ctx.stroke(); }
+    ctx.strokeStyle="#333";
+    ctx.beginPath();
+    ctx.moveTo(30,5); ctx.lineTo(30,h-20); ctx.lineTo(w-5,h-20); ctx.stroke();
+    ctx.fillStyle="#777"; ctx.font="10px Arial";
+    ctx.fillText(max+" ms",2,12); ctx.fillText(min+" ms",2,h-22); ctx.fillText(totalSec+"s",w-40,h-5);
+    ctx.beginPath();
+    values.forEach((v,i)=>{
+      const x=30+i*((w-40)/values.length);
+      const y=(h-20)-((v-min)/range)*(h-30);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle="#00ff88"; ctx.stroke();
+    m.statsDiv.textContent="Min:"+min+" | Max:"+max+" | Avg:"+avg+" ms";
+  }
+  async function checkMonitor(m){
+    if(!m.url){ setState(m,"gray",t.err_empty); return; }
+    if(!isValidURL(m.url)){ setState(m,"blue",t.err_url); return; }
+    if(!navigator.onLine){ setState(m,"red",t.err_offline); return; }
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(),3000);
+    const start = performance.now();
+    try{
+      await fetch(m.url,{method:"GET",mode:"no-cors",cache:"no-store",signal:controller.signal});
+      const time = Math.round(performance.now()-start);
+      m.history.push(time); if(m.history.length>120) m.history.shift();
+      drawGraph(m);
+      setState(m,"green",t.online+" "+time+" ms");
+    }catch(e){
+      if(e.name==="AbortError") setState(m,"yellow","Timeout");
+      else setState(m,"red",t.err_net+(e.message ? " ("+e.message+")" : ""));
+    }
+    clearTimeout(timeout);
+  }
+
+  function createMonitor(url){
+    const div = document.createElement("div"); div.className="panel";
+    const left = document.createElement("div"); left.className="left";
+    const led = document.createElement("div"); led.className="led gray";
+    const text = document.createElement("div");
+    text.innerHTML = `<div>${getWarningIcon(url)} ${url}</div><div class="status">${t.loading}</div><div class="stats"></div>`;
+    const statusDiv = text.querySelector(".status");
+    const statsDiv = text.querySelector(".stats");
+    left.appendChild(led); left.appendChild(text);
+    const right = document.createElement("div");
+    const canvas = document.createElement("canvas"); canvas.width=280; canvas.height=90;
+    const btnFav = document.createElement("button"); btnFav.textContent="★"; btnFav.disabled = !isValidURL(url) || loadFavorites().includes(url);
+    const btnDel = document.createElement("button"); btnDel.textContent="✖";
+    right.appendChild(canvas); right.appendChild(btnFav); right.appendChild(btnDel);
+    div.appendChild(left); div.appendChild(right);
+    monitorsContainer.appendChild(div);
+    const monitor = { url, div, led, statusDiv, statsDiv, canvas, history:[], state:"gray", startTime:Date.now(), favButton: btnFav };
+    btnDel.onclick = () => { 
+      monitors = monitors.filter(x=>x!==monitor); 
+      div.remove(); 
+      saveState(); 
+      triggerGreenResort();
+      updateFavCounters();
+      updateMonitorCount();
+      scheduleCycle();
+    };
+    btnFav.onclick = () => { addFavorite(url); btnFav.disabled=true; };
+    return monitor;
+  }
+
+  function compareMonitors(a,b){
+    const sp = statePriority(a.state)-statePriority(b.state);
+    if(sp!==0) return sp;
+    if(a.state==="green" && b.state==="green"){
+      const ua = new URL(a.url), ub = new URL(b.url);
+      const schemaDiff = schemaWeight(a.url)-schemaWeight(b.url); if(schemaDiff!==0) return schemaDiff;
+      const da = ua.hostname, db = ub.hostname;
+      const segDiff = segmentWeight(da)-segmentWeight(db); if(segDiff!==0) return segDiff;
+      const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+      if(ipRegex.test(da) && ipRegex.test(db)) return ipCompare(da,db);
+      return da.localeCompare(db);
+    }
+    return 0;
+  }
+  function sortPanels(){ monitors.sort(compareMonitors); monitors.forEach(m => monitorsContainer.appendChild(m.div)); }
+  function triggerGreenResort(){
+    if(resortTimer) clearTimeout(resortTimer);
+    resortTimer = setTimeout(()=> sortPanels(), 30000);
+  }
+
+  function updateAllMonitorFavButtons() {
+    const favs = loadFavorites();
+    monitors.forEach(mon => { if(mon.favButton) mon.favButton.disabled = !isValidURL(mon.url) || favs.includes(mon.url); });
+  }
+  function updateFavoriteRow(url, ledElement, badgeElement) {
+    const count = monitors.filter(m => m.url === url).length;
+    const monitor = monitors.find(m => m.url === url);
+    ledElement.className = monitor ? monitor.led.className : "led gray";
+    badgeElement.textContent = "×"+count;
+    badgeElement.style.visibility = count > 1 ? "visible" : "hidden";
+  }
+
+  function loadFavorites(){ return JSON.parse(localStorage.getItem("noc_favorites")||"[]"); }
+  function saveFavorites(list){ localStorage.setItem("noc_favorites",JSON.stringify(list)); }
+
+  function refreshFavoritesUI(){
+    favIntervals.forEach(id => clearInterval(id));
+    favIntervals = [];
+    const container = document.getElementById("favoritesList");
+    container.innerHTML = "";
+    const favs = loadFavorites().sort((a,b)=>{
+      const ua = new URL(a), ub = new URL(b);
+      const schemaDiff = schemaWeight(a)-schemaWeight(b); if(schemaDiff!==0) return schemaDiff;
+      const da = ua.hostname, db = ub.hostname;
+      const segDiff = segmentWeight(da)-segmentWeight(db); if(segDiff!==0) return segDiff;
+      const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+      if(ipRegex.test(da) && ipRegex.test(db)) return ipCompare(da,db);
+      return da.localeCompare(db);
+    });
+    favs.forEach(url=>{
+      const row = document.createElement("div"); row.className="favoriteRow";
+      const favLed = document.createElement("div"); favLed.className="led gray";
+      const favStart = document.createElement("button"); favStart.textContent=t.start;
+      favStart.classList.add('fav-start-btn');
+      favStart.setAttribute('data-url', url);
+      const favDel = document.createElement("button"); favDel.textContent="✖";
+      const icon = document.createElement("img"); icon.style.width="16px"; icon.style.height="16px"; icon.style.borderRadius="2px"; icon.style.margin="0 4px";
+      icon.src = "https://www.google.com/s2/favicons?sz=32&domain="+encodeURIComponent(url);
+      icon.onerror = () => { icon.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%23666'/></svg>"; };
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.innerHTML = `${getWarningIcon(url)} ${url}`;
+      link.className = "favoriteUrl";
+      const badge = document.createElement("span");
+      badge.style.cssText = "font-size:10px;background:#333;color:#aaa;border-radius:8px;padding:1px 5px;min-width:28px;display:inline-block;text-align:center;visibility:hidden;";
+      row.appendChild(favLed); row.appendChild(badge); row.appendChild(favStart); row.appendChild(favDel); row.appendChild(icon); row.appendChild(link);
+      container.appendChild(row);
+
+      const doStart = () => {
+        createAndStart(url);
+        updateFavoriteRow(url, favLed, badge);
+        updateFavCounters();
+      };
+      favStart.onclick = (e) => {
+        e.stopPropagation();
+        if (isHttpUrl(url)) {
+          const confirmed = showHttpWarning(favStart, url);
+          if (confirmed) doStart();
+        } else {
+          doStart();
+        }
+      };
+      favDel.onclick = () => {
+        const list = loadFavorites().filter(f => f !== url);
+        saveFavorites(list);
+        refreshFavoritesUI();
+        updateAllMonitorFavButtons();
+        updateFavCounters();
+      };
+      const id = setInterval(()=>{
+        const mon = monitors.find(x=>x.url===url);
+        favLed.className = mon ? mon.led.className : "led gray";
+        const count = monitors.filter(x=>x.url===url).length;
+        badge.textContent = "×"+count;
+        badge.style.visibility = count>1 ? "visible" : "hidden";
+      }, 30000);
+      favIntervals.push(id);
+    });
+    updateFavCounters();
+  }
+
+  function addFavorite(url){
+    if(!isValidURL(url)) return;
+    const favs = loadFavorites();
+    if(!favs.includes(url)){ favs.push(url); saveFavorites(favs); refreshFavoritesUI(); updateFavCounters(); }
+  }
+
+  function saveState(){ localStorage.setItem("noc_monitors",JSON.stringify(monitors.map(m=>m.url))); }
+  function loadState(){ 
+    JSON.parse(localStorage.getItem("noc_monitors")||"[]").forEach(url => createAndStart(url));
+    updateMonitorCount();
+  }
+
+  let currentSchedulingTimeout = null;
+  function scheduleCycle() {
+    if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+    if (monitors.length === 0) {
+      currentSchedulingTimeout = setTimeout(scheduleCycle, 1000);
+      return;
+    }
+    const sorted = [...monitors].sort(compareMonitors);
+    let steps = [];
+    let totalDuration = 0;
+    let lastDomain = null;
+    for (let i = 0; i < sorted.length; i++) {
+      const currentDomain = getDomain(sorted[i].url);
+      let delay = MIN_STEP_DIFFERENT;
+      if (lastDomain !== null && currentDomain === lastDomain) delay = MIN_STEP_SAME_DOMAIN;
+      steps.push({ monitor: sorted[i], delay: delay });
+      totalDuration += delay;
+      lastDomain = currentDomain;
+    }
+    const cycleDuration = Math.max(MIN_CYCLE_MS, totalDuration);
+    startMonitorSpinnerAnimation(cycleDuration);
+    let accumulated = 0;
+    for (let i = 0; i < steps.length; i++) {
+      setTimeout(() => checkMonitor(steps[i].monitor), accumulated);
+      accumulated += steps[i].delay;
+    }
+    currentSchedulingTimeout = setTimeout(() => scheduleCycle(), cycleDuration);
+  }
+
+  function createAndStart(url){
+    const m = createMonitor(url);
+    monitors.push(m);
+    checkMonitor(m);
+    saveState();
+    triggerGreenResort();
+    updateAllMonitorFavButtons();
+    updateFavCounters();
+    updateMonitorCount();
+    if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+    scheduleCycle();
+  }
+
+  // ========== CPU-Indikator mit Sichtbarkeit ab 45% ==========
+  function initCpuIndicator(){
+    const container = document.getElementById('cpuContainer');
+    const canvas = document.getElementById('cpu-canvas');
+    const label = document.getElementById('cpu-label');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    let busyHistory = [];
+    const HISTORY_SIZE = 4;
+    function drawBar(avgBusy) {
+      ctx.clearRect(0,0,92,18);
+      ctx.fillStyle = '#181818';
+      ctx.fillRect(0,0,92,18);
+      let color = '#388e3c';
+      if (avgBusy >= 85) color = '#c62828';
+      else if (avgBusy >= 70) color = '#f57c00';
+      else if (avgBusy >= 55) color = '#fbc02d';
+      const width = Math.floor((avgBusy/100)*89)+3;
+      ctx.fillStyle = color;
+      ctx.fillRect(0,0,width,18);
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(0,0,width,3);
+      label.textContent = avgBusy >= 85 ? 'CRIT' : avgBusy >= 70 ? 'HIGH' : 'LOAD';
+      label.style.color = avgBusy >= 75 ? '#fff' : '#ddd';
+      if (avgBusy > 45) {
+        container.classList.add('visible');
+      } else {
+        container.classList.remove('visible');
+      }
+    }
+    function measureBusyLoop(){
+      const testMs = 35;
+      const start = performance.now();
+      let dummy = 0;
+      while (performance.now() - start < testMs) dummy += Math.sin(dummy);
+      const elapsed = performance.now() - start;
+      return Math.min(98, Math.max(5, Math.round(100 - (testMs / elapsed * 100))));
+    }
+    function measureIdleBusy(callback){
+      const start = performance.now();
+      window.requestIdleCallback((deadline) => {
+        const delay = performance.now() - start;
+        if (deadline.didTimeout || delay > 200 * 0.8) callback(80 + Math.min(20, (delay/200)*20));
+        else if (deadline.timeRemaining() < 10) callback(50 + (10 - deadline.timeRemaining()) * 5);
+        else callback(0);
+      }, { timeout: 200 });
+    }
+    function getMemoryBoost(){
+      if ('memory' in performance) {
+        const { usedJSHeapSize, jsHeapSizeLimit } = performance.memory;
+        const heapUsage = (usedJSHeapSize / jsHeapSizeLimit) * 100;
+        return heapUsage > 80 ? 20 : heapUsage > 60 ? 10 : 0;
+      }
+      return 0;
+    }
+    function updateCpuMini(){
+      measureIdleBusy((idleBusy) => {
+        const loopBusy = measureBusyLoop();
+        const memoryBoost = getMemoryBoost();
+        let currentBusy = Math.max(idleBusy, loopBusy) + memoryBoost;
+        busyHistory.push(currentBusy);
+        if(busyHistory.length > HISTORY_SIZE) busyHistory.shift();
+        const avgBusy = Math.round(busyHistory.reduce((a,b)=>a+b,0)/busyHistory.length);
+        drawBar(avgBusy);
+      });
+    }
+    updateCpuMini();
+    setInterval(updateCpuMini, 3000);
+  }
+
+  // ========== Favoriten-Menü (⋯ Button) – dynamische Positionierung ==========
+  function initFavMenu() {
+    favMenuBtn = document.getElementById('favMenuBtn');
+    if (!favMenuBtn) return;
+    let dropdown = null;
+    function closeDropdown() {
+      if (dropdown) dropdown.remove();
+      dropdown = null;
+      document.removeEventListener('click', outsideClickListener);
+    }
+    function outsideClickListener(e) {
+      if (dropdown && !dropdown.contains(e.target) && e.target !== favMenuBtn) {
+        closeDropdown();
+      }
+    }
+    favMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (dropdown) { closeDropdown(); return; }
+      dropdown = document.createElement('div');
+      dropdown.className = 'dropdown-menu';
+      // Position direkt unter dem Button
+      const rect = favMenuBtn.getBoundingClientRect();
+      dropdown.style.position = 'absolute';
+      dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+      dropdown.style.left = `${rect.left + window.scrollX}px`;
+      dropdown.style.right = 'auto';
+      dropdown.style.zIndex = '1000';
+      
+      const btnDefault = document.createElement('button');
+      btnDefault.textContent = t.favMenuDefault;
+      btnDefault.onclick = () => { loadDefaultFavorites(); closeDropdown(); };
+      const btnSave = document.createElement('button');
+      btnSave.textContent = t.favMenuSave;
+      btnSave.onclick = () => { saveFavoritesToFile(); closeDropdown(); };
+      const btnLoad = document.createElement('button');
+      btnLoad.textContent = t.favMenuLoad;
+      btnLoad.onclick = () => { loadFavoritesFromFile(); closeDropdown(); };
+      const btnDelete = document.createElement('button');
+      btnDelete.textContent = t.favMenuDelete;
+      btnDelete.onclick = () => { if(confirm(t.favMenuDelete + '?')) { saveFavorites([]); refreshFavoritesUI(); updateFavCounters(); updateAllMonitorFavButtons(); } closeDropdown(); };
+      dropdown.appendChild(btnDefault);
+      dropdown.appendChild(btnSave);
+      dropdown.appendChild(btnLoad);
+      dropdown.appendChild(btnDelete);
+      document.body.appendChild(dropdown);
+      setTimeout(() => document.addEventListener('click', outsideClickListener), 0);
+    });
+  }
+
+  async function loadDefaultFavorites() {
+    try {
+      const response = await fetch('favorites-default.json');
+      if (!response.ok) throw new Error('Datei nicht gefunden');
+      const data = await response.json();
+      if (Array.isArray(data) && data.every(url => typeof url === 'string' && isValidURL(url))) {
+        if (confirm(t.favMenuDefault + '? Aktuelle werden überschrieben.')) {
+          saveFavorites(data);
+          refreshFavoritesUI();
+          updateFavCounters();
+          updateAllMonitorFavButtons();
+        }
+      } else {
+        alert('Ungültiges Format der Default-Favoriten.');
+      }
+    } catch (err) {
+      alert('Fehler beim Laden der Default-Favoriten: ' + err.message);
+    }
+  }
+
+  function saveFavoritesToFile() {
+    const favs = loadFavorites();
+    const dataStr = JSON.stringify(favs, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'noc-ultra-fav-last.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function loadFavoritesFromFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (Array.isArray(data) && data.every(url => typeof url === 'string' && isValidURL(url))) {
+            if (confirm('Ausgewählte Favoriten laden? Aktuelle werden überschrieben.')) {
+              saveFavorites(data);
+              refreshFavoritesUI();
+              updateFavCounters();
+              updateAllMonitorFavButtons();
+            }
+          } else {
+            alert('Ungültiges Format der Datei.');
+          }
+        } catch (err) {
+          alert('Fehler beim Parsen der Datei: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  async function autoLoadDefaultFavoritesIfEmpty() {
+    const favs = loadFavorites();
+    if (favs.length === 0) {
+      try {
+        const response = await fetch('favorites-default.json');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.every(url => typeof url === 'string' && isValidURL(url))) {
+            saveFavorites(data);
+            refreshFavoritesUI();
+            updateFavCounters();
+            updateAllMonitorFavButtons();
+          }
+        }
+      } catch (err) { /* keine Default-Datei */ }
+    }
+  }
+
+  // ========== Monitor-Menü (⋯ Button) – dynamische Positionierung ==========
+  function initMonitorsMenu() {
+    monitorsMenuBtn = document.getElementById('monitorsMenuBtn');
+    if (!monitorsMenuBtn) return;
+    let dropdown = null;
+    function closeDropdown() {
+      if (dropdown) dropdown.remove();
+      dropdown = null;
+      document.removeEventListener('click', outsideClickListener);
+    }
+    function outsideClickListener(e) {
+      if (dropdown && !dropdown.contains(e.target) && e.target !== monitorsMenuBtn) {
+        closeDropdown();
+      }
+    }
+    monitorsMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (dropdown) { closeDropdown(); return; }
+      dropdown = document.createElement('div');
+      dropdown.className = 'dropdown-menu';
+      const rect = monitorsMenuBtn.getBoundingClientRect();
+      dropdown.style.position = 'absolute';
+      dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+      dropdown.style.left = `${rect.left + window.scrollX}px`;
+      dropdown.style.right = 'auto';
+      dropdown.style.zIndex = '1000';
+      
+      const btnSave = document.createElement('button');
+      btnSave.textContent = t.monMenuSave;
+      btnSave.onclick = () => { saveMonitorsToFile(); closeDropdown(); };
+      const btnLoadAdd = document.createElement('button');
+      btnLoadAdd.textContent = t.monMenuLoadAdd;
+      btnLoadAdd.onclick = () => { loadMonitorsFromFile('add'); closeDropdown(); };
+      const btnLoadSub = document.createElement('button');
+      btnLoadSub.textContent = t.monMenuLoadSub;
+      btnLoadSub.onclick = () => { loadMonitorsFromFile('substitute'); closeDropdown(); };
+      const btnDelete = document.createElement('button');
+      btnDelete.textContent = t.monMenuDelete;
+      btnDelete.onclick = () => { if(confirm(t.monDeleteConfirm)) { deleteAllMonitors(); } closeDropdown(); };
+      dropdown.appendChild(btnSave);
+      dropdown.appendChild(btnLoadAdd);
+      dropdown.appendChild(btnLoadSub);
+      dropdown.appendChild(btnDelete);
+      document.body.appendChild(dropdown);
+      setTimeout(() => document.addEventListener('click', outsideClickListener), 0);
+    });
+  }
+
+  function saveMonitorsToFile() {
+    const exportData = monitors.map(m => ({
+      url: m.url,
+      history: m.history,
+      state: m.state,
+      lastStatusText: m.statusDiv.textContent
+    }));
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'noc-ultra-mon-last.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function loadMonitorsFromFile(mode) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!Array.isArray(data)) throw new Error('Kein Array');
+          if (mode === 'substitute') {
+            deleteAllMonitors();
+          }
+          for (const item of data) {
+            if (typeof item.url === 'string' && isValidURL(item.url)) {
+              const m = createMonitor(item.url);
+              if (Array.isArray(item.history)) m.history = item.history.slice(0,120);
+              if (typeof item.state === 'string') m.state = item.state;
+              if (typeof item.lastStatusText === 'string') m.statusDiv.textContent = item.lastStatusText;
+              monitors.push(m);
+              drawGraph(m);
+              setState(m, m.state, m.statusDiv.textContent);
+            }
+          }
+          saveState();
+          triggerGreenResort();
+          updateAllMonitorFavButtons();
+          updateFavCounters();
+          updateMonitorCount();
+          if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+          scheduleCycle();
+        } catch (err) {
+          alert('Fehler beim Laden: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function deleteAllMonitors() {
+    monitors.forEach(m => m.div.remove());
+    monitors = [];
+    saveState();
+    updateMonitorCount();
+    updateFavCounters();
+    if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+    scheduleCycle();
+  }
+
+  // ========== Menü (Hauptmenü) ==========
+  function initMenu() {
+    const menuIcon = document.getElementById('menuIcon');
+    const overlay = document.getElementById('menuOverlay');
+    const closeBtn = document.getElementById('closeMenuBtn');
+    const langSelect = document.getElementById('langSelect');
+
+    function buildLangSelect() {
+      langSelect.innerHTML = '';
+      const autoOption = document.createElement('option');
+      autoOption.value = 'auto';
+      autoOption.textContent = t.autoLabel;
+      langSelect.appendChild(autoOption);
+      const languageCodes = ["de","en","bg","cs","da","el","es","et","fi","fr","hr","hu","it","lt","lv","mt","nl","pl","pt","ro","sk","sl","sv","ru","ja","zh","ko"];
+      languageCodes.forEach(code => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = code.toUpperCase();
+        langSelect.appendChild(option);
+      });
+      const stored = localStorage.getItem("noc_lang");
+      if (stored === 'auto' || (!stored && isAutoLang)) langSelect.value = 'auto';
+      else if (stored && stored !== 'auto') langSelect.value = stored;
+      else langSelect.value = 'auto';
+    }
+    buildLangSelect();
+
+    langSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (val === 'auto') {
+        isAutoLang = true;
+        localStorage.setItem("noc_lang", "auto");
+        const browserLang = (navigator.language || "en").split('-')[0];
+        currentLang = translations[browserLang] ? browserLang : "en";
+        t = translations[currentLang];
+      } else {
+        isAutoLang = false;
+        currentLang = val;
+        t = translations[val];
+        localStorage.setItem("noc_lang", val);
+      }
+      updateUITexts();
+      buildLangSelect();
+      refreshFavoritesUI();
+      // Menüs neu initialisieren (Texte aktualisieren)
+      if (favMenuBtn) initFavMenu();
+      if (monitorsMenuBtn) initMonitorsMenu();
+    });
+
+    menuIcon.addEventListener('click', () => overlay.classList.add('active'));
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+  }
+
+  function updateUITexts() {
+    urlInput.placeholder = t.placeholder;
+    btnAdd.textContent = t.add;
+    document.getElementById('favTitle').textContent = t.favs;
+    document.getElementById('monitorsTitle').textContent = t.monitors;
+    document.getElementById('head-title').textContent = 'NOC Ultra Smart Panel';
+    document.getElementById('footerImpressum').textContent = t.footerImpressum;
+    document.getElementById('footerDatenschutz').textContent = t.footerDatenschutz;
+    document.getElementById('footerNutzung').textContent = t.footerNutzung;
+    document.getElementById('footerCookies').textContent = t.footerCookies;
+    document.getElementById('menuTitle').textContent = t.menuTitle;
+    document.getElementById('menuLangLabel').textContent = t.menuLang;
+    document.getElementById('menuModeLabel').textContent = t.menuMode;
+    document.getElementById('menuSettingsLabel').textContent = t.menuSettings;
+    document.getElementById('menuVersionLabel').textContent = t.menuVersion;
+    document.getElementById('closeMenuBtn').textContent = t.close;
+  }
+
+  // ========== Initialisierung ==========
+  async function init(){
+    urlInput = document.getElementById('urlInput');
+    btnAdd = document.getElementById('ui-btn-add');
+    monitorsContainer = document.getElementById('monitors');
+    favCountersSpan = document.getElementById('favCounters');
+    autoFavToggle = document.getElementById('autoFavToggle');
+    cpuContainer = document.getElementById('cpuContainer');
+
+    if(favSpinnerCanvas) favSpinnerCtx = favSpinnerCanvas.getContext('2d');
+    if(monitorSpinnerCanvas) monitorSpinnerCtx = monitorSpinnerCanvas.getContext('2d');
+    startFavSpinner();
+
+    if(favContainer){
+      favContainer.addEventListener('mouseenter', handleContainerMouseEnter);
+      favContainer.addEventListener('mouseleave', handleContainerMouseLeave);
+    }
+    if(favBox){
+      favBox.addEventListener('mouseenter', handleBoxMouseEnter);
+      favBox.addEventListener('mouseleave', handleBoxMouseLeave);
+      resetCollapseTimer();
+    }
+
+    updateUITexts();
+    document.getElementById('head-title').textContent = 'NOC Ultra Smart Panel';
+    document.getElementById('versionDisplay').textContent = VERSION;
+    document.getElementById('copyrightLine').innerHTML = `© ${CURRENT_YEAR} by artkeller@gmx.de`;
+
+    urlInput.addEventListener('input', () => { btnAdd.disabled = urlInput.value.trim() === ''; });
+    urlInput.addEventListener('blur', () => {
+      let v = urlInput.value.trim();
+      if(v && !v.startsWith('http://') && !v.startsWith('https://')) urlInput.value = 'https://' + v;
+      btnAdd.disabled = urlInput.value.trim() === '';
+    });
+    btnAdd.addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      if (!url) return;
+      const doAdd = () => {
+        if (autoFavToggle.checked && isValidURL(url)) {
+          addFavorite(url);
+        }
+        createAndStart(url);
+        urlInput.value = '';
+        btnAdd.disabled = true;
+      };
+      if (isHttpUrl(url)) {
+        const confirmed = showHttpWarning(btnAdd, url);
+        if (confirmed) doAdd();
+      } else {
+        doAdd();
+      }
+    });
+
+    loadState();
+    refreshFavoritesUI();
+    await autoLoadDefaultFavoritesIfEmpty();
+    scheduleCycle();
+    initCpuIndicator();
+    initMenu();
+    initFavMenu();
+    initMonitorsMenu();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  window.__NOC_DEBUG__ = { get monitors(){ return monitors; }, t, createAndStart };
+})();
+</script>
+</body>
+</html>
