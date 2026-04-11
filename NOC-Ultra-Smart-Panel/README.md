@@ -38,5 +38,3 @@ Riesige, übersichtliche Dashboards und ein professionelles Lagebild – perfekt
 Hier fühlst du dich wie in einer echten professionellen NOC, nur viel leichter und schöner.
 
 ---
-
-Möchtest du noch eine kürzere Version (z. B. für den App-Store) oder eine etwas technischere Variante? Ich passe es gerne an.
