@@ -54,9 +54,24 @@ td, th {
 
 <h2>🌐 Advanced QoS Monitoring Dashboard</h2>
 
-<textarea id="urls">
+<textarea id="urls">">
 https://example.com
 https://jsonplaceholder.typicode.com/posts
+https://1.0.0.1
+https://1.1.1.1
+https://8.8.4.4
+https://8.8.8.8
+https://9.9.9.9
+https://www.spiegel.de
+https://www.lemonde.fr 
+https://www.repubblica.it
+https://www.elpais.com
+https://www.gov.uk
+https://www.whitehouse.gov
+https://www.gov.br
+https://www.gov.za
+https://www.nic.in
+https://www.gov.posts
 </textarea><br>
 
 <label>Parallel Requests:</label>
@@ -97,7 +112,7 @@ let history = [];
 async function measure(url) {
     const start = performance.now();
     try {
-        await fetch(url, { cache: "no-store" });
+        await fetch(url, { cache: "no-store", mode: "no-cors" });
     } catch {
         return null;
     }
