@@ -83,7 +83,7 @@ async function measureLatency(url) {
     const start = performance.now();
 
     try {
-        await fetch(url, { cache: "no-store" });
+        await fetch(url, { cache: "no-store", mode: "no-cors" });
     } catch (e) {
         return null;
     }
