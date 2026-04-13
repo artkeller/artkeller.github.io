@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Advanced QoS Monitoring Pro</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #0d1117;
+    color: #e6edf3;
+    margin: 20px;
+}
+
+textarea, input {
+    background: #161b22;
+    color: #58a6ff;
+    border: 1px solid #30363d;
+    padding: 8px;
+}
+
+button {
+    padding: 8px 12px;
+    margin: 5px;
+    background: #238636;
+    color: white;
+    border: none;
+}
+
+canvas {
+    background: #111;
+    margin-top: 10px;
+    border: 1px solid #333;
+}
+
+.good { color: #3fb950; }
+.warn { color: #d29922; }
+.bad  { color: #f85149; }
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+td, th {
+    border-bottom: 1px solid #30363d;
+    padding: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🌐 Advanced QoS Monitoring PRO</h2>
+
+<textarea id="urls">
+https://1.0.0.1
+https://1.1.1.1
+https://8.8.4.4
+https://8.8.8.8
+https://9.9.9.9
+</textarea><br>
+
+<label>Parallel:</label>
+<input id="parallel" type="number" value="5">
+
+<label>Interval (ms):</label>
+<input id="interval" type="number" value="3000">
+
+<label>Revenue:</label>
+<input id="revenue" type="number" value="10000">
+
+<br>
+<button onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+
+<h3>📈 Zeitreihe (p95)</h3>
+<canvas id="timeChart" width="800" height="200"></canvas>
+
+<h3>📊 Latency vs Stability</h3>
+<canvas id="scatterChart" width="800" height="300"></canvas>
+
+<table>
+<thead>
+<tr>
+<th>URL</th>
+<th>p50</th>
+<th>p95</th>
+<th>p99</th>
+<th>QoS</th>
+<th>Score</th>
+<th>Decision</th>
+<th>Tail</th>
+<th>Loss</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody id="table"></tbody>
+</table>
+
+<script>
+let running = false;
+let history = [];
+
+function score(p50, tail) {
+    return 0.6 * (1/p50) + 0.4 * (1/tail);
+}
+
+function qosLED(q) {
+    if (q >= 0.99) return "🟢";
+    if (q >= 0.95) return "🟡";
+    return "🔴";
+}
+
+function decision(s) {
+    if (s > 0.38) return "PRIMARY";
+    if (s > 0.35) return "SECONDARY";
+    return "FALLBACK";
+}
+
+async function measure(url) {
+    const t0 = performance.now();
+    try {
+        await fetch(url, {mode:"no-cors"});
+    } catch { return null; }
+    return performance.now() - t0;
+}
+
+async function parallelRequests(url, n) {
+    const res = await Promise.all([...Array(n)].map(()=>measure(url)));
+    return res.filter(v=>v!==null);
+}
+
+function percentile(arr,p){
+    const s=[...arr].sort((a,b)=>a-b);
+    return s[Math.floor(p*s.length)];
+}
+
+function analyze(lat){
+    const p50=percentile(lat,0.5);
+    const p95=percentile(lat,0.95);
+    const p99=percentile(lat,0.99);
+
+    const qos=Math.min(1,200/p95);
+    const tail=p99/p50;
+
+    let status="Healthy",cls="good";
+    if(qos<0.95||tail>10){status="Critical";cls="bad";}
+    else if(qos<0.99||tail>5){status="Warn";cls="warn";}
+
+    return {p50,p95,p99,qos,tail,status,cls};
+}
+
+function loss(rev,lat){
+    return Math.max(0,lat-200)/1000*rev;
+}
+
+/* -------- TIME SERIES CHART -------- */
+function drawTimeChart(){
+    const c=document.getElementById("timeChart");
+    const ctx=c.getContext("2d");
+
+    ctx.clearRect(0,0,c.width,c.height);
+
+    if(history.length<2) return;
+
+    const min=Math.min(...history);
+    const max=Math.max(...history);
+    const range=max-min||1;
+
+    // grid
+    ctx.strokeStyle="#333";
+    for(let i=0;i<5;i++){
+        let y=i*(c.height/5);
+        ctx.beginPath();
+        ctx.moveTo(0,y);
+        ctx.lineTo(c.width,y);
+        ctx.stroke();
+    }
+
+    ctx.beginPath();
+    history.forEach((v,i)=>{
+        const x=i*(c.width/history.length);
+        const y=c.height-((v-min)/range)*c.height;
+        if(i===0) ctx.moveTo(x,y);
+        else ctx.lineTo(x,y);
+    });
+
+    ctx.strokeStyle="#58a6ff";
+    ctx.lineWidth=2;
+    ctx.stroke();
+}
+
+/* -------- SCATTER CHART -------- */
+function drawScatter(results){
+    const c=document.getElementById("scatterChart");
+    const ctx=c.getContext("2d");
+
+    ctx.clearRect(0,0,c.width,c.height);
+
+    if(results.length===0) return;
+
+    const p50s=results.map(r=>r.p50);
+    const tails=results.map(r=>r.tail);
+
+    const minX=Math.min(...p50s);
+    const maxX=Math.max(...p50s);
+    const minY=Math.min(...tails);
+    const maxY=Math.max(...tails);
+
+    // grid
+    ctx.strokeStyle="#333";
+    for(let i=0;i<5;i++){
+        let y=i*(c.height/5);
+        ctx.beginPath();
+        ctx.moveTo(0,y);
+        ctx.lineTo(c.width,y);
+        ctx.stroke();
+    }
+
+    results.forEach(r=>{
+        const x=((r.p50-minX)/(maxX-minX||1))*c.width;
+        const y=c.height-((r.tail-minY)/(maxY-minY||1))*c.height;
+
+        ctx.fillStyle="#58a6ff";
+        ctx.beginPath();
+        ctx.arc(x,y,4,0,2*Math.PI);
+        ctx.fill();
+
+        ctx.fillStyle="#fff";
+        ctx.fillText(r.url.replace("https://",""),x+5,y-5);
+    });
+
+    // axes labels
+    ctx.fillStyle="#aaa";
+    ctx.fillText("p50 Latency (ms)",10,c.height-5);
+    ctx.fillText("Tail (p99/p50)",10,10);
+}
+
+/* -------- LOOP -------- */
+async function loop(){
+    if(!running) return;
+
+    const urls=document.getElementById("urls").value.split("\n").filter(v=>v);
+    const parallel=parseInt(document.getElementById("parallel").value);
+    const revenue=parseFloat(document.getElementById("revenue").value);
+
+    const table=document.getElementById("table");
+    table.innerHTML="";
+
+    let results=[];
+
+    for(let url of urls){
+        const lat=await parallelRequests(url,parallel);
+        if(!lat.length) continue;
+
+        const r=analyze(lat);
+        const s=score(r.p50,r.tail);
+        const l=loss(revenue,r.p95);
+
+        results.push({url,...r,score:s,loss:l});
+    }
+
+    results.sort((a,b)=>b.score-a.score);
+
+    for(let r of results){
+        history.push(r.p95);
+        if(history.length>50) history.shift();
+
+        table.innerHTML+=`
+        <tr>
+            <td>${r.url}</td>
+            <td>${r.p50.toFixed(1)}</td>
+            <td>${r.p95.toFixed(1)}</td>
+            <td>${r.p99.toFixed(1)}</td>
+            <td>${qosLED(r.qos)} ${r.qos.toFixed(2)}</td>
+            <td>${r.score.toFixed(3)}</td>
+            <td>${decision(r.score)}</td>
+            <td>${r.tail.toFixed(2)}</td>
+            <td>${r.loss.toFixed(0)}</td>
+            <td class="${r.cls}">${r.status}</td>
+        </tr>`;
+    }
+
+    drawTimeChart();
+    drawScatter(results);
+
+    setTimeout(loop,parseInt(document.getElementById("interval").value));
+}
+
+function start(){running=true;loop();}
+function stop(){running=false;}
+</script>
+
+</body>
+</html>
