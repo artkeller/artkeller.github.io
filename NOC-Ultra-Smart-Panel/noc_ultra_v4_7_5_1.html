@@ -600,7 +600,7 @@ canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%
 (function(){
   "use strict";
 
-  const VERSION = "v4.7.5.0";
+  const VERSION = "v4.7.5.1";
   const CURRENT_YEAR = new Date().getFullYear();
 
   // ========== Eingebettete Default-Sprache (Englisch) – Fallback ==========
@@ -1648,7 +1648,18 @@ canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 
-  window.__NOC_DEBUG__ = { get monitors(){ return monitors; }, t, createAndStart };
+  /*window.__NOC_DEBUG__ = { get monitors(){ return monitors; }, t, createAndStart };*/
+
+  if (localStorage.getItem("noc_debug") === "1") {
+    window.__NOC_DEBUG__ = Object.freeze({
+      get monitors() {
+        return structuredClone(monitors);
+      },
+      t,
+      createAndStart
+    }); 
+  }
+    
 })();
 </script>
 </body>
