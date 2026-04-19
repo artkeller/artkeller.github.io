@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title id="head-title">NOC Ultra Smart Panel</title>
+
+<style>
+/* ========== CSS – identisch zu v4.7.4.7 (nur geringfügige Anpassungen) ========== */
+:root {
+    --bg-color: #111;
+    --panel-bg: #1a1a1a;
+    --text-color: #eee;
+    --accent-red: #ff3030;
+    --accent-green: #00ff88;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.static-header {
+    flex-shrink: 0;
+}
+
+.controls {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+input {
+    padding: 8px;
+    width: 100%;
+    max-width: 340px;
+    background: #222;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    transition: 0.3s;
+}
+
+button:hover { background: #444; }
+button:disabled { opacity: 0.3; cursor: not-allowed; background: #222; }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 14px;
+    flex-shrink: 0;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.2s;
+    border-radius: 14px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 10px;
+    width: 10px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #00aa55;
+}
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+.switch-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+.switch-label {
+    font-size: 9px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.favoritesBox {
+    border: 1px solid #333;
+    background: #151515;
+    overflow-y: auto;
+    padding: 8px;
+    width: 100%;
+    transition: max-height 0.4s ease-out, opacity 0.2s ease, padding 0.2s ease;
+    max-height: 120px;
+    opacity: 1;
+}
+.favoritesBox.collapsed {
+    max-height: 0 !important;
+    padding: 0 8px;
+    opacity: 0;
+    overflow-y: hidden;
+    border-top: none;
+    border-bottom: none;
+}
+
+.favoriteRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    flex-wrap: nowrap;
+}
+.favoriteUrl {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+a.favoriteUrl {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+a.favoriteUrl:hover {
+    text-decoration: underline;
+}
+.warning-icon {
+    color: #ffaa00;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.monitors-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+.monitors-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+    position: relative;
+}
+.monitors-spinner {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+.monitors-spinner canvas {
+    width: 14px;
+    height: 14px;
+    display: block;
+    border: none;
+    background: transparent;
+}
+.monitors-count {
+    font-size: 0.9em;
+    background: #2a2a2a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: normal;
+}
+.monitors-menu-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 4px;
+    height: auto;
+}
+.monitors-menu-btn:hover {
+    color: #fff;
+    background: none;
+}
+#monitors {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+.panel {
+    border: 1px solid #333;
+    padding: 12px;
+    background: var(--panel-bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    transition: background 0.4s;
+    gap: 15px;
+}
+.panel.changed { background: #2a2a00; }
+
+.left { display: flex; gap: 10px; align-items: center; flex: 1 1 250px; }
+.right { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; justify-content: flex-end; }
+
+.led {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #555;
+    flex-shrink: 0;
+}
+.green { background: var(--accent-green); }
+.yellow { background: #ffd000; }
+.blue { background: #3aa0ff; }
+.gray { background: #666; }
+.red { background: var(--accent-red); animation: blink 1s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+.status { font-size: 12px; color: #aaa; }
+.stats { font-size: 11px; color: #888; }
+
+canvas { background: #000; border: 1px solid #333; max-width: 280px; width: 100%; height: auto; }
+
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+    background: #222;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid #444;
+    user-select: none;
+}
+.menu-icon:hover { background: #333; }
+.title-with-hover {
+    cursor: default;
+}
+.cpu-container {
+    width: 92px;
+    height: 18px;
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: none;
+}
+.cpu-container.visible {
+    display: block;
+}
+.cpu-canvas {
+    width: 100%;
+    height: 100%;
+}
+.cpu-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: bold;
+    color: #ddd;
+    text-shadow: 0 0 4px #000;
+}
+
+.fav-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+}
+.fav-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
+    position: relative;
+}
+.fav-spinner {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+}
+.fav-spinner canvas {
+    width: 14px;
+    height: 14px;
+    display: block;
+    border: none;
+    background: transparent;
+}
+.fav-counters {
+    font-size: 0.9em;
+    background: #2a2a2a;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: normal;
+}
+.fav-menu-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 4px;
+    height: auto;
+}
+.fav-menu-btn:hover {
+    color: #fff;
+    background: none;
+}
+.dropdown-menu {
+    position: absolute;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px;
+    min-width: 180px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.dropdown-menu button {
+    background: #333;
+    border: 1px solid #555;
+    color: #eee;
+    padding: 6px 10px;
+    text-align: left;
+    width: 100%;
+    font-size: 13px;
+}
+.dropdown-menu button:hover {
+    background: #444;
+}
+
+.http-warning-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #aa6600;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-family: monospace;
+    pointer-events: none;
+}
+
+.app-footer {
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    padding: 8px 0;
+    border-top: 1px solid #333;
+    margin-top: 10px;
+}
+.app-footer a {
+    color: #aaa;
+    text-decoration: none;
+    margin: 0 8px;
+}
+.app-footer a:hover { text-decoration: underline; color: #ddd; }
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.2s, opacity 0.2s;
+}
+.menu-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+.menu-panel {
+    background: #1e1e1e;
+    border: 1px solid #444;
+    border-radius: 12px;
+    width: 280px;
+    padding: 16px;
+    color: #eee;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+.menu-panel h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 6px;
+}
+.menu-section {
+    margin-bottom: 16px;
+}
+.menu-section label {
+    display: block;
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 6px;
+}
+.menu-section select, .menu-section button {
+    width: 100%;
+    background: #333;
+    border: 1px solid #555;
+    color: #eee;
+    padding: 6px;
+    border-radius: 4px;
+}
+.menu-section button {
+    cursor: pointer;
+    background: #2a2a2a;
+}
+.menu-section button:hover { background: #3a3a3a; }
+.version-display {
+    font-family: monospace;
+    background: #2a2a2a;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: center;
+}
+.close-menu {
+    margin-top: 12px;
+    background: #c62828;
+    border: none;
+    color: white;
+    width: 100%;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.close-menu:hover { background: #b71c1c; }
+
+@media (max-width: 600px) {
+    .http-warning-toast { white-space: normal; max-width: 90%; text-align: center; }
+    body { padding: 10px; }
+    .panel { flex-direction: column; align-items: stretch; }
+    .right { justify-content: space-between; border-top: 1px solid #333; padding-top: 10px; }
+    canvas { max-width: 100%; }
+    input { max-width: 100%; }
+    .controls { flex-direction: column; align-items: stretch; }
+    .switch-container { align-items: flex-start; }
+    .monitors-header { flex-wrap: wrap; }
+    .title-row { flex-wrap: wrap; gap: 10px; }
+    .dropdown-menu { right: auto; left: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="static-header">
+    <div id="cpu-mini" style="position: fixed; top: 8px; right: 12px; width: 64px; height: 10px; background: #111; border: 1px solid #222; border-radius: 3px; overflow: hidden; z-index: 99999; display: none;"></div>
+
+    <div class="title-row">
+        <div class="menu-icon" id="menuIcon" title="Menü">☰</div>
+        <h2 id="ui-title" class="title-with-hover" style="margin:0;">NOC Ultra Smart Panel</h2>
+        <div class="cpu-container" id="cpuContainer">
+            <canvas id="cpu-canvas" width="92" height="18" class="cpu-canvas"></canvas>
+            <div class="cpu-label" id="cpu-label">CPU</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="switch-container">
+            <span class="switch-label" id="autoFavLabel">Auto-Fav</span>
+            <label class="switch" id="autoFavSwitch" title="Auto-Favorite: Gültige URLs werden automatisch zu den Favoriten hinzugefügt">
+                <input type="checkbox" id="autoFavToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <input id="urlInput" placeholder="https://example.com">
+        <button id="ui-btn-add" disabled>Add Monitor</button>
+    </div>
+
+    <div class="controls" style="flex-direction: column; align-items: stretch;">
+        <div class="fav-container" id="favContainer">
+            <div class="fav-header">
+                <div class="fav-spinner"><canvas id="favSpinnerCanvas" width="14" height="14"></canvas></div>
+                <b id="favTitle">Favoriten</b>
+                <span id="favCounters" class="fav-counters">(0 | 0)</span>
+                <button id="favMenuBtn" class="fav-menu-btn" title="Favoriten-Menü">⋯</button>
+            </div>
+            <div class="favoritesBox" id="favoritesList"></div>
+        </div>
+    </div>
+</div>
+
+<div class="monitors-wrapper">
+    <div class="monitors-header">
+        <div class="monitors-spinner"><canvas id="monitorSpinnerCanvas" width="14" height="14"></canvas></div>
+        <b id="monitorsTitle">Monitore</b>
+        <span id="monitorCount" class="monitors-count">(0)</span>
+        <button id="monitorsMenuBtn" class="monitors-menu-btn" title="Monitore-Menü">⋯</button>
+    </div>
+    <div id="monitors"></div>
+</div>
+
+<footer class="app-footer" id="appFooter">
+    <a href="#" id="footerImpressum">Impressum</a> |
+    <a href="#" id="footerDatenschutz">Datenschutz</a> |
+    <a href="#" id="footerNutzung">Nutzungsbedingungen</a> |
+    <a href="#" id="footerCookies">Cookies</a>
+</footer>
+
+<div id="menuOverlay" class="menu-overlay">
+    <div class="menu-panel">
+        <h3 id="menuTitle">Menü</h3>
+        <div class="menu-section">
+            <label id="menuLangLabel">🌐 Sprache / Language</label>
+            <select id="langSelect"></select>
+        </div>
+        <div class="menu-section">
+            <label id="menuModeLabel">🎛️ Mode</label>
+            <select id="modeSelect">
+                <option value="Base">Base</option>
+                <option value="Smart" selected>Smart</option>
+                <option value="Panel">Panel</option>
+            </select>
+        </div>
+        <div class="menu-section">
+            <label id="menuSettingsLabel">⚙️ Einstellungen</label>
+            <button id="settingsPlaceholder" disabled>Kommt später</button>
+        </div>
+        <div class="menu-section">
+            <label id="menuVersionLabel">📌 Version</label>
+            <div class="version-display" id="versionDisplay">v4.7.5.0</div>
+            <div id="copyrightLine" style="font-size:10px; color:#888; margin-top:6px;">© 2025 by artkeller@gmx.de</div>
+        </div>
+        <button id="closeMenuBtn" class="close-menu">Schließen</button>
+    </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const VERSION = "v4.7.5.0";
+  const CURRENT_YEAR = new Date().getFullYear();
+
+  // ========== Eingebettete Default-Sprache (Englisch) – Fallback ==========
+  const defaultTranslations = {
+    add: "Add Monitor",
+    favs: "Favorites",
+    monitors: "Monitors",
+    placeholder: "Enter URL...",
+    err_url: "invalid",
+    err_net: "Network Error",
+    err_empty: "URL empty",
+    err_offline: "no network",
+    online: "OK",
+    loading: "init",
+    start: "Start",
+    warn_http: "⚠️ Insecure HTTP URL – click again to add it anyway.",
+    menuTitle: "Menu",
+    menuLang: "🌐 Language",
+    menuMode: "🎛️ Mode",
+    menuSettings: "⚙️ Settings",
+    menuVersion: "📌 Version",
+    close: "Close",
+    footerImpressum: "Imprint",
+    footerDatenschutz: "Privacy",
+    footerNutzung: "Terms",
+    footerCookies: "Cookies",
+    autoLabel: "Auto-Fav",
+    autoFavTitle: "Auto-Favorite: Valid URLs are automatically added to favorites",
+    favMenuDefault: "Load default",
+    favMenuSave: "Save",
+    favMenuLoad: "Load",
+    favMenuDelete: "Delete all",
+    monMenuSave: "Save monitors",
+    monMenuLoadAdd: "Add monitors",
+    monMenuLoadSub: "Substitute monitors",
+    monMenuDelete: "Delete all monitors",
+    monDeleteConfirm: "Delete all monitors?",
+    tooltipMenu: "Menu",
+    tooltipFavMenu: "Favorites menu",
+    tooltipMonitorMenu: "Monitors menu"
+  };
+
+  // Aktuelle Sprachdaten (werden dynamisch geladen)
+  let t = { ...defaultTranslations };
+  let currentLang = "en";
+  let isAutoLang = true;
+
+  // ========== Sprachlade-Funktion mit localStorage und If-Modified-Since (UTC) ==========
+  async function loadLanguage(lang, forceRefresh = false) {
+    const storageKeyData = `noc_lang_data_${lang}`;
+    const storageKeyTimestamp = `noc_lang_timestamp_${lang}`;
+    const nowUTC = new Date().toUTCString();
+
+    // Versuche, aus localStorage zu laden
+    let storedData = null;
+    let storedTimestamp = null;
+    if (!forceRefresh) {
+      const rawData = localStorage.getItem(storageKeyData);
+      const rawTs = localStorage.getItem(storageKeyTimestamp);
+      if (rawData && rawTs) {
+        try {
+          storedData = JSON.parse(rawData);
+          storedTimestamp = rawTs;
+        } catch(e) { /* ignorieren */ }
+      }
+    }
+
+    // Prüfen, ob die gespeicherten Daten aktuell sind (Serverabfrage mit If-Modified-Since)
+    let freshData = null;
+    let useStored = false;
+    if (storedData && storedTimestamp) {
+      const url = `language_${lang}.json`;
+      try {
+        const response = await fetch(url, {
+          headers: { "If-Modified-Since": storedTimestamp }
+        });
+        if (response.status === 304) {
+          // Nicht modifiziert – verwende gespeicherte Daten
+          useStored = true;
+        } else if (response.ok) {
+          freshData = await response.json();
+        } else {
+          // Fallback auf gespeicherte Daten (Serverfehler)
+          useStored = true;
+        }
+      } catch (err) {
+        // Netzwerkfehler – verwende gespeicherte Daten
+        useStored = true;
+      }
+    } else {
+      // Keine gespeicherten Daten – direkt vom Server laden
+      const url = `language_${lang}.json`;
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          freshData = await response.json();
+        }
+      } catch (err) {
+        // Fallback auf Default
+      }
+    }
+
+    if (useStored && storedData) {
+      freshData = storedData;
+    }
+
+    if (freshData) {
+      // Neue Daten speichern (mit aktuellem UTC-Timestamp)
+      const newTimestamp = new Date().toUTCString();
+      localStorage.setItem(storageKeyData, JSON.stringify(freshData));
+      localStorage.setItem(storageKeyTimestamp, newTimestamp);
+      return freshData;
+    } else {
+      // Fallback: Default (Englisch)
+      return defaultTranslations;
+    }
+  }
+
+  // ========== Sprachwechsel-Funktion ==========
+  async function setLanguage(lang) {
+    let effectiveLang = lang;
+    if (lang === 'auto') {
+      isAutoLang = true;
+      effectiveLang = (navigator.language || "en").split('-')[0];
+      localStorage.setItem("noc_lang", "auto");
+    } else {
+      isAutoLang = false;
+      localStorage.setItem("noc_lang", lang);
+      effectiveLang = lang;
+    }
+    currentLang = effectiveLang;
+    const newTranslations = await loadLanguage(effectiveLang);
+    t = { ...defaultTranslations, ...newTranslations };
+    updateUITexts();
+    // Menüs neu initialisieren (weil Texte aktualisiert werden müssen)
+    if (favMenuBtn) initFavMenu();
+    if (monitorsMenuBtn) initMonitorsMenu();
+    // Tooltips aktualisieren
+    document.getElementById('menuIcon').title = t.tooltipMenu || "Menu";
+    document.getElementById('favMenuBtn').title = t.tooltipFavMenu || "Favorites menu";
+    document.getElementById('monitorsMenuBtn').title = t.tooltipMonitorMenu || "Monitors menu";
+    document.getElementById('autoFavSwitch').title = t.autoFavTitle || "Auto-Favorite: Valid URLs are automatically added to favorites";
+    document.getElementById('autoFavLabel').textContent = t.autoLabel || "Auto-Fav";
+  }
+
+  // ========== DOM-Elemente ==========
+  let urlInput, btnAdd, monitorsContainer, cpuContainer;
+  let favCountersSpan = null;
+  let autoFavToggle = null;
+  let favMenuBtn = null;
+  let monitorsMenuBtn = null;
+
+  // ========== HTTP-Warnung ==========
+  let pendingWarning = null;
+  function showHttpWarning(buttonElement, url) {
+    if (pendingWarning && pendingWarning.button === buttonElement && pendingWarning.url === url) {
+      if (pendingWarning.toast) pendingWarning.toast.remove();
+      if (pendingWarning.timeout) clearTimeout(pendingWarning.timeout);
+      if (pendingWarning.clickHandler) document.removeEventListener('click', pendingWarning.clickHandler);
+      if (pendingWarning.keyHandler) document.removeEventListener('keydown', pendingWarning.keyHandler);
+      pendingWarning = null;
+      return true;
+    }
+    if (pendingWarning) {
+      if (pendingWarning.toast) pendingWarning.toast.remove();
+      if (pendingWarning.timeout) clearTimeout(pendingWarning.timeout);
+      if (pendingWarning.clickHandler) document.removeEventListener('click', pendingWarning.clickHandler);
+      if (pendingWarning.keyHandler) document.removeEventListener('keydown', pendingWarning.keyHandler);
+      pendingWarning = null;
+    }
+    const toast = document.createElement('div');
+    toast.className = 'http-warning-toast';
+    toast.textContent = t.warn_http;
+    document.body.appendChild(toast);
+    const timeout = setTimeout(() => {
+      if (pendingWarning && pendingWarning.toast === toast) {
+        toast.remove();
+        if (pendingWarning.clickHandler) document.removeEventListener('click', pendingWarning.clickHandler);
+        if (pendingWarning.keyHandler) document.removeEventListener('keydown', pendingWarning.keyHandler);
+        pendingWarning = null;
+      }
+    }, 5000);
+    function onAnyAction(e) {
+      let targetButton = e.target.closest('button');
+      if (targetButton === buttonElement) return;
+      if (pendingWarning && pendingWarning.toast === toast) {
+        toast.remove();
+        clearTimeout(timeout);
+        document.removeEventListener('click', pendingWarning.clickHandler);
+        document.removeEventListener('keydown', pendingWarning.keyHandler);
+        pendingWarning = null;
+      }
+    }
+    function onKey(e) { if (e.key === 'Escape') onAnyAction(e); }
+    document.addEventListener('click', onAnyAction);
+    document.addEventListener('keydown', onKey);
+    pendingWarning = { button: buttonElement, url: url, toast: toast, timeout: timeout, clickHandler: onAnyAction, keyHandler: onKey };
+    return false;
+  }
+
+  // ========== Hilfsfunktionen ==========
+  function isHttpUrl(url) {
+    try { return new URL(url).protocol === "http:"; } catch { return false; }
+  }
+  function getWarningIcon(url) {
+    return isHttpUrl(url) ? '<span class="warning-icon">⚠️</span>' : '';
+  }
+  function getDomain(url) {
+    try { return new URL(url).hostname; } catch { return ""; }
+  }
+
+  // ========== Spinner ==========
+  let monitorSpinnerCtx = null;
+  let monitorSpinnerAnimationId = null;
+  let currentCycleDuration = 0;
+  let cycleStartTimestamp = 0;
+  let favSpinnerStep = 0;
+  let favSpinnerInterval = null;
+  const favSpinnerCanvas = document.getElementById('favSpinnerCanvas');
+  let favSpinnerCtx = null;
+  const monitorSpinnerCanvas = document.getElementById('monitorSpinnerCanvas');
+  const monitorCountSpan = document.getElementById('monitorCount');
+
+  let collapseTimer = null;
+  const favContainer = document.getElementById('favContainer');
+  const favBox = document.getElementById('favoritesList');
+
+  const MIN_CYCLE_MS = 5000;
+  const MIN_STEP_SAME_DOMAIN = 200;
+  const MIN_STEP_DIFFERENT = 50;
+
+  let monitors = [];
+  let resortTimer = null;
+  let favIntervals = [];
+
+  function drawFavSpinnerSegment(step) {
+    if (!favSpinnerCtx) return;
+    const w = 14, h = 14;
+    favSpinnerCtx.clearRect(0, 0, w, h);
+    favSpinnerCtx.beginPath();
+    favSpinnerCtx.arc(w/2, h/2, w/2 - 1, 0, 2 * Math.PI);
+    favSpinnerCtx.fillStyle = '#333';
+    favSpinnerCtx.fill();
+    favSpinnerCtx.strokeStyle = '#666';
+    favSpinnerCtx.stroke();
+    if (step === 0) return;
+    const anglePerStep = (Math.PI * 2) / 6;
+    const startAngle = -Math.PI / 2;
+    const endAngle = startAngle + anglePerStep * step;
+    favSpinnerCtx.beginPath();
+    favSpinnerCtx.moveTo(w/2, h/2);
+    favSpinnerCtx.arc(w/2, h/2, w/2 - 1, startAngle, endAngle);
+    favSpinnerCtx.fillStyle = '#00aa55';
+    favSpinnerCtx.fill();
+  }
+  function startFavSpinner() {
+    if (favSpinnerInterval) clearInterval(favSpinnerInterval);
+    favSpinnerStep = 0;
+    drawFavSpinnerSegment(0);
+    favSpinnerInterval = setInterval(() => {
+      favSpinnerStep = (favSpinnerStep + 1) % 6;
+      drawFavSpinnerSegment(favSpinnerStep);
+    }, 5000);
+  }
+
+  function drawMonitorSpinner(progress) {
+    if (!monitorSpinnerCtx) return;
+    const w = 14, h = 14;
+    monitorSpinnerCtx.clearRect(0, 0, w, h);
+    monitorSpinnerCtx.beginPath();
+    monitorSpinnerCtx.arc(w/2, h/2, w/2 - 1, 0, 2 * Math.PI);
+    monitorSpinnerCtx.fillStyle = '#333';
+    monitorSpinnerCtx.fill();
+    monitorSpinnerCtx.strokeStyle = '#666';
+    monitorSpinnerCtx.stroke();
+    if (progress <= 0) return;
+    const endAngle = -Math.PI / 2 + (Math.PI * 2 * progress);
+    monitorSpinnerCtx.beginPath();
+    monitorSpinnerCtx.moveTo(w/2, h/2);
+    monitorSpinnerCtx.arc(w/2, h/2, w/2 - 1, -Math.PI / 2, endAngle);
+    monitorSpinnerCtx.fillStyle = '#00aa55';
+    monitorSpinnerCtx.fill();
+  }
+  function startMonitorSpinnerAnimation(durationMs) {
+    if (monitorSpinnerAnimationId) cancelAnimationFrame(monitorSpinnerAnimationId);
+    currentCycleDuration = durationMs;
+    cycleStartTimestamp = performance.now();
+    function animate(now) {
+      const elapsed = now - cycleStartTimestamp;
+      let progress = Math.min(1, elapsed / currentCycleDuration);
+      drawMonitorSpinner(progress);
+      if (progress < 1) monitorSpinnerAnimationId = requestAnimationFrame(animate);
+      else drawMonitorSpinner(1);
+    }
+    monitorSpinnerAnimationId = requestAnimationFrame(animate);
+  }
+
+  // ========== Favoriten-Collapse ==========
+  function collapseFavoritesBox() {
+    if (favBox && !favBox.classList.contains('collapsed')) favBox.classList.add('collapsed');
+  }
+  function expandFavoritesBox() {
+    if (favBox && favBox.classList.contains('collapsed')) favBox.classList.remove('collapsed');
+  }
+  function resetCollapseTimer() {
+    if (collapseTimer) clearTimeout(collapseTimer);
+    collapseTimer = setTimeout(() => collapseFavoritesBox(), 5000);
+  }
+  function handleContainerMouseEnter() {
+    expandFavoritesBox();
+    if (collapseTimer) clearTimeout(collapseTimer);
+  }
+  function handleContainerMouseLeave() {
+    resetCollapseTimer();
+  }
+  function handleBoxMouseEnter() {
+    expandFavoritesBox();
+    if (collapseTimer) clearTimeout(collapseTimer);
+  }
+  function handleBoxMouseLeave() {
+    resetCollapseTimer();
+  }
+
+  // ========== Monitor-Kernlogik ==========
+  function isValidURL(str){
+    try { const u=new URL(str); return u.protocol==="http:"||u.protocol==="https:"; }
+    catch { return false; }
+  }
+  function schemaWeight(url){ try { return new URL(url).protocol === "http:" ? 0 : 1; } catch { return 2; } }
+  function segmentWeight(domain){ if(domain.startsWith("127.")) return 0; if(domain.startsWith("192.168.")) return 1; return 2; }
+  function ipCompare(a,b){
+    const aNum = a.split('.').map(Number), bNum = b.split('.').map(Number);
+    for(let i=0;i<4;i++) if(aNum[i]!==bNum[i]) return aNum[i]-bNum[i];
+    return 0;
+  }
+  function statePriority(s){ return {red:0,yellow:1,blue:2,gray:3,green:4}[s] ?? 5; }
+
+  function updateFavCounters() {
+    if (!favCountersSpan) return;
+    const favs = loadFavorites();
+    favCountersSpan.textContent = `(${favs.length} | ${monitors.filter(m => favs.includes(m.url)).length})`;
+  }
+  function updateMonitorCount() {
+    if (monitorCountSpan) monitorCountSpan.textContent = `(${monitors.length})`;
+  }
+
+  function setState(m, state, text){
+    if(m.state!==state){
+      m.div.classList.add("changed");
+      setTimeout(()=>m.div.classList.remove("changed"),400);
+    }
+    m.state = state;
+    m.led.className = "led "+state;
+    m.statusDiv.textContent = text;
+    sortPanels(false);
+  }
+  function drawGraph(m){
+    const ctx = m.canvas.getContext("2d");
+    const w = m.canvas.width, h = m.canvas.height;
+    ctx.clearRect(0,0,w,h);
+    if(m.history.length<2) return;
+    const values = m.history;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const avg = Math.round(values.reduce((a,b)=>a+b,0)/values.length);
+    const range = max-min || 1;
+    ctx.strokeStyle="#111";
+    for(let i=1;i<=3;i++){ const y=(h-20)*(i/4); ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(w-5,y); ctx.stroke(); }
+    const activeInterval = currentCycleDuration;
+    const totalSec = Math.round(values.length*(activeInterval/1000));
+    for(let s=10;s<totalSec;s+=10){ const x=30+(s/totalSec)*(w-40); ctx.beginPath(); ctx.moveTo(x,5); ctx.lineTo(x,h-20); ctx.stroke(); }
+    ctx.strokeStyle="#333";
+    ctx.beginPath();
+    ctx.moveTo(30,5); ctx.lineTo(30,h-20); ctx.lineTo(w-5,h-20); ctx.stroke();
+    ctx.fillStyle="#777"; ctx.font="10px Arial";
+    ctx.fillText(max+" ms",2,12); ctx.fillText(min+" ms",2,h-22); ctx.fillText(totalSec+"s",w-40,h-5);
+    ctx.beginPath();
+    values.forEach((v,i)=>{
+      const x=30+i*((w-40)/values.length);
+      const y=(h-20)-((v-min)/range)*(h-30);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle="#00ff88"; ctx.stroke();
+    m.statsDiv.textContent="Min:"+min+" | Max:"+max+" | Avg:"+avg+" ms";
+  }
+  async function checkMonitor(m){
+    if(!m.url){ setState(m,"gray",t.err_empty); return; }
+    if(!isValidURL(m.url)){ setState(m,"blue",t.err_url); return; }
+    if(!navigator.onLine){ setState(m,"red",t.err_offline); return; }
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(),3000);
+    const start = performance.now();
+    try{
+      await fetch(m.url,{method:"GET",mode:"no-cors",cache:"no-store",signal:controller.signal});
+      const time = Math.round(performance.now()-start);
+      m.history.push(time); if(m.history.length>120) m.history.shift();
+      drawGraph(m);
+      setState(m,"green",t.online+" "+time+" ms");
+    }catch(e){
+      if(e.name==="AbortError") setState(m,"yellow","Timeout");
+      else setState(m,"red",t.err_net+(e.message ? " ("+e.message+")" : ""));
+    }
+    clearTimeout(timeout);
+  }
+
+  function createMonitor(url){
+    const div = document.createElement("div"); div.className="panel";
+    const left = document.createElement("div"); left.className="left";
+    const led = document.createElement("div"); led.className="led gray";
+    const text = document.createElement("div");
+    text.innerHTML = `<div>${getWarningIcon(url)} ${url}</div><div class="status">${t.loading}</div><div class="stats"></div>`;
+    const statusDiv = text.querySelector(".status");
+    const statsDiv = text.querySelector(".stats");
+    left.appendChild(led); left.appendChild(text);
+    const right = document.createElement("div");
+    const canvas = document.createElement("canvas"); canvas.width=280; canvas.height=90;
+    const btnFav = document.createElement("button"); btnFav.textContent="★"; btnFav.disabled = !isValidURL(url) || loadFavorites().includes(url);
+    const btnDel = document.createElement("button"); btnDel.textContent="✖";
+    right.appendChild(canvas); right.appendChild(btnFav); right.appendChild(btnDel);
+    div.appendChild(left); div.appendChild(right);
+    monitorsContainer.appendChild(div);
+    const monitor = { url, div, led, statusDiv, statsDiv, canvas, history:[], state:"gray", startTime:Date.now(), favButton: btnFav };
+    btnDel.onclick = () => { 
+      monitors = monitors.filter(x=>x!==monitor); 
+      div.remove(); 
+      saveState(); 
+      triggerGreenResort();
+      updateFavCounters();
+      updateMonitorCount();
+      scheduleCycle();
+    };
+    btnFav.onclick = () => { addFavorite(url); btnFav.disabled=true; };
+    return monitor;
+  }
+
+  function compareMonitors(a,b){
+    const sp = statePriority(a.state)-statePriority(b.state);
+    if(sp!==0) return sp;
+    if(a.state==="green" && b.state==="green"){
+      const ua = new URL(a.url), ub = new URL(b.url);
+      const schemaDiff = schemaWeight(a.url)-schemaWeight(b.url); if(schemaDiff!==0) return schemaDiff;
+      const da = ua.hostname, db = ub.hostname;
+      const segDiff = segmentWeight(da)-segmentWeight(db); if(segDiff!==0) return segDiff;
+      const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+      if(ipRegex.test(da) && ipRegex.test(db)) return ipCompare(da,db);
+      return da.localeCompare(db);
+    }
+    return 0;
+  }
+  function sortPanels(){ monitors.sort(compareMonitors); monitors.forEach(m => monitorsContainer.appendChild(m.div)); }
+  function triggerGreenResort(){
+    if(resortTimer) clearTimeout(resortTimer);
+    resortTimer = setTimeout(()=> sortPanels(), 30000);
+  }
+
+  function updateAllMonitorFavButtons() {
+    const favs = loadFavorites();
+    monitors.forEach(mon => { if(mon.favButton) mon.favButton.disabled = !isValidURL(mon.url) || favs.includes(mon.url); });
+  }
+  function updateFavoriteRow(url, ledElement, badgeElement) {
+    const count = monitors.filter(m => m.url === url).length;
+    const monitor = monitors.find(m => m.url === url);
+    ledElement.className = monitor ? monitor.led.className : "led gray";
+    badgeElement.textContent = "×"+count;
+    badgeElement.style.visibility = count > 1 ? "visible" : "hidden";
+  }
+
+  function loadFavorites(){ return JSON.parse(localStorage.getItem("noc_favorites")||"[]"); }
+  function saveFavorites(list){ localStorage.setItem("noc_favorites",JSON.stringify(list)); }
+
+  function refreshFavoritesUI(){
+    favIntervals.forEach(id => clearInterval(id));
+    favIntervals = [];
+    const container = document.getElementById("favoritesList");
+    container.innerHTML = "";
+    const favs = loadFavorites().sort((a,b)=>{
+      const ua = new URL(a), ub = new URL(b);
+      const schemaDiff = schemaWeight(a)-schemaWeight(b); if(schemaDiff!==0) return schemaDiff;
+      const da = ua.hostname, db = ub.hostname;
+      const segDiff = segmentWeight(da)-segmentWeight(db); if(segDiff!==0) return segDiff;
+      const ipRegex = /^\d+\.\d+\.\d+\.\d+$/;
+      if(ipRegex.test(da) && ipRegex.test(db)) return ipCompare(da,db);
+      return da.localeCompare(db);
+    });
+    favs.forEach(url=>{
+      const row = document.createElement("div"); row.className="favoriteRow";
+      const favLed = document.createElement("div"); favLed.className="led gray";
+      const favStart = document.createElement("button"); favStart.textContent=t.start;
+      favStart.classList.add('fav-start-btn');
+      favStart.setAttribute('data-url', url);
+      const favDel = document.createElement("button"); favDel.textContent="✖";
+      const icon = document.createElement("img"); icon.style.width="16px"; icon.style.height="16px"; icon.style.borderRadius="2px"; icon.style.margin="0 4px";
+      icon.src = "https://www.google.com/s2/favicons?sz=32&domain="+encodeURIComponent(url);
+      icon.onerror = () => { icon.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' fill='%23666'/></svg>"; };
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.innerHTML = `${getWarningIcon(url)} ${url}`;
+      link.className = "favoriteUrl";
+      const badge = document.createElement("span");
+      badge.style.cssText = "font-size:10px;background:#333;color:#aaa;border-radius:8px;padding:1px 5px;min-width:28px;display:inline-block;text-align:center;visibility:hidden;";
+      row.appendChild(favLed); row.appendChild(badge); row.appendChild(favStart); row.appendChild(favDel); row.appendChild(icon); row.appendChild(link);
+      container.appendChild(row);
+
+      const doStart = () => {
+        createAndStart(url);
+        updateFavoriteRow(url, favLed, badge);
+        updateFavCounters();
+      };
+      favStart.onclick = (e) => {
+        e.stopPropagation();
+        if (isHttpUrl(url)) {
+          const confirmed = showHttpWarning(favStart, url);
+          if (confirmed) doStart();
+        } else {
+          doStart();
+        }
+      };
+      favDel.onclick = () => {
+        const list = loadFavorites().filter(f => f !== url);
+        saveFavorites(list);
+        refreshFavoritesUI();
+        updateAllMonitorFavButtons();
+        updateFavCounters();
+      };
+      const id = setInterval(()=>{
+        const mon = monitors.find(x=>x.url===url);
+        favLed.className = mon ? mon.led.className : "led gray";
+        const count = monitors.filter(x=>x.url===url).length;
+        badge.textContent = "×"+count;
+        badge.style.visibility = count>1 ? "visible" : "hidden";
+      }, 30000);
+      favIntervals.push(id);
+    });
+    updateFavCounters();
+  }
+
+  function addFavorite(url){
+    if(!isValidURL(url)) return;
+    const favs = loadFavorites();
+    if(!favs.includes(url)){ favs.push(url); saveFavorites(favs); refreshFavoritesUI(); updateFavCounters(); }
+  }
+
+  function saveState(){ localStorage.setItem("noc_monitors",JSON.stringify(monitors.map(m=>m.url))); }
+  function loadState(){ 
+    JSON.parse(localStorage.getItem("noc_monitors")||"[]").forEach(url => createAndStart(url));
+    updateMonitorCount();
+  }
+
+  let currentSchedulingTimeout = null;
+  function scheduleCycle() {
+    if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+    if (monitors.length === 0) {
+      currentSchedulingTimeout = setTimeout(scheduleCycle, 1000);
+      return;
+    }
+    const sorted = [...monitors].sort(compareMonitors);
+    let steps = [];
+    let totalDuration = 0;
+    let lastDomain = null;
+    for (let i = 0; i < sorted.length; i++) {
+      const currentDomain = getDomain(sorted[i].url);
+      let delay = MIN_STEP_DIFFERENT;
+      if (lastDomain !== null && currentDomain === lastDomain) delay = MIN_STEP_SAME_DOMAIN;
+      steps.push({ monitor: sorted[i], delay: delay });
+      totalDuration += delay;
+      lastDomain = currentDomain;
+    }
+    const cycleDuration = Math.max(MIN_CYCLE_MS, totalDuration);
+    startMonitorSpinnerAnimation(cycleDuration);
+    let accumulated = 0;
+    for (let i = 0; i < steps.length; i++) {
+      setTimeout(() => checkMonitor(steps[i].monitor), accumulated);
+      accumulated += steps[i].delay;
+    }
+    currentSchedulingTimeout = setTimeout(() => scheduleCycle(), cycleDuration);
+  }
+
+  function createAndStart(url){
+    const m = createMonitor(url);
+    monitors.push(m);
+    checkMonitor(m);
+    saveState();
+    triggerGreenResort();
+    updateAllMonitorFavButtons();
+    updateFavCounters();
+    updateMonitorCount();
+    if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+    scheduleCycle();
+  }
+
+  // ========== CPU-Indikator ==========
+  function initCpuIndicator(){
+    const container = document.getElementById('cpuContainer');
+    const canvas = document.getElementById('cpu-canvas');
+    const label = document.getElementById('cpu-label');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    let busyHistory = [];
+    const HISTORY_SIZE = 4;
+    function drawBar(avgBusy) {
+      ctx.clearRect(0,0,92,18);
+      ctx.fillStyle = '#181818';
+      ctx.fillRect(0,0,92,18);
+      let color = '#388e3c';
+      if (avgBusy >= 85) color = '#c62828';
+      else if (avgBusy >= 70) color = '#f57c00';
+      else if (avgBusy >= 55) color = '#fbc02d';
+      const width = Math.floor((avgBusy/100)*89)+3;
+      ctx.fillStyle = color;
+      ctx.fillRect(0,0,width,18);
+      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillRect(0,0,width,3);
+      label.textContent = avgBusy >= 85 ? 'CRIT' : avgBusy >= 70 ? 'HIGH' : 'LOAD';
+      label.style.color = avgBusy >= 75 ? '#fff' : '#ddd';
+      if (avgBusy > 45) {
+        container.classList.add('visible');
+      } else {
+        container.classList.remove('visible');
+      }
+    }
+    function measureBusyLoop(){
+      const testMs = 35;
+      const start = performance.now();
+      let dummy = 0;
+      while (performance.now() - start < testMs) dummy += Math.sin(dummy);
+      const elapsed = performance.now() - start;
+      return Math.min(98, Math.max(5, Math.round(100 - (testMs / elapsed * 100))));
+    }
+    function measureIdleBusy(callback){
+      const start = performance.now();
+      window.requestIdleCallback((deadline) => {
+        const delay = performance.now() - start;
+        if (deadline.didTimeout || delay > 200 * 0.8) callback(80 + Math.min(20, (delay/200)*20));
+        else if (deadline.timeRemaining() < 10) callback(50 + (10 - deadline.timeRemaining()) * 5);
+        else callback(0);
+      }, { timeout: 200 });
+    }
+    function getMemoryBoost(){
+      if ('memory' in performance) {
+        const { usedJSHeapSize, jsHeapSizeLimit } = performance.memory;
+        const heapUsage = (usedJSHeapSize / jsHeapSizeLimit) * 100;
+        return heapUsage > 80 ? 20 : heapUsage > 60 ? 10 : 0;
+      }
+      return 0;
+    }
+    function updateCpuMini(){
+      measureIdleBusy((idleBusy) => {
+        const loopBusy = measureBusyLoop();
+        const memoryBoost = getMemoryBoost();
+        let currentBusy = Math.max(idleBusy, loopBusy) + memoryBoost;
+        busyHistory.push(currentBusy);
+        if(busyHistory.length > HISTORY_SIZE) busyHistory.shift();
+        const avgBusy = Math.round(busyHistory.reduce((a,b)=>a+b,0)/busyHistory.length);
+        drawBar(avgBusy);
+      });
+    }
+    updateCpuMini();
+    setInterval(updateCpuMini, 3000);
+  }
+
+  // ========== Favoriten-Menü ==========
+  function initFavMenu() {
+    favMenuBtn = document.getElementById('favMenuBtn');
+    if (!favMenuBtn) return;
+    let dropdown = null;
+    function closeDropdown() {
+      if (dropdown) dropdown.remove();
+      dropdown = null;
+      document.removeEventListener('click', outsideClickListener);
+    }
+    function outsideClickListener(e) {
+      if (dropdown && !dropdown.contains(e.target) && e.target !== favMenuBtn) {
+        closeDropdown();
+      }
+    }
+    favMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (dropdown) { closeDropdown(); return; }
+      dropdown = document.createElement('div');
+      dropdown.className = 'dropdown-menu';
+      const rect = favMenuBtn.getBoundingClientRect();
+      dropdown.style.position = 'absolute';
+      dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+      dropdown.style.left = `${rect.left + window.scrollX}px`;
+      dropdown.style.right = 'auto';
+      dropdown.style.zIndex = '1000';
+      
+      const btnDefault = document.createElement('button');
+      btnDefault.textContent = t.favMenuDefault;
+      btnDefault.onclick = () => { loadDefaultFavorites(); closeDropdown(); };
+      const btnSave = document.createElement('button');
+      btnSave.textContent = t.favMenuSave;
+      btnSave.onclick = () => { saveFavoritesToFile(); closeDropdown(); };
+      const btnLoad = document.createElement('button');
+      btnLoad.textContent = t.favMenuLoad;
+      btnLoad.onclick = () => { loadFavoritesFromFile(); closeDropdown(); };
+      const btnDelete = document.createElement('button');
+      btnDelete.textContent = t.favMenuDelete;
+      btnDelete.onclick = () => { if(confirm(t.favMenuDelete + '?')) { saveFavorites([]); refreshFavoritesUI(); updateFavCounters(); updateAllMonitorFavButtons(); } closeDropdown(); };
+      dropdown.appendChild(btnDefault);
+      dropdown.appendChild(btnSave);
+      dropdown.appendChild(btnLoad);
+      dropdown.appendChild(btnDelete);
+      document.body.appendChild(dropdown);
+      setTimeout(() => document.addEventListener('click', outsideClickListener), 0);
+    });
+  }
+
+  async function loadDefaultFavorites() {
+    try {
+      const response = await fetch('favorites-default.json');
+      if (!response.ok) throw new Error('Datei nicht gefunden');
+      const data = await response.json();
+      if (Array.isArray(data) && data.every(url => typeof url === 'string' && isValidURL(url))) {
+        if (confirm(t.favMenuDefault + '? Aktuelle werden überschrieben.')) {
+          saveFavorites(data);
+          refreshFavoritesUI();
+          updateFavCounters();
+          updateAllMonitorFavButtons();
+        }
+      } else {
+        alert('Ungültiges Format der Default-Favoriten.');
+      }
+    } catch (err) {
+      alert('Fehler beim Laden der Default-Favoriten: ' + err.message);
+    }
+  }
+
+  function saveFavoritesToFile() {
+    const favs = loadFavorites();
+    const dataStr = JSON.stringify(favs, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'noc-ultra-fav-last.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function loadFavoritesFromFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (Array.isArray(data) && data.every(url => typeof url === 'string' && isValidURL(url))) {
+            if (confirm('Ausgewählte Favoriten laden? Aktuelle werden überschrieben.')) {
+              saveFavorites(data);
+              refreshFavoritesUI();
+              updateFavCounters();
+              updateAllMonitorFavButtons();
+            }
+          } else {
+            alert('Ungültiges Format der Datei.');
+          }
+        } catch (err) {
+          alert('Fehler beim Parsen der Datei: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  async function autoLoadDefaultFavoritesIfEmpty() {
+    const favs = loadFavorites();
+    if (favs.length === 0) {
+      try {
+        const response = await fetch('favorites-default.json');
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.every(url => typeof url === 'string' && isValidURL(url))) {
+            saveFavorites(data);
+            refreshFavoritesUI();
+            updateFavCounters();
+            updateAllMonitorFavButtons();
+          }
+        }
+      } catch (err) { /* keine Default-Datei */ }
+    }
+  }
+
+  // ========== Monitor-Menü ==========
+  function initMonitorsMenu() {
+    monitorsMenuBtn = document.getElementById('monitorsMenuBtn');
+    if (!monitorsMenuBtn) return;
+    let dropdown = null;
+    function closeDropdown() {
+      if (dropdown) dropdown.remove();
+      dropdown = null;
+      document.removeEventListener('click', outsideClickListener);
+    }
+    function outsideClickListener(e) {
+      if (dropdown && !dropdown.contains(e.target) && e.target !== monitorsMenuBtn) {
+        closeDropdown();
+      }
+    }
+    monitorsMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (dropdown) { closeDropdown(); return; }
+      dropdown = document.createElement('div');
+      dropdown.className = 'dropdown-menu';
+      const rect = monitorsMenuBtn.getBoundingClientRect();
+      dropdown.style.position = 'absolute';
+      dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+      dropdown.style.left = `${rect.left + window.scrollX}px`;
+      dropdown.style.right = 'auto';
+      dropdown.style.zIndex = '1000';
+      
+      const btnSave = document.createElement('button');
+      btnSave.textContent = t.monMenuSave;
+      btnSave.onclick = () => { saveMonitorsToFile(); closeDropdown(); };
+      const btnLoadAdd = document.createElement('button');
+      btnLoadAdd.textContent = t.monMenuLoadAdd;
+      btnLoadAdd.onclick = () => { loadMonitorsFromFile('add'); closeDropdown(); };
+      const btnLoadSub = document.createElement('button');
+      btnLoadSub.textContent = t.monMenuLoadSub;
+      btnLoadSub.onclick = () => { loadMonitorsFromFile('substitute'); closeDropdown(); };
+      const btnDelete = document.createElement('button');
+      btnDelete.textContent = t.monMenuDelete;
+      btnDelete.onclick = () => { if(confirm(t.monDeleteConfirm)) { deleteAllMonitors(); } closeDropdown(); };
+      dropdown.appendChild(btnSave);
+      dropdown.appendChild(btnLoadAdd);
+      dropdown.appendChild(btnLoadSub);
+      dropdown.appendChild(btnDelete);
+      document.body.appendChild(dropdown);
+      setTimeout(() => document.addEventListener('click', outsideClickListener), 0);
+    });
+  }
+
+  function saveMonitorsToFile() {
+    const exportData = monitors.map(m => ({
+      url: m.url,
+      history: m.history,
+      state: m.state,
+      lastStatusText: m.statusDiv.textContent
+    }));
+    const dataStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'noc-ultra-mon-last.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function loadMonitorsFromFile(mode) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (!Array.isArray(data)) throw new Error('Kein Array');
+          if (mode === 'substitute') {
+            deleteAllMonitors();
+          }
+          for (const item of data) {
+            if (typeof item.url === 'string' && isValidURL(item.url)) {
+              const m = createMonitor(item.url);
+              if (Array.isArray(item.history)) m.history = item.history.slice(0,120);
+              if (typeof item.state === 'string') m.state = item.state;
+              if (typeof item.lastStatusText === 'string') m.statusDiv.textContent = item.lastStatusText;
+              monitors.push(m);
+              drawGraph(m);
+              setState(m, m.state, m.statusDiv.textContent);
+            }
+          }
+          saveState();
+          triggerGreenResort();
+          updateAllMonitorFavButtons();
+          updateFavCounters();
+          updateMonitorCount();
+          if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+          scheduleCycle();
+        } catch (err) {
+          alert('Fehler beim Laden: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  function deleteAllMonitors() {
+    monitors.forEach(m => m.div.remove());
+    monitors = [];
+    saveState();
+    updateMonitorCount();
+    updateFavCounters();
+    if (currentSchedulingTimeout) clearTimeout(currentSchedulingTimeout);
+    scheduleCycle();
+  }
+
+  // ========== Hauptmenü ==========
+  function initMenu() {
+    const menuIcon = document.getElementById('menuIcon');
+    const overlay = document.getElementById('menuOverlay');
+    const closeBtn = document.getElementById('closeMenuBtn');
+    const langSelect = document.getElementById('langSelect');
+
+    function buildLangSelect() {
+      langSelect.innerHTML = '';
+      const autoOption = document.createElement('option');
+      autoOption.value = 'auto';
+      autoOption.textContent = t.autoLabel || "Auto (Browser)";
+      langSelect.appendChild(autoOption);
+      const languageCodes = ["de","en","bg","cs","da","el","es","et","fi","fr","hr","hu","it","lt","lv","mt","nl","pl","pt","ro","sk","sl","sv","ru","ja","zh","ko"];
+      languageCodes.forEach(code => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = code.toUpperCase();
+        langSelect.appendChild(option);
+      });
+      const stored = localStorage.getItem("noc_lang");
+      if (stored === 'auto' || (!stored && isAutoLang)) langSelect.value = 'auto';
+      else if (stored && stored !== 'auto') langSelect.value = stored;
+      else langSelect.value = 'auto';
+    }
+    buildLangSelect();
+
+    langSelect.addEventListener('change', async (e) => {
+      const val = e.target.value;
+      await setLanguage(val);
+      buildLangSelect(); // Neu aufbauen, damit Auto-Text aktuell ist
+      refreshFavoritesUI();
+    });
+
+    menuIcon.addEventListener('click', () => overlay.classList.add('active'));
+    closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+  }
+
+  function updateUITexts() {
+    urlInput.placeholder = t.placeholder;
+    btnAdd.textContent = t.add;
+    document.getElementById('favTitle').textContent = t.favs;
+    document.getElementById('monitorsTitle').textContent = t.monitors;
+    document.getElementById('head-title').textContent = 'NOC Ultra Smart Panel';
+    document.getElementById('footerImpressum').textContent = t.footerImpressum;
+    document.getElementById('footerDatenschutz').textContent = t.footerDatenschutz;
+    document.getElementById('footerNutzung').textContent = t.footerNutzung;
+    document.getElementById('footerCookies').textContent = t.footerCookies;
+    document.getElementById('menuTitle').textContent = t.menuTitle;
+    document.getElementById('menuLangLabel').textContent = t.menuLang;
+    document.getElementById('menuModeLabel').textContent = t.menuMode;
+    document.getElementById('menuSettingsLabel').textContent = t.menuSettings;
+    document.getElementById('menuVersionLabel').textContent = t.menuVersion;
+    document.getElementById('closeMenuBtn').textContent = t.close;
+    document.getElementById('autoFavLabel').textContent = t.autoLabel || "Auto-Fav";
+    document.getElementById('autoFavSwitch').title = t.autoFavTitle || "Auto-Favorite: Valid URLs are automatically added to favorites";
+    document.getElementById('menuIcon').title = t.tooltipMenu || "Menu";
+    if (favMenuBtn) favMenuBtn.title = t.tooltipFavMenu || "Favorites menu";
+    if (monitorsMenuBtn) monitorsMenuBtn.title = t.tooltipMonitorMenu || "Monitors menu";
+  }
+
+  // ========== Initialisierung ==========
+  async function init(){
+    urlInput = document.getElementById('urlInput');
+    btnAdd = document.getElementById('ui-btn-add');
+    monitorsContainer = document.getElementById('monitors');
+    favCountersSpan = document.getElementById('favCounters');
+    autoFavToggle = document.getElementById('autoFavToggle');
+    cpuContainer = document.getElementById('cpuContainer');
+
+    if(favSpinnerCanvas) favSpinnerCtx = favSpinnerCanvas.getContext('2d');
+    if(monitorSpinnerCanvas) monitorSpinnerCtx = monitorSpinnerCanvas.getContext('2d');
+    startFavSpinner();
+
+    if(favContainer){
+      favContainer.addEventListener('mouseenter', handleContainerMouseEnter);
+      favContainer.addEventListener('mouseleave', handleContainerMouseLeave);
+    }
+    if(favBox){
+      favBox.addEventListener('mouseenter', handleBoxMouseEnter);
+      favBox.addEventListener('mouseleave', handleBoxMouseLeave);
+      resetCollapseTimer();
+    }
+
+    // Sprache initial laden (aus localStorage oder Auto)
+    const storedLang = localStorage.getItem("noc_lang");
+    if (storedLang === 'auto' || !storedLang) {
+      await setLanguage('auto');
+    } else {
+      await setLanguage(storedLang);
+    }
+
+    updateUITexts();
+    document.getElementById('head-title').textContent = 'NOC Ultra Smart Panel';
+    document.getElementById('versionDisplay').textContent = VERSION;
+    document.getElementById('copyrightLine').innerHTML = `© ${CURRENT_YEAR} by artkeller@gmx.de`;
+
+    urlInput.addEventListener('input', () => { btnAdd.disabled = urlInput.value.trim() === ''; });
+    urlInput.addEventListener('blur', () => {
+      let v = urlInput.value.trim();
+      if(v && !v.startsWith('http://') && !v.startsWith('https://')) urlInput.value = 'https://' + v;
+      btnAdd.disabled = urlInput.value.trim() === '';
+    });
+    btnAdd.addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      if (!url) return;
+      const doAdd = () => {
+        if (autoFavToggle.checked && isValidURL(url)) {
+          addFavorite(url);
+        }
+        createAndStart(url);
+        urlInput.value = '';
+        btnAdd.disabled = true;
+      };
+      if (isHttpUrl(url)) {
+        const confirmed = showHttpWarning(btnAdd, url);
+        if (confirmed) doAdd();
+      } else {
+        doAdd();
+      }
+    });
+
+    loadState();
+    refreshFavoritesUI();
+    await autoLoadDefaultFavoritesIfEmpty();
+    scheduleCycle();
+    initCpuIndicator();
+    initMenu();
+    initFavMenu();
+    initMonitorsMenu();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  window.__NOC_DEBUG__ = { get monitors(){ return monitors; }, t, createAndStart };
+})();
+</script>
+</body>
+</html>
