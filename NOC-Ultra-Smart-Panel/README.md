@@ -1,5 +1,4 @@
 # **Warum NOC Ultra Smart Panel?**
-
 **Große professionelle NOC-Lösungen sind meist nichts für unterwegs.**  
 Sie sind schwer, komplex und an feste Arbeitsplätze gebunden. Dabei findet unser Leben heute hauptsächlich auf Smartphones, Tablets und Notebooks statt – oft im Zug, im Meeting, im Auto oder im Funk-Schatten.
 
@@ -22,7 +21,7 @@ Die App erkennt automatisch dein Gerät und wählt das passende Profil aus – v
 **👉 Glance**  
 Dein schneller Blick für unterwegs.  
 Perfekt fürs Smartphone.  
-Ein Fingerwisch – und du siehst sofort: Läuft’s oder nicht?  
+Ein Fingerwisch – und du siehst sofort: Läuft's oder nicht?  
 Ideal für alle, die unter Zeitdruck stehen und eine klare, einfache Antwort wollen – ohne Schnickschnack.
 
 **👉 Smart**  
@@ -38,3 +37,28 @@ Riesige, übersichtliche Dashboards und ein professionelles Lagebild – perfekt
 Hier fühlst du dich wie in einer echten professionellen NOC, nur viel leichter und schöner.
 
 ---
+
+### Das Debug-Interface
+
+NOC Ultra Smart Panel enthält ein optionales Debug-Interface (`window.__NOC_DEBUG__`), das sich in den Einstellungen per Toggle aktivieren lässt.
+
+**Was es tut:**  
+Bei aktiviertem Debug-Toggle wird ein kontrolliertes Objekt auf `window` gesetzt, über das du in der Browser-Konsole direkten Zugriff auf interne Strukturen bekommst – z. B. den aktuellen Monitor-State oder die Sprachübersetzungen.
+
+```js
+// Nur verfügbar wenn Debug-Toggle aktiv:
+__NOC_DEBUG__.monitors      // Snapshot des internen Monitor-Arrays
+__NOC_DEBUG__.t             // Aktuelle Übersetzungstexte
+__NOC_DEBUG__.createAndStart("https://...")  // Monitor programmatisch starten
+```
+
+**Was es ausdrücklich nicht tut:**  
+Es schränkt F12 nicht ein und ist kein Sicherheitsmerkmal.  
+Der Browser-Debugger ist eine Browser-eigene Funktion – JavaScript kann sie grundsätzlich nicht blockieren, und das ist auch gut so.  
+Wer F12 öffnet, sieht den Quellcode immer – unabhängig vom Toggle-Status.
+
+**Warum trotzdem sinnvoll:**  
+Das Interface definiert eine **explizite, saubere API** für Entwickler und macht sichtbar, was bewusst nach außen gegeben wird. `structuredClone()` stellt sicher, dass der interne State nicht versehentlich von außen mutiert werden kann. Der Toggle dokumentiert die Absicht: *Das hier ist ein Debug-Zugang, kein normaler Betriebsmodus.*
+
+**Die goldene Regel für Browser-Apps:**  
+Echte Secrets gehören nicht in den Browser. Sie gehören auf den Server. Alles, was der Browser bekommt, kann der User sehen – mit oder ohne F12-Einschränkung.
