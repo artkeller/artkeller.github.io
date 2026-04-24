@@ -4,8 +4,8 @@
   "name": "European Innovation Governance",
 
   "policies": [
-    "/policies/default-economic-policy.json",
-    "/policies/resilience-policy.json"
+    "./policies/default-economic-policy.json",
+    "./policies/resilience-policy.json"
   ],
 
   "description": {
