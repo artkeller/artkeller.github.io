@@ -1,20 +1,31 @@
 {
-  "id": "resilience-policy",
-  "governance": "global-neutral",
+  "id": "default-economic-policy",
 
-  "what": [
-    "/domains/infrastructure/*",
-    "/domains/media/*",
-    "/domains/industrial/*"
-  ],
+  "what": {
+    "domains": [      
+      "./domains/infrastructure/*",
+      "./domains/media/*",
+      "./domains/industrial/*"
+    ],
+
+    "regions": [
+      "EU",
+      "AS",
+      "NA",
+      "AF"
+    ]
+  },
 
   "how": [
-    "/analysis-profiles/resilience-analysis.json"
+    "./analysis-profiles/resilience-analysis.json"
   ],
 
-  "rules": {
+  "selection": {
+    "regex": true,
+    "recursive": true,
     "minDomains": 3,
     "minRegions": 5,
     "failureTolerance": 0.3
   }
 }
+
