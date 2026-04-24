@@ -3,12 +3,12 @@
 
   "what": {
     "domains": [
-      "/domains/infrastructure/*",
-      "/domains/media/*",
-      "/domains/government/*",
-      "/domains/industrial/*",
-      "/domains/platform/*",
-      "/domains/x-initiatives/*"
+      "./domains/infrastructure/*",
+      "./domains/media/*",
+      "./domains/government/*",
+      "./domains/industrial/*",
+      "./domains/platform/*",
+      "./domains/x-initiatives/*"
     ],
 
     "regions": [
