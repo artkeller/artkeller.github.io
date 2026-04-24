@@ -20,7 +20,7 @@
   },
 
   "how": [
-    "/analysis-profiles/standard-analysis.json"
+    "./analysis-profiles/standard-analysis.json"
   ],
 
   "selection": {
