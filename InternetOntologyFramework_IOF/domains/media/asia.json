@@ -1,0 +1,10 @@
+{
+  "domain": "media",
+  "region": "AS",
+  "nodes": [
+    "https://www.thehindu.com",
+    "https://www.asahi.com",
+    "https://www.scmp.com",
+    "https://www.channelnewsasia.com"
+  ]
+}

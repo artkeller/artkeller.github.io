@@ -1,0 +1,8 @@
+{
+  "domain": "platform",
+  "nodes": [
+    "https://www.github.com",
+    "https://www.stackoverflow.com",
+    "https://www.digitalocean.com"
+  ]
+}

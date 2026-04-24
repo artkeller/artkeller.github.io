@@ -1,0 +1,18 @@
+{
+  "id": "eu-innovation",
+  "name": "European Innovation Oriented Governance",
+  "description": "Focus on economic availability, industrial resilience, and open innovation ecosystems aligned with European values.",
+  "principles": [
+    "open innovation",
+    "interoperability",
+    "resilience",
+    "economic continuity",
+    "federation"
+  ],
+  "views": {
+    "multiPerspectiveAnalysis": true,
+    "domainSpecificEvaluation": true,
+    "resilienceAssessment": true,
+    "economicAvailability": true
+  }
+}

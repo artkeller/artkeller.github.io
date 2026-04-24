@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>IOF Validator</title>
+
+<link rel="manifest" href="manifest.json" />
+
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #111;
+  --muted: #666;
+  --ok: #2ecc71;
+  --warn: #f39c12;
+  --err: #e74c3c;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+header {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+main {
+  padding: 1rem;
+  max-width: 1400px;
+  margin: auto;
+}
+
+select {
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.node {
+  margin-left: 1rem;
+  border-left: 1px dashed #ddd;
+  padding-left: 0.5rem;
+}
+
+.node-header {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ok { background: var(--ok); }
+.warn { background: var(--warn); }
+.err { background: var(--err); }
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  body { font-size: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>IOF Validator</h1>
+  <label>
+    Governance:
+    <select id="governanceSelect"></select>
+  </label>
+</header>
+
+<main>
+  <div id="tree"></div>
+</main>
+
+<script>
+/* ===========================
+   CONFIG
+=========================== */
+
+const GOVERNANCE_PATH = "/governance-profiles/";
+
+/* ===========================
+   UTILS
+=========================== */
+
+async function loadJSON(path) {
+  try {
+    const res = await fetch(path);
+    if (!res.ok) throw new Error(res.status);
+    return await res.json();
+  } catch (e) {
+    return { __error: "LOAD_FAILED", path };
+  }
+}
+
+function statusFromIssues(issues) {
+  if (issues.some(i => i.type === "error")) return "err";
+  if (issues.some(i => i.type === "warn")) return "warn";
+  return "ok";
+}
+
+/* ===========================
+   VALIDATION
+=========================== */
+
+function validateJSON(obj, requiredFields) {
+  const issues = [];
+
+  if (obj.__error) {
+    issues.push({ type: "error", msg: "File not found" });
+    return issues;
+  }
+
+  requiredFields.forEach(f => {
+    if (!(f in obj)) {
+      issues.push({ type: "error", msg: `Missing field: ${f}` });
+    }
+  });
+
+  return issues;
+}
+
+/* ===========================
+   TREE RENDER
+=========================== */
+
+function createNode(label, status, issues = [], children = []) {
+  const container = document.createElement("div");
+  container.className = "node";
+
+  const header = document.createElement("div");
+  header.className = "node-header";
+
+  const dot = document.createElement("div");
+  dot.className = `status ${status}`;
+
+  const text = document.createElement("span");
+  text.textContent = label;
+
+  header.appendChild(dot);
+  header.appendChild(text);
+
+  const childContainer = document.createElement("div");
+
+  // auto-collapse rule
+  if (status === "ok") childContainer.classList.add("hidden");
+
+  header.onclick = () => {
+    childContainer.classList.toggle("hidden");
+  };
+
+  issues.forEach(i => {
+    const warn = document.createElement("div");
+    warn.textContent = `${i.type.toUpperCase()}: ${i.msg}`;
+    warn.style.color = i.type === "error" ? "red" : "orange";
+    childContainer.appendChild(warn);
+  });
+
+  children.forEach(c => childContainer.appendChild(c));
+
+  container.appendChild(header);
+  container.appendChild(childContainer);
+
+  return container;
+}
+
+/* ===========================
+   CORE LOGIC
+=========================== */
+
+async function loadGovernances() {
+  const files = ["eu-innovation.json", "global-neutral.json"];
+  const select = document.getElementById("governanceSelect");
+
+  for (let f of files) {
+    const opt = document.createElement("option");
+    opt.value = f;
+    opt.textContent = f;
+    select.appendChild(opt);
+  }
+
+  select.onchange = () => run(select.value);
+
+  run(files[0]);
+}
+
+async function run(file) {
+  const tree = document.getElementById("tree");
+  tree.innerHTML = "";
+
+  const gov = await loadJSON(GOVERNANCE_PATH + file);
+  const govIssues = validateJSON(gov, ["id", "policies"]);
+
+  const policyNodes = [];
+
+  for (let p of (gov.policies || [])) {
+    const policy = await loadJSON(p);
+    const issues = validateJSON(policy, ["what", "how"]);
+
+    const analysisNodes = [];
+
+    for (let h of (policy.how || [])) {
+      const a = await loadJSON(h);
+      const aIssues = validateJSON(a, ["weights"]);
+
+      analysisNodes.push(
+        createNode(h, statusFromIssues(aIssues), aIssues)
+      );
+    }
+
+    const domainNodes = [];
+
+    for (let d of (policy.what?.domains || [])) {
+      domainNodes.push(
+        createNode(d, "ok", [], []) // lazy expand
+      );
+    }
+
+    const allChildren = [...analysisNodes, ...domainNodes];
+
+    policyNodes.push(
+      createNode(
+        p,
+        statusFromIssues(issues),
+        issues,
+        allChildren
+      )
+    );
+  }
+
+  const rootNode = createNode(
+    gov.id,
+    statusFromIssues(govIssues),
+    govIssues,
+    policyNodes
+  );
+
+  tree.appendChild(rootNode);
+}
+
+/* ===========================
+   INIT
+=========================== */
+
+loadGovernances();
+</script>
+
+</body>
+</html>

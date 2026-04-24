@@ -1,0 +1,20 @@
+{
+  "id": "resilience-policy",
+  "governance": "global-neutral",
+
+  "what": [
+    "/domains/infrastructure/*",
+    "/domains/media/*",
+    "/domains/industrial/*"
+  ],
+
+  "how": [
+    "/analysis-profiles/resilience-analysis.json"
+  ],
+
+  "rules": {
+    "minDomains": 3,
+    "minRegions": 5,
+    "failureTolerance": 0.3
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "domain": "media",
+  "region": "NA-SA",
+  "nodes": [
+    "https://www.nytimes.com",
+    "https://www.cbc.ca",
+    "https://www.globo.com",
+    "https://www.lanacion.com.ar"
+  ]
+}

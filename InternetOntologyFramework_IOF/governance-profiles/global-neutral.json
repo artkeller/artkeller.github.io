@@ -1,0 +1,17 @@
+{
+  "id": "global-neutral",
+  "name": "Global Neutral Governance",
+  "description": "Balanced global reachability without regional or political bias.",
+  "principles": [
+    "neutrality",
+    "global coverage",
+    "redundancy",
+    "diversity"
+  ],
+  "views": {
+    "multiPerspectiveAnalysis": true,
+    "domainSpecificEvaluation": true,
+    "resilienceAssessment": true,
+    "economicAvailability": false
+  }
+}

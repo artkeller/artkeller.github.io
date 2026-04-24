@@ -1,0 +1,9 @@
+{
+  "domain": "industrial",
+  "nodes": [
+    "https://www.siemens.com",
+    "https://www.bosch.com",
+    "https://www.ge.com",
+    "https://www.hitachi.com"
+  ]
+}
