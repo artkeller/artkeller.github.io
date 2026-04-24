@@ -1,23 +1,30 @@
 {
   "id": "default-economic-policy",
-  "governance": "eu-innovation",
 
-  "what": [
-    "/domains/infrastructure/*",
-    "/domains/media/*",
-    "/domains/government/*",
-    "/domains/industrial/*",
-    "/domains/platform/*",
-    "/domains/x-initiatives/*"
-  ],
+  "what": {
+    "domains": [
+      "/domains/infrastructure/*",
+      "/domains/media/*",
+      "/domains/government/*",
+      "/domains/industrial/*",
+      "/domains/platform/*",
+      "/domains/x-initiatives/*"
+    ],
+
+    "regions": [
+      "EU",
+      "AS",
+      "NA",
+      "AF"
+    ]
+  },
 
   "how": [
     "/analysis-profiles/standard-analysis.json"
   ],
 
-  "rules": {
-    "minDomains": 4,
-    "minRegions": 4,
-    "regexEnabled": true
+  "selection": {
+    "regex": true,
+    "recursive": true
   }
 }
