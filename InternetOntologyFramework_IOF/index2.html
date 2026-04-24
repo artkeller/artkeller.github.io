@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IOF Runtime</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+:root {
+  --bg:#fff; --fg:#111; --muted:#666;
+  --ok:#2ecc71; --warn:#f39c12; --err:#e74c3c;
+}
+
+body {
+  font-family: system-ui;
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+}
+
+header {
+  padding:1rem;
+  border-bottom:1px solid #ddd;
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  align-items:center;
+}
+
+main {
+  padding:1rem;
+  max-width:1600px;
+  margin:auto;
+}
+
+select,button {
+  padding:0.5rem;
+  font-size:1rem;
+}
+
+.node { margin-left:1rem; border-left:1px dashed #ddd; padding-left:0.5rem; }
+.node-header { display:flex; gap:0.5rem; cursor:pointer; }
+
+.status {
+  width:10px;height:10px;border-radius:50%;
+}
+.ok{background:var(--ok);}
+.warn{background:var(--warn);}
+.err{background:var(--err);}
+
+.hidden { display:none; }
+
+.dashboard {
+  display:flex;
+  gap:1rem;
+}
+
+.card {
+  padding:0.5rem 1rem;
+  border:1px solid #ddd;
+  border-radius:6px;
+}
+
+@media (max-width:600px){
+  body{font-size:14px;}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>IOF Runtime</h2>
+
+  <select id="govSelect"></select>
+  <button onclick="start()">Run</button>
+
+  <div class="dashboard">
+    <div class="card">OK: <span id="okCount">0</span></div>
+    <div class="card">WARN: <span id="warnCount">0</span></div>
+    <div class="card">ERR: <span id="errCount">0</span></div>
+  </div>
+</header>
+
+<main>
+  <div id="tree"></div>
+</main>
+
+<script>
+
+/* =============================
+   GLOBAL STATE
+============================= */
+
+let FILE_INDEX = [];
+let COUNTS = {ok:0,warn:0,err:0};
+
+/* =============================
+   LOADERS
+============================= */
+
+async function loadJSON(path){
+  try{
+    const r = await fetch(path);
+    if(!r.ok) throw new Error();
+    return await r.json();
+  }catch{
+    return {__error:true};
+  }
+}
+
+/* =============================
+   DISCOVERY
+============================= */
+
+function resolvePattern(pattern){
+  const r = new RegExp("^"+pattern.replace(/\*/g,".*")+"$");
+  return FILE_INDEX.filter(f=>r.test(f));
+}
+
+/* =============================
+   VALIDATION
+============================= */
+
+function validate(path,json){
+  const issues=[];
+
+  if(json.__error){
+    issues.push({type:"err",msg:"load failed"});
+    return issues;
+  }
+
+  if(path.includes("/domains/")){
+    if(!json.nodes) issues.push({type:"err",msg:"nodes missing"});
+    else{
+      json.nodes.forEach(u=>{
+        try{ new URL(u); }
+        catch{ issues.push({type:"warn",msg:"bad url "+u}); }
+      });
+    }
+  }
+
+  if(path.includes("/policies/")){
+    if(!json.what || !json.how)
+      issues.push({type:"err",msg:"policy incomplete"});
+  }
+
+  return issues;
+}
+
+/* =============================
+   LIVE CHECK
+============================= */
+
+async function checkURL(url){
+  try{
+    const res = await fetch(url,{method:"HEAD",mode:"no-cors"});
+    return "ok";
+  }catch{
+    return "warn";
+  }
+}
+
+/* =============================
+   STATUS
+============================= */
+
+function agg(statuses){
+  if(statuses.includes("err")) return "err";
+  if(statuses.includes("warn")) return "warn";
+  return "ok";
+}
+
+/* =============================
+   TREE
+============================= */
+
+function node(label,status,issues,children){
+  const el=document.createElement("div");
+  el.className="node";
+
+  COUNTS[status]++;
+
+  const h=document.createElement("div");
+  h.className="node-header";
+
+  const dot=document.createElement("div");
+  dot.className="status "+status;
+
+  const t=document.createElement("span");
+  t.textContent=label;
+
+  h.append(dot,t);
+
+  const body=document.createElement("div");
+
+  if(status==="ok") body.classList.add("hidden");
+
+  h.onclick=()=>body.classList.toggle("hidden");
+
+  issues.forEach(i=>{
+    const d=document.createElement("div");
+    d.textContent=i.type+": "+i.msg;
+    d.style.color = i.type==="err"?"red":"orange";
+    body.appendChild(d);
+  });
+
+  children.forEach(c=>body.appendChild(c));
+
+  el.append(h,body);
+  return el;
+}
+
+/* =============================
+   PIPELINE
+============================= */
+
+async function run(govFile){
+
+  COUNTS={ok:0,warn:0,err:0};
+
+  const gov = await loadJSON(govFile);
+
+  const policies = [];
+
+  for(let p of gov.policies){
+    const pj = await loadJSON(p);
+    const pIssues = validate(p,pj);
+
+    const domains = [];
+
+    for(let pat of pj.what.domains){
+      const files = resolvePattern(pat);
+
+      const children=[];
+
+      for(let f of files){
+        const dj = await loadJSON(f);
+        const issues = validate(f,dj);
+
+        // live check urls
+        let urlStatuses=[];
+        if(dj.nodes){
+          for(let u of dj.nodes){
+            const s = await checkURL(u);
+            urlStatuses.push(s);
+          }
+        }
+
+        const s = agg([
+          ...issues.map(i=>i.type),
+          ...urlStatuses
+        ]);
+
+        children.push(node(f,s,issues,[]));
+      }
+
+      const s = agg(children.map(c=>c.querySelector(".status").classList[1]));
+
+      domains.push(node(pat,s,[],children));
+    }
+
+    const ps = agg([
+      ...domains.map(d=>d.querySelector(".status").classList[1]),
+      ...pIssues.map(i=>i.type)
+    ]);
+
+    policies.push(node(p,ps,pIssues,domains));
+  }
+
+  const rootStatus = agg(
+    policies.map(p=>p.querySelector(".status").classList[1])
+  );
+
+  return node(gov.id,rootStatus,[],policies);
+}
+
+/* =============================
+   INIT
+============================= */
+
+async function init(){
+
+  FILE_INDEX = (await loadJSON("/file-index.json")).files;
+
+  const govs = FILE_INDEX.filter(f=>f.includes("governance-profiles"));
+
+  const sel=document.getElementById("govSelect");
+
+  govs.forEach(g=>{
+    const o=document.createElement("option");
+    o.value=g;
+    o.textContent=g;
+    sel.appendChild(o);
+  });
+}
+
+async function start(){
+  const tree=document.getElementById("tree");
+  tree.innerHTML="";
+
+  const g=document.getElementById("govSelect").value;
+
+  const t = await run(g);
+  tree.appendChild(t);
+
+  document.getElementById("okCount").textContent=COUNTS.ok;
+  document.getElementById("warnCount").textContent=COUNTS.warn;
+  document.getElementById("errCount").textContent=COUNTS.err;
+}
+
+init();
+
+</script>
+
+</body>
+</html>
