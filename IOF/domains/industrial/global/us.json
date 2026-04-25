@@ -1,0 +1,9 @@
+{
+  "domain": "industrial",
+  "region": "NA",
+  "country": "US",
+
+  "nodes": [
+    "https://www.ge.com"
+  ]
+}

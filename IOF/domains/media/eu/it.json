@@ -1,0 +1,10 @@
+{
+  "domain": "media",
+  "region": "EU",
+  "country": "IT",
+
+  "nodes": [
+    "https://www.repubblica.it",
+    "https://www.corriere.it"
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "region": "EU",
+  "name": "Europe",
+  "countries": ["DE", "FR", "IT", "ES", "NL", "UK", "PL", "SE", "NO", "CH"]
+}
