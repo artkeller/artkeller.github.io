@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Runtime</title>
+
+<style>
+:root{
+  --bg:#f6f8fa;
+  --fg:#1a1a1a;
+  --border:#d0d7de;
+
+  --hover:#e6f2ff;
+
+  --gov:#1f6feb;
+  --policy:#8250df;
+  --domain:#2da44e;
+  --region:#bf8700;
+  --analysis:#57606a;
+
+  --ok:#2da44e;
+  --warn:#bf8700;
+  --err:#d1242f;
+}
+
+body{margin:0;font-family:system-ui;background:var(--bg);}
+
+/* HEADER */
+header{
+  background:white;
+  border-bottom:1px solid var(--border);
+  padding:0.8rem;
+  display:flex;
+  gap:0.5rem;
+  align-items:center;
+}
+
+/* MENU */
+.menu{position:relative;}
+.menu-panel{
+  position:absolute;
+  right:0;
+  top:100%;
+  background:white;
+  border:1px solid var(--border);
+  padding:0.5rem;
+  min-width:180px;
+  display:none;
+}
+.menu.open .menu-panel{display:block;}
+
+.menu-panel label{
+  display:flex;
+  gap:0.5rem;
+  padding:0.2rem 0;
+  cursor:pointer;
+}
+
+/* LAYOUT */
+.container{display:flex;height:calc(100vh - 50px);}
+.tree{flex:1;overflow:auto;padding:1rem;}
+.inspector{width:40%;border-left:1px solid var(--border);background:white;padding:1rem;overflow:auto;}
+
+/* TREE */
+.node{margin-left:1rem;border-left:1px dashed #ccc;padding-left:0.5rem;}
+.node-header{
+  display:flex;
+  gap:0.4rem;
+  padding:2px 4px;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+.node-header.hovered{
+  background:var(--hover);
+  font-weight:bold;
+}
+
+/* TYPE COLORS */
+.gov{color:var(--gov);}
+.policy{color:var(--policy);}
+.domain{color:var(--domain);}
+.region{color:var(--region);}
+.analysis{color:var(--analysis);}
+
+.status{width:10px;height:10px;border-radius:50%;}
+.ok{background:var(--ok);}
+.warn{background:var(--warn);}
+.err{background:var(--err);}
+
+.hidden{display:none;}
+
+/* INSPECTOR */
+pre{font-size:0.8rem;line-height:1.3;}
+.highlight{
+  background:#fff3cd;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <select id="govSelect"></select>
+  <button id="runBtn" onclick="start()">Run</button>
+
+  <div class="menu" id="menu">
+    <button onclick="toggleMenu()">⋯</button>
+
+    <div class="menu-panel">
+      <button onclick="expandAll()">Expand</button>
+      <button onclick="collapseSmart()">Collapse</button>
+
+      <hr>
+
+      <label><input type="checkbox" checked data-filter="domain"> Domains</label>
+      <label><input type="checkbox" checked data-filter="region"> Regions</label>
+      <label><input type="checkbox" checked data-filter="policy"> Policies</label>
+      <label><input type="checkbox" checked data-filter="analysis"> Analysis</label>
+    </div>
+  </div>
+
+  <span>OK:<b id="okCount">0</b></span>
+  <span>WARN:<b id="warnCount">0</b></span>
+  <span>ERR:<b id="errCount">0</b></span>
+</header>
+
+<div class="container">
+  <div class="tree" id="tree"></div>
+  <div class="inspector" id="inspector"><i>Hover…</i></div>
+</div>
+
+<script>
+
+/* STATE */
+let FILE_INDEX=[];
+let JSON_CACHE={};
+let CURRENT_LOCK=null;
+let COUNTS={ok:0,warn:0,err:0};
+let ACTIVE_HEADER=null;
+
+/* TYPE DETECTION (UI ONLY) */
+function getType(path){
+  if(path.includes("governance")) return "gov";
+  if(path.includes("policies")) return "policy";
+  if(path.includes("regions")) return "region";
+  if(path.includes("analysis")) return "analysis";
+  if(path.includes("domains")) return "domain";
+  return "";
+}
+
+/* LOAD */
+async function loadJSON(path){
+  if(JSON_CACHE[path]) return JSON_CACHE[path];
+  try{
+    const r=await fetch(path,{cache:"no-store"});
+    const j=await r.json();
+    JSON_CACHE[path]=j;
+    return j;
+  }catch{
+    return {__error:true,path};
+  }
+}
+
+/* TREE NODE */
+function createNode(label,status,json,children){
+
+  const type=getType(label);
+
+  const el=document.createElement("div");
+  el.className="node";
+  el.dataset.type=type;
+
+  COUNTS[status]++;
+
+  const h=document.createElement("div");
+  h.className="node-header "+type;
+
+  const dot=document.createElement("div");
+  dot.className="status "+status;
+
+  const t=document.createElement("span");
+  t.textContent=label;
+
+  h.append(dot,t);
+
+  const body=document.createElement("div");
+  if(status==="ok") body.classList.add("hidden");
+
+  h.onclick=()=>body.classList.toggle("hidden");
+
+  /* HOVER */
+  h.onmouseenter=()=>{
+    if(ACTIVE_HEADER) ACTIVE_HEADER.classList.remove("hovered");
+    h.classList.add("hovered");
+    ACTIVE_HEADER=h;
+
+    if(!CURRENT_LOCK){
+      showInspector(json,label);
+    }
+  };
+
+  /* CLICK LOCK */
+  h.onclick=(e)=>{
+    e.stopPropagation();
+    CURRENT_LOCK=json;
+    showInspector(json,label);
+  };
+
+  children.forEach(c=>body.appendChild(c));
+
+  el.append(h,body);
+  return el;
+}
+
+/* INSPECTOR */
+function showInspector(json,label){
+
+  const str=JSON.stringify(json,null,2);
+
+  const lines=str.split("\n");
+
+  const marked=lines.map(l=>{
+    if(label && l.includes(label.split("/").pop())){
+      return `<span class="highlight">${l}</span>`;
+    }
+    return l;
+  }).join("\n");
+
+  document.getElementById("inspector").innerHTML="<pre>"+marked+"</pre>";
+}
+
+/* CLICK OUTSIDE */
+document.body.addEventListener("click",e=>{
+  if(!e.target.closest(".node-header") &&
+     !e.target.closest(".inspector")){
+    CURRENT_LOCK=null;
+  }
+});
+
+/* MENU */
+function toggleMenu(){
+  document.getElementById("menu").classList.toggle("open");
+}
+
+/* FILTER (UI ONLY) */
+document.querySelectorAll("[data-filter]").forEach(cb=>{
+  cb.addEventListener("change",()=>{
+    const type=cb.dataset.filter;
+    document.querySelectorAll(`[data-type="${type}"]`)
+      .forEach(n=>n.style.display = cb.checked ? "" : "none");
+  });
+});
+
+/* EXPAND / COLLAPSE */
+function expandAll(){
+  document.querySelectorAll(".node > div:nth-child(2)")
+    .forEach(n=>n.classList.remove("hidden"));
+}
+
+function collapseSmart(){
+  const allGreen = COUNTS.err===0 && COUNTS.warn===0;
+
+  document.querySelectorAll(".node").forEach(n=>{
+    const body=n.children[1];
+    if(allGreen) body.classList.add("hidden");
+    else if(n.querySelector(".status").classList.contains("ok"))
+      body.classList.add("hidden");
+    else body.classList.remove("hidden");
+  });
+}
+
+/* RUN (UNVERÄNDERT) */
+async function run(govFile){
+
+  COUNTS={ok:0,warn:0,err:0};
+
+  const gov=await loadJSON(govFile);
+  const policies=[];
+
+  for(let p of gov.policies){
+
+    const pj=await loadJSON(p);
+    const domains=[];
+
+    for(let pat of pj.what.domains){
+
+      const files = FILE_INDEX.filter(f=>f.includes(pat.replace("*","")));
+      const children=[];
+
+      for(let f of files){
+        const dj=await loadJSON(f);
+        children.push(createNode(f,"ok",dj,[]));
+      }
+
+      domains.push(createNode(pat,"ok",pj,children));
+    }
+
+    policies.push(createNode(p,"ok",pj,domains));
+  }
+
+  return createNode(gov.id,"ok",gov,policies);
+}
+
+/* INIT */
+async function init(){
+  FILE_INDEX=(await loadJSON("./file-index.json")).files;
+
+  const sel=document.getElementById("govSelect");
+  FILE_INDEX.filter(f=>f.includes("governance"))
+    .forEach(g=>{
+      const o=document.createElement("option");
+      o.value=g;
+      o.textContent=g;
+      sel.appendChild(o);
+    });
+}
+
+/* START */
+async function start(){
+
+  const btn=document.getElementById("runBtn");
+  btn.disabled=true;
+  btn.textContent="Running...";
+
+  const tree=document.getElementById("tree");
+  tree.innerHTML="";
+
+  const g=document.getElementById("govSelect").value;
+
+  const t=await run(g);
+  tree.appendChild(t);
+
+  document.getElementById("okCount").textContent=COUNTS.ok;
+  document.getElementById("warnCount").textContent=COUNTS.warn;
+  document.getElementById("errCount").textContent=COUNTS.err;
+
+  collapseSmart();
+
+  btn.disabled=false;
+  btn.textContent="Run";
+}
+
+init();
+
+</script>
+
+</body>
+</html>
