@@ -21,7 +21,7 @@ Role: Du bist ein Web Spezialist
 
 Query: Erzeuge aus den folgenden JSON Strukturen, von einem Web Analyse Tool als Policies (das "WHAT" und ""HOW")
 zur Netzwerküberwachung verwendet werden, einen  technischen Fliesstext mit max. 500 Zeichen, der den 
-Funktionsumfang und speziell die Policies, Analysis  und erklärt:
+Funktionsumfang und speziell die Policies, Analysis und Seletions erklärt:
 
 { ... }
 
