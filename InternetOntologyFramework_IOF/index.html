@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Runtime</title>
+
+<link rel="manifest" href="./manifest.json">
+
+<style>
+:root{
+  --bg:#f8fafc;
+  --fg:#1a1a1a;
+  --primary:#1f6feb;
+  --ok:#2da44e;
+  --warn:#bf8700;
+  --err:#d1242f;
+  --panel:#ffffff;
+  --border:#d0d7de;
+}
+
+body{
+  margin:0;
+  font-family:system-ui;
+  background:var(--bg);
+  color:var(--fg);
+}
+
+/* HEADER */
+header{
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  padding:0.8rem 1rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  align-items:center;
+}
+
+h1{
+  font-size:1.2rem;
+  margin:0;
+  margin-right:1rem;
+}
+
+button, select{
+  padding:0.4rem 0.6rem;
+  border:1px solid var(--border);
+  background:white;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+.menu{
+  position:relative;
+}
+
+.menu-content{
+  position:absolute;
+  top:100%;
+  right:0;
+  background:white;
+  border:1px solid var(--border);
+  display:none;
+}
+
+.menu.open .menu-content{
+  display:block;
+}
+
+/* LAYOUT */
+.container{
+  display:flex;
+  height:calc(100vh - 60px);
+}
+
+.tree{
+  flex:1;
+  overflow:auto;
+  padding:1rem;
+}
+
+.inspector{
+  width:40%;
+  max-width:600px;
+  border-left:1px solid var(--border);
+  background:white;
+  padding:1rem;
+  overflow:auto;
+}
+
+/* TREE */
+.node{margin-left:1rem;border-left:1px dashed #ccc;padding-left:0.5rem;}
+.node-header{display:flex;gap:0.4rem;cursor:pointer;}
+
+.status{width:10px;height:10px;border-radius:50%;}
+.ok{background:var(--ok);}
+.warn{background:var(--warn);}
+.err{background:var(--err);}
+
+.hidden{display:none;}
+pre{white-space:pre-wrap;font-size:0.8rem;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>IOF Runtime</h1>
+
+  <select id="govSelect"></select>
+  <button id="runBtn" onclick="start()">Run</button>
+
+  <div class="menu" id="menu">
+    <button onclick="toggleMenu()">⋯</button>
+    <div class="menu-content">
+      <button onclick="expandAll()">Expand All</button><br>
+      <button onclick="collapseSmart()">Collapse Smart</button>
+    </div>
+  </div>
+
+  <span>OK:<b id="okCount">0</b></span>
+  <span>WARN:<b id="warnCount">0</b></span>
+  <span>ERR:<b id="errCount">0</b></span>
+</header>
+
+<div class="container">
+  <div class="tree" id="tree"></div>
+  <div class="inspector" id="inspector"><i>Hover over a node…</i></div>
+</div>
+
+<script>
+
+/* STATE */
+let FILE_INDEX=[];
+let JSON_CACHE={};
+let CURRENT_LOCK=null;
+let COUNTS={ok:0,warn:0,err:0};
+
+/* LOAD JSON */
+async function loadJSON(path){
+  if(JSON_CACHE[path]) return JSON_CACHE[path];
+
+  try{
+    const res = await fetch(path,{cache:"no-store"});
+    if(!res.ok) throw "HTTP";
+
+    const txt=await res.text();
+    const json=JSON.parse(txt);
+
+    JSON_CACHE[path]=json;
+    return json;
+
+  }catch(e){
+    return {__error:true,path};
+  }
+}
+
+/* VALIDATE */
+function validate(path,json){
+  const issues=[];
+
+  if(json.__error)
+    issues.push({type:"err",msg:"load failed"});
+
+  if(path.includes("/domains/") && !json.nodes)
+    issues.push({type:"err",msg:"nodes missing"});
+
+  return issues;
+}
+
+/* TREE NODE */
+function createNode(label,status,json,children){
+
+  const el=document.createElement("div");
+  el.className="node";
+
+  COUNTS[status]++;
+
+  const h=document.createElement("div");
+  h.className="node-header";
+
+  const dot=document.createElement("div");
+  dot.className="status "+status;
+
+  const t=document.createElement("span");
+  t.textContent=label;
+
+  h.append(dot,t);
+
+  const body=document.createElement("div");
+
+  if(status==="ok") body.classList.add("hidden");
+
+  h.onclick=()=>body.classList.toggle("hidden");
+
+  /* INSPECTOR EVENTS */
+  h.onmouseenter=()=>{
+    if(!CURRENT_LOCK) showInspector(json);
+  };
+
+  h.onclick=()=>{
+    CURRENT_LOCK=json;
+    showInspector(json);
+  };
+
+  children.forEach(c=>body.appendChild(c));
+
+  el.append(h,body);
+  return el;
+}
+
+/* INSPECTOR */
+function showInspector(json){
+  document.getElementById("inspector").innerHTML=
+    "<pre>"+JSON.stringify(json,null,2)+"</pre>";
+}
+
+document.body.addEventListener("click",e=>{
+  if(!e.target.closest(".node-header") &&
+     !e.target.closest(".inspector")){
+    CURRENT_LOCK=null;
+    document.getElementById("inspector").innerHTML="<i>Hover…</i>";
+  }
+});
+
+/* MENU */
+function toggleMenu(){
+  document.getElementById("menu").classList.toggle("open");
+}
+
+/* EXPAND */
+function expandAll(){
+  document.querySelectorAll(".node > div:nth-child(2)")
+    .forEach(n=>n.classList.remove("hidden"));
+}
+
+/* COLLAPSE */
+function collapseSmart(){
+  const allGreen = COUNTS.err===0 && COUNTS.warn===0;
+
+  document.querySelectorAll(".node").forEach(n=>{
+    const body=n.children[1];
+    if(allGreen) body.classList.add("hidden");
+    else if(n.querySelector(".status").classList.contains("ok"))
+      body.classList.add("hidden");
+    else body.classList.remove("hidden");
+  });
+}
+
+/* PIPELINE */
+async function run(govFile){
+
+  COUNTS={ok:0,warn:0,err:0};
+
+  const gov=await loadJSON(govFile);
+
+  const policies=[];
+
+  for(let p of gov.policies){
+
+    const pj=await loadJSON(p);
+
+    const domains=[];
+
+    for(let pat of pj.what.domains){
+
+      const files = FILE_INDEX.filter(f=>f.includes(pat.replace("*","")));
+
+      const children=[];
+
+      for(let f of files){
+
+        const dj=await loadJSON(f);
+        const issues=validate(f,dj);
+
+        const status = issues.length ? "err" : "ok";
+
+        children.push(createNode(f,status,dj,[]));
+      }
+
+      domains.push(createNode(pat,"ok",pj,children));
+    }
+
+    policies.push(createNode(p,"ok",pj,domains));
+  }
+
+  return createNode(gov.id,"ok",gov,policies);
+}
+
+/* INIT */
+async function init(){
+
+  FILE_INDEX=(await loadJSON("./file-index.json")).files;
+
+  const sel=document.getElementById("govSelect");
+
+  FILE_INDEX.filter(f=>f.includes("governance"))
+    .forEach(g=>{
+      const o=document.createElement("option");
+      o.value=g;
+      o.textContent=g;
+      sel.appendChild(o);
+    });
+}
+
+/* START */
+async function start(){
+
+  const btn=document.getElementById("runBtn");
+  btn.disabled=true;
+  btn.textContent="Running...";
+
+  const tree=document.getElementById("tree");
+  tree.innerHTML="";
+
+  const g=document.getElementById("govSelect").value;
+
+  const t=await run(g);
+  tree.appendChild(t);
+
+  document.getElementById("okCount").textContent=COUNTS.ok;
+  document.getElementById("warnCount").textContent=COUNTS.warn;
+  document.getElementById("errCount").textContent=COUNTS.err;
+
+  collapseSmart();
+
+  btn.disabled=false;
+  btn.textContent="Run";
+}
+
+init();
+
+</script>
+
+</body>
+</html>
