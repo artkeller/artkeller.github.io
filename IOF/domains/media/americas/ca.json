@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "countries": ["CA"],
+  "nodes": [
+    "https://www.cbc.ca",
+    "https://www.theglobeandmail.com"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "eu-innovation",
+  "name": "European Innovation Governance",
+
+  "policies": [
+    "./policies/default-economic-policy.json",
+    "./policies/resilience-policy.json"
+  ],
+
+  "description": {
+    "purpose": "Economic availability and industrial resilience for European innovation ecosystems",
+    "views": ["domainView", "regionView", "resilienceAssessment"]
+  }
+}

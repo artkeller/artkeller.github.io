@@ -1,0 +1,14 @@
+{
+  "id": "global-neutral",
+  "name": "Global Neutral Governance",
+
+  "policies": [
+    "./policies/default-economic-policy.json",
+    "./policies/resilience-policy.json"
+  ],
+
+  "description": {
+    "purpose": "Balanced global reachability without regional or political bias",
+    "views": ["domainView", "regionView", "multiPerspectiveAnalysis"]
+  }
+}

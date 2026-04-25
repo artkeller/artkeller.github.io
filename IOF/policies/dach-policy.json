@@ -1,0 +1,25 @@
+{
+  "id": "dach-policy",
+
+  "what": {
+    "domains": [
+      "./domains/media/*",
+      "./domains/government/*",
+      "./domains/carrier/*",
+      "./domains/energy/*"
+    ],
+    "regions": [
+      "./regions/dach.json"
+    ]
+  },
+
+  "how": [
+    "./analysis-profiles/standard-analysis.json"
+  ],
+
+  "selection": {
+    "countryMatch": "intersection",
+    "includeGlobal": false,
+    "recursive": true
+  }
+}

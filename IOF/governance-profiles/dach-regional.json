@@ -1,0 +1,13 @@
+{
+  "id": "dach-regional",
+  "name": "DACH Regional Governance",
+
+  "policies": [
+    "./policies/dach-policy.json"
+  ],
+
+  "description": {
+    "purpose": "Regional validation for German-speaking countries: media, government, carrier, energy",
+    "views": ["regionView", "domainView"]
+  }
+}

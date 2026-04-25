@@ -1,0 +1,13 @@
+{
+  "id": "g7-focus",
+  "name": "G7 Focus Governance",
+
+  "policies": [
+    "./policies/g7-policy.json"
+  ],
+
+  "description": {
+    "purpose": "Focused validation of G7 nation reachability across government, finance and industrial domains",
+    "views": ["regionView", "domainView"]
+  }
+}

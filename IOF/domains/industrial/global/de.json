@@ -1,0 +1,10 @@
+{
+  "domain": "industrial",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.siemens.com",
+    "https://www.volkswagen.de",
+    "https://www.basf.com",
+    "https://www.bmwgroup.com"
+  ]
+}
