@@ -1,0 +1,9 @@
+{
+  "domain": "media",
+  "region": "AF",
+  "country": "ZA",
+
+  "nodes": [
+    "https://www.news24.com"
+  ]
+}
