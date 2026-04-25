@@ -138,14 +138,14 @@ function validate(path,json){
     return issues;
   }
 
-  if(path.includes("/policies/")){
+  if(path.includes("./policies/")){
     if(!json.what)
       issues.push(issue("err","POLICY_WHAT_MISSING","Missing 'what'"));
     if(!json.how)
       issues.push(issue("err","POLICY_HOW_MISSING","Missing 'how'"));
   }
 
-  if(path.includes("/domains/")){
+  if(path.includes("./domains/")){
     if(!json.nodes)
       issues.push(issue("err","NODES_MISSING","Missing nodes[]"));
 
@@ -346,7 +346,7 @@ async function run(govFile){
 
 async function init(){
 
-  FILE_INDEX = (await loadJSON("/file-index.json")).files;
+  FILE_INDEX = (await loadJSON("./file-index.json")).files;
 
   const govs = FILE_INDEX.filter(f=>f.includes("governance-profiles"));
 
