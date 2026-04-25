@@ -10,9 +10,7 @@
     "./analysis-profiles/resilience-analysis.json",
 
     "./domains/media/eu/de.json",
-    "-/domains/media/eu/fr.json",
-    "-/domains/media/eu/it.json",
-    "-/domains/media/eu/uk.json",
+    "./domains/media/eu/fr.json",
     "./domains/media/asia/in.json",
     "./domains/media/asia/jp.json",
     "./domains/media/americas/us.json",
