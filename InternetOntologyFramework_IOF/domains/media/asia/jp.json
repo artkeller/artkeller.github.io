@@ -1,7 +1,10 @@
 {
   "domain": "media",
   "region": "AS",
+  "country": "JP",
+
   "nodes": [
-    "https://www.asahi.com"
+    "https://www.asahi.com",
+    "https://www.yomiuri.co.jp"
   ]
 }
