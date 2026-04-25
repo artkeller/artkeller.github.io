@@ -7,7 +7,7 @@ Die Governances beschteiben im Kontext eines Einsatz durch ein Web-Analyse-Tool 
 
 ## global-neutral.json
 
-Die *Global Neutral Governance* stellt eine ausgewogene, politisch und regional unvoreingenommene Netzwerkanalyse sicher. Drei spezialisierte Views strukturieren die Auswertung: **multiPerspectiveAnalysis** aggregiert globale Netzwerkperspektiven ohne regionale Gewichtung, **domainSpecificEvaluation** bewertet Domains nach neutralen, domänenspezifischen Kriterien, **resilienceAssessment** analysiert Ausfallsicherheit und Verfügbarkeit weltweit verteilter Ressourcen. Default Economic und Resilience Policy bilden das gemeinsame Regelwerk für eine faire, unparteiische Erreichbarkeitsbewertung.
+**Global Neutral Governance** gewährleistet eine ausgewogene, globale Erreichbarkeitsanalyse ohne regionale oder politische Verzerrung. Zwei Policies – *default-economic-policy* und *resilience-policy* – bilden die regulatorische Grundlage. Die drei analytischen Views **multiPerspectiveAnalysis**, **domainSpecificEvaluation** und **resilienceAssessment** ermöglichen eine neutrale, mehrschichtige Netzwerkbewertung mit Fokus auf Stabilität und Resilienz globaler Infrastrukturen.
 
 ---
 
