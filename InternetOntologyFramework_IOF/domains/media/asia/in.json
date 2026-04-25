@@ -1,7 +1,10 @@
 {
   "domain": "media",
   "region": "AS",
+  "country": "IN",
+
   "nodes": [
-    "https://www.thehindu.com"
+    "https://www.thehindu.com",
+    "https://www.hindustantimes.com"
   ]
 }
