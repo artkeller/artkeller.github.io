@@ -1,7 +1,10 @@
 {
   "domain": "media",
   "region": "EU",
+  "country": "DE",
+
   "nodes": [
-    "https://www.spiegel.de"
+    "https://www.spiegel.de",
+    "https://www.zeit.de"
   ]
 }
