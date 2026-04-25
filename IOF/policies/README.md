@@ -2,9 +2,11 @@
 
 Die Policies beschreiben im Kontext eines Einsatz durch ein Web-Analyse-Tool zur Netzwerküberwachung folgendes:
 
-##  eu-innovation.json
+##  default-economic-policy.json
 
-**European Innovation Governance** ist eine Web-Analyse-Governance zur wirtschaftlichen Verfügbarkeit und industriellen Resilienz. Sie integriert zwei Policies – *default-economic-policy* und *resilience-policy* – und steuert vier analytische Views: **multiPerspectiveAnalysis** (Mehrperspektivenanalyse), **domainSpecificEvaluation** (domänenspezifische Bewertung), **resilienceAssessment** (Resilienzprüfung) und **economicAvailability** (Wirtschaftlichkeitsprüfung). Diese Kombination ermöglicht eine strukturierte Netzwerküberwachung europäischer Innovationsinfrastrukturen.
+**Default Economic Policy – Technische Beschreibung**
+
+Die Policy `default-economic-policy` definiert einen umfassenden Überwachungsrahmen für wirtschaftsrelevante Netzwerkdomänen. Im **What**-Bereich werden sechs Domainkategorien erfasst: Infrastruktur, Medien, Behörden, Industrie, Plattformen und X-Initiativen – ergänzt durch vier Weltregionen (EU, Asien, Nordamerika, Afrika). Die **How**-Komponente delegiert die Verarbeitung an ein Standard-Analyseprofil. Die **Selection** aktiviert rekursives Traversieren der Verzeichnisstrukturen sowie Regex-basierte Filterung zur präzisen Zielauswahl.
 
 ## global-neutral.json
 
