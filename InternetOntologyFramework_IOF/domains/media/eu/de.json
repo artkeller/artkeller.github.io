@@ -1,2 +1,7 @@
-[
-]
+{
+  "domain": "media",
+  "region": "EU",
+  "nodes": [
+    "https://www.spiegel.de"
+  ]
+}
