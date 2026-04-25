@@ -4,8 +4,6 @@
   "country": "ZA",
 
   "nodes": [
-    "https://www.gov.za",
-    "https://www.gov.br",
-    "https://www.nic.in"
+    "https://www.gov.za"
   ]
 }
