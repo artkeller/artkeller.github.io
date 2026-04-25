@@ -1,0 +1,10 @@
+{
+  "domain": "industrial",
+  "region": "EU",
+  "country": "DE",
+
+  "nodes": [
+    "https://www.siemens.com",
+    "https://www.bosch.com"
+  ]
+}
