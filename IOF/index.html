@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Validator — Internet Ontology Framework</title>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────────── */
+:root {
+  --bg:       #f0f2f5;
+  --surface:  #ffffff;
+  --border:   #d0d7de;
+  --muted:    #6e7781;
+  --fg:       #1a1d21;
+
+  --gov:      #1a56db;
+  --policy:   #7c3aed;
+  --domain:   #0d7a4e;
+  --region:   #b45309;
+  --analysis: #4b5563;
+
+  --ok:       #16a34a;
+  --warn:     #ca8a04;
+  --err:      #dc2626;
+
+  --hover-bg: #eef4ff;
+  --focus-ring: 0 0 0 3px rgba(26,86,219,0.35);
+
+  --header-h: 58px;
+  --radius:   8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:      #0d1117;
+    --surface: #161b22;
+    --border:  #30363d;
+    --muted:   #8b949e;
+    --fg:      #e6edf3;
+
+    --gov:     #58a6ff;
+    --policy:  #c084fc;
+    --domain:  #3fb950;
+    --region:  #f0883e;
+    --analysis:#9ca3af;
+
+    --ok:      #3fb950;
+    --warn:    #d29922;
+    --err:     #f85149;
+
+    --hover-bg: #1c2433;
+  }
+}
+
+/* ── RESET ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+button, select {
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+button:focus-visible, select:focus-visible, input:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ── HEADER ─────────────────────────────────────────────────────── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 6px;
+}
+.header-brand .logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #1a56db, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.header-brand .logo svg { display: block; }
+.header-brand h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+}
+.header-brand .subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.header-sep {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+select#govSelect {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  min-width: 200px;
+  max-width: 280px;
+}
+
+#runBtn {
+  background: var(--gov);
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s;
+}
+#runBtn:disabled { opacity: 0.5; cursor: default; }
+#runBtn:not(:disabled):hover { opacity: 0.85; }
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+#runBtn.running .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── COUNTER PILLS ──────────────────────────────────────────────── */
+.counters {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.pill-ok   { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+.pill-warn { background: #fefce8; border-color: #fde047; color: #854d0e; }
+.pill-err  { background: #fef2f2; border-color: #fca5a5; color: #991b1b; }
+
+@media (prefers-color-scheme: dark) {
+  .pill-ok   { background: #052e16; border-color: #166534; color: #4ade80; }
+  .pill-warn { background: #1c1400; border-color: #854d0e; color: #fde047; }
+  .pill-err  { background: #2d0f0f; border-color: #991b1b; color: #fca5a5; }
+}
+
+/* ── MENU ────────────────────────────────────────────────────────── */
+.menu { position: relative; }
+.menu-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 5px 9px;
+  border-radius: var(--radius);
+  font-size: 16px;
+  line-height: 1;
+}
+.menu-panel {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 8px;
+  min-width: 220px;
+  z-index: 200;
+}
+.menu.open .menu-panel { display: block; }
+
+.menu-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 6px 6px 4px;
+}
+
+.menu-actions {
+  display: flex;
+  gap: 6px;
+  padding: 4px 0;
+}
+.menu-actions button {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 5px 0;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.menu-actions button:hover {
+  background: var(--hover-bg);
+  border-color: var(--gov);
+}
+
+.menu-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+/* Filter tree inside menu */
+.filter-tree { padding: 0 2px; }
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+.filter-item:hover { background: var(--hover-bg); }
+.filter-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--gov);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.filter-item .filter-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.filter-item span { font-size: 12px; }
+.filter-child { margin-left: 20px; }
+.filter-item.disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── LAYOUT ─────────────────────────────────────────────────────── */
+.container {
+  display: flex;
+  height: calc(100vh - var(--header-h));
+  overflow: hidden;
+}
+
+.tree-pane {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  min-width: 0;
+}
+
+.inspector-pane {
+  width: 38%;
+  min-width: 260px;
+  max-width: 480px;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.inspector-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.inspector-lock-badge {
+  font-size: 10px;
+  background: var(--hover-bg);
+  border: 1px solid var(--border);
+  padding: 1px 7px;
+  border-radius: 20px;
+  color: var(--gov);
+  display: none;
+}
+.inspector-lock-badge.visible { display: block; }
+.inspector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+.inspector-empty {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 8px 0;
+  font-style: italic;
+}
+
+/* ── TREE NODES ─────────────────────────────────────────────────── */
+.tree-root { margin: 0; }
+
+.node-wrap {
+  margin: 1px 0;
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 3px 6px 3px 2px;
+  border-radius: 6px;
+  cursor: default;
+  position: relative;
+}
+.node-header:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Chevron toggle — left side, handles collapse/expand */
+.chevron {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: var(--muted);
+  transition: transform 0.15s;
+  font-size: 11px;
+  line-height: 1;
+  user-select: none;
+}
+.chevron:hover { background: var(--border); color: var(--fg); }
+.chevron.open { transform: rotate(90deg); }
+.chevron.leaf { visibility: hidden; cursor: default; }
+
+/* Status dot */
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin: 0 6px 0 2px;
+}
+.dot-ok   { background: var(--ok); }
+.dot-warn { background: var(--warn); }
+.dot-err  { background: var(--err); }
+
+/* Type label chip */
+.type-chip {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.chip-gov      { color: var(--gov);      background: #eef4ff; border-color: #c3d9f9; }
+.chip-policy   { color: var(--policy);   background: #f5f0ff; border-color: #d8c4fd; }
+.chip-domain   { color: var(--domain);   background: #f0fdf4; border-color: #86efac; }
+.chip-region   { color: var(--region);   background: #fffbeb; border-color: #fde68a; }
+.chip-analysis { color: var(--analysis); background: #f3f4f6; border-color: #d1d5db; }
+.chip-url      { color: #0369a1;         background: #f0f9ff; border-color: #bae6fd; }
+
+@media (prefers-color-scheme: dark) {
+  .chip-gov      { background: #0c1a3a; border-color: #1e3a6e; }
+  .chip-policy   { background: #1c0a3a; border-color: #4c1d95; }
+  .chip-domain   { background: #052e16; border-color: #166534; }
+  .chip-region   { background: #1c1400; border-color: #7c4f0a; }
+  .chip-analysis { background: #1a1d21; border-color: #30363d; }
+  .chip-url      { background: #0a1e2e; border-color: #0369a1; }
+}
+
+/* Node label */
+.node-label {
+  font-size: 13px;
+  color: var(--fg);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer; /* click = inspector lock */
+}
+.node-label:hover { text-decoration: underline; }
+
+/* Success badge (root node, all-green) */
+.success-badge {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ok);
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 20px;
+  padding: 2px 10px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.success-badge.visible { display: flex; }
+@media (prefers-color-scheme: dark) {
+  .success-badge { background: #052e16; border-color: #166534; }
+}
+
+/* Hover highlight */
+.node-header:hover,
+.node-header.hovered { background: var(--hover-bg); }
+.node-header.locked  { background: #eef4ff; }
+@media (prefers-color-scheme: dark) {
+  .node-header.locked { background: #0c1a3a; }
+}
+
+/* Children indented */
+.node-children {
+  margin-left: 20px;
+  border-left: 1px dashed var(--border);
+  padding-left: 6px;
+}
+.node-children.collapsed { display: none; }
+
+/* ── INSPECTOR PRE ───────────────────────────────────────────────── */
+pre {
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--fg);
+}
+.hl-key   { color: var(--policy); }
+.hl-str   { color: var(--domain); }
+.hl-num   { color: var(--gov); }
+.hl-bool  { color: var(--analysis); font-style: italic; }
+.hl-null  { color: var(--muted); font-style: italic; }
+.hl-focus { background: #fff3cd; border-radius: 2px; padding: 0 2px; font-weight: 600; }
+@media (prefers-color-scheme: dark) {
+  .hl-focus { background: #3d2e00; }
+}
+
+/* Validation issues list */
+.issue-list { margin: 0 0 12px; padding: 0; list-style: none; }
+.issue-item {
+  display: flex;
+  gap: 7px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.issue-warn { background: #fefce8; border-left: 3px solid var(--warn); }
+.issue-err  { background: #fef2f2; border-left: 3px solid var(--err); }
+@media (prefers-color-scheme: dark) {
+  .issue-warn { background: #1c1400; }
+  .issue-err  { background: #2d0f0f; }
+}
+
+/* ── EMPTY STATE ─────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--muted);
+  text-align: center;
+  padding: 40px;
+}
+.empty-state .icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.empty-state p { margin: 0; font-size: 13px; }
+
+/* ── URL STATUS ─────────────────────────────────────────────────── */
+.url-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+.url-ok      { color: var(--ok);   background: #f0fdf4; }
+.url-err     { color: var(--err);  background: #fef2f2; }
+.url-pending { color: var(--muted);background: var(--bg); }
+
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────── -->
+<header role="banner">
+
+  <div class="header-brand">
+    <div class="logo" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="4" r="2.5" fill="white" opacity="0.9"/>
+        <circle cx="3" cy="12" r="2" fill="white" opacity="0.7"/>
+        <circle cx="13" cy="12" r="2" fill="white" opacity="0.7"/>
+        <line x1="8" y1="6.5" x2="3.8" y2="10.2" stroke="white" stroke-width="1.2" opacity="0.6"/>
+        <line x1="8" y1="6.5" x2="12.2" y2="10.2" stroke="white" stroke-width="1.2" opacity="0.6"/>
+      </svg>
+    </div>
+    <div>
+      <h1>IOF Validator</h1>
+      <div class="subtitle">Internet Ontology Framework</div>
+    </div>
+  </div>
+
+  <div class="header-sep" aria-hidden="true"></div>
+
+  <label for="govSelect" class="sr-only">Governance profile</label>
+  <select id="govSelect" aria-label="Select governance profile"></select>
+
+  <button id="runBtn" onclick="start()" aria-label="Run validation">
+    <div class="spinner" aria-hidden="true"></div>
+    <span id="runLabel">Validate</span>
+  </button>
+
+  <div class="counters" role="status" aria-live="polite" aria-label="Validation results">
+    <div class="pill pill-ok"   aria-label="OK count">
+      <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+      <b id="okCount">—</b>
+    </div>
+    <div class="pill pill-warn" aria-label="Warning count">
+      <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+      <b id="warnCount">—</b>
+    </div>
+    <div class="pill pill-err"  aria-label="Error count">
+      <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+      <b id="errCount">—</b>
+    </div>
+  </div>
+
+  <!-- ⋯ Menu -->
+  <div class="menu" id="menu" role="region" aria-label="Tree controls">
+    <button class="menu-btn" onclick="toggleMenu()" aria-expanded="false"
+            aria-controls="menuPanel" aria-label="Tree options">⋯</button>
+    <div class="menu-panel" id="menuPanel" role="menu">
+
+      <div class="menu-section-title">Tree</div>
+      <div class="menu-actions">
+        <button onclick="expandAll()"   role="menuitem">Expand all</button>
+        <button onclick="collapseAll()" role="menuitem">Collapse all</button>
+        <button onclick="focusErrors()" role="menuitem">Focus errors</button>
+      </div>
+
+      <div class="menu-divider"></div>
+      <div class="menu-section-title">Filters</div>
+
+      <div class="filter-tree" role="group" aria-label="Node type filters">
+        <!-- Governance — parent -->
+        <label class="filter-item">
+          <input type="checkbox" checked data-filter="gov" onchange="handleFilter(this)">
+          <span class="filter-dot" style="background:var(--gov)"></span>
+          <span>Governance</span>
+        </label>
+
+        <!-- Policy — child of gov -->
+        <label class="filter-item filter-child" id="fi-policy">
+          <input type="checkbox" checked data-filter="policy" data-parent="gov" onchange="handleFilter(this)">
+          <span class="filter-dot" style="background:var(--policy)"></span>
+          <span>Policies</span>
+        </label>
+
+        <!-- Domain — child of policy -->
+        <label class="filter-item filter-child" id="fi-domain" style="margin-left:36px">
+          <input type="checkbox" checked data-filter="domain" data-parent="policy" onchange="handleFilter(this)">
+          <span class="filter-dot" style="background:var(--domain)"></span>
+          <span>Domains</span>
+        </label>
+
+        <!-- Region — child of policy -->
+        <label class="filter-item filter-child" id="fi-region" style="margin-left:36px">
+          <input type="checkbox" checked data-filter="region" data-parent="policy" onchange="handleFilter(this)">
+          <span class="filter-dot" style="background:var(--region)"></span>
+          <span>Regions</span>
+        </label>
+
+        <!-- Analysis — child of policy -->
+        <label class="filter-item filter-child" id="fi-analysis" style="margin-left:36px">
+          <input type="checkbox" checked data-filter="analysis" data-parent="policy" onchange="handleFilter(this)">
+          <span class="filter-dot" style="background:var(--analysis)"></span>
+          <span>Analysis profiles</span>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+</header>
+
+<!-- ── MAIN LAYOUT ───────────────────────────────────────────────── -->
+<div class="container" role="main">
+
+  <div class="tree-pane" id="treePane" role="tree" aria-label="Ontology tree">
+    <div class="empty-state" id="emptyState">
+      <div class="icon" aria-hidden="true">🌐</div>
+      <p>Select a governance profile and click <strong>Validate</strong> to inspect the ontology tree.</p>
+    </div>
+  </div>
+
+  <aside class="inspector-pane" aria-label="Node inspector">
+    <div class="inspector-header">
+      <span>Inspector</span>
+      <span class="inspector-lock-badge" id="lockBadge" aria-label="Locked to node">Locked</span>
+    </div>
+    <div class="inspector-body" id="inspector">
+      <div class="inspector-empty">Hover over a node to inspect · Click to lock</div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ── SCRIPT ────────────────────────────────────────────────────── -->
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════════ */
+let FILE_INDEX = [];
+let JSON_CACHE = {};
+let LOCKED_NODE = null;   // locked inspector JSON
+let LOCKED_EL   = null;   // locked header element
+let COUNTS = { ok:0, warn:0, err:0 };
+
+/* ═══════════════════════════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════════════════════════ */
+function getType(path) {
+  if (!path) return '';
+  if (path.includes('governance')) return 'gov';
+  if (path.includes('policies'))  return 'policy';
+  if (path.includes('regions'))   return 'region';
+  if (path.includes('analysis'))  return 'analysis';
+  if (path.includes('domains'))   return 'domain';
+  if (path.startsWith('http'))    return 'url';
+  return '';
+}
+
+function typeLabel(type) {
+  return { gov:'GOV', policy:'POLICY', domain:'DOMAIN',
+           region:'REGION', analysis:'ANALYSIS', url:'URL', '':'' }[type] || '';
+}
+
+function shortLabel(path) {
+  if (!path) return '—';
+  if (path.startsWith('http')) {
+    try { return new URL(path).hostname; } catch { return path; }
+  }
+  const parts = path.split('/');
+  const file  = parts[parts.length - 1].replace('.json','');
+  const parent = parts[parts.length - 2] || '';
+  if (file === 'global' || file === '*') return parent + '/' + file;
+  return file;
+}
+
+async function loadJSON(path) {
+  if (JSON_CACHE[path]) return JSON_CACHE[path];
+  try {
+    const r = await fetch(path, { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    JSON_CACHE[path] = j;
+    return j;
+  } catch(e) {
+    return { __error: true, path, message: e.message };
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VALIDATION ENGINE
+═══════════════════════════════════════════════════════════════════ */
+function validateGovernance(gov, path) {
+  const issues = [];
+  if (!gov.id)      issues.push({ level:'warn', msg:'Missing "id" field' });
+  if (!gov.name)    issues.push({ level:'warn', msg:'Missing "name" field' });
+  if (!gov.policies || !Array.isArray(gov.policies))
+                    issues.push({ level:'err',  msg:'"policies" array is required' });
+  else if (gov.policies.length === 0)
+                    issues.push({ level:'warn', msg:'"policies" array is empty' });
+  if (!gov.description)
+                    issues.push({ level:'warn', msg:'Missing "description" — purpose undocumented' });
+  return issues;
+}
+
+function validatePolicy(pj, path) {
+  const issues = [];
+  if (!pj.id)  issues.push({ level:'warn', msg:'Missing "id" field' });
+  if (!pj.what) {
+    issues.push({ level:'err', msg:'"what" object is required' });
+  } else {
+    const hasDomains = pj.what.domains && pj.what.domains.length > 0;
+    const hasRegions = pj.what.regions && pj.what.regions.length > 0;
+    if (!hasDomains && !hasRegions)
+      issues.push({ level:'err', msg:'"what.domains" or "what.regions" must be non-empty' });
+  }
+  if (!pj.how || !Array.isArray(pj.how) || pj.how.length === 0)
+    issues.push({ level:'err', msg:'"how" array with at least one analysis profile is required' });
+
+  // Check region refs are file paths not bare strings
+  if (pj.what?.regions) {
+    pj.what.regions.forEach(r => {
+      if (!r.startsWith('./') && !r.startsWith('/'))
+        issues.push({ level:'warn', msg:`Region "${r}" should be a file path (./regions/xx.json)` });
+    });
+  }
+  return issues;
+}
+
+function validateDomainNode(dj, path) {
+  const issues = [];
+  if (!dj.nodes) {
+    issues.push({ level:'err', msg:'Missing "nodes" array' });
+  } else {
+    if (!Array.isArray(dj.nodes)) {
+      issues.push({ level:'err', msg:'"nodes" must be an array' });
+    } else if (dj.nodes.length === 0) {
+      issues.push({ level:'warn', msg:'"nodes" array is empty — no URLs defined' });
+    } else {
+      dj.nodes.forEach(u => {
+        if (typeof u !== 'string') {
+          issues.push({ level:'err', msg:'Node entry is not a string: ' + JSON.stringify(u) });
+        } else if (!u.startsWith('http')) {
+          issues.push({ level:'warn', msg:`URL "${u}" does not start with http(s)` });
+        }
+      });
+    }
+  }
+  return issues;
+}
+
+function validateRegionNode(rj, path) {
+  const issues = [];
+  if (!rj.region)   issues.push({ level:'warn', msg:'Missing "region" code' });
+  if (!rj.name)     issues.push({ level:'warn', msg:'Missing "name" field' });
+  if (!rj.countries || !Array.isArray(rj.countries) || rj.countries.length === 0)
+                    issues.push({ level:'warn', msg:'"countries" array is empty or missing' });
+  return issues;
+}
+
+function validateAnalysis(aj, path) {
+  const issues = [];
+  if (!aj.id)      issues.push({ level:'warn', msg:'Missing "id" field' });
+  if (!aj.weights) issues.push({ level:'warn', msg:'Missing "weights" object' });
+  if (!aj.latency) issues.push({ level:'warn', msg:'Missing "latency" thresholds' });
+  return issues;
+}
+
+function worstStatus(issues) {
+  if (issues.some(i => i.level === 'err'))  return 'err';
+  if (issues.some(i => i.level === 'warn')) return 'warn';
+  return 'ok';
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   NODE BUILDER
+═══════════════════════════════════════════════════════════════════ */
+function createNode({ label, status, json, issues, children, isRoot, isLeaf }) {
+
+  const type = getType(label);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'node-wrap';
+  wrap.dataset.type = type;
+  if (!isLeaf) wrap.dataset.hasChildren = '1';
+
+  COUNTS[status]++;
+
+  // ── header row ──
+  const h = document.createElement('div');
+  h.className = 'node-header';
+  h.tabIndex = 0;
+  h.setAttribute('role', 'treeitem');
+  h.setAttribute('aria-expanded', 'true');
+
+  // Chevron (collapse/expand)
+  const chev = document.createElement('span');
+  chev.className = 'chevron' + (isLeaf ? ' leaf' : ' open');
+  chev.textContent = '▶';
+  chev.setAttribute('aria-hidden', 'true');
+  chev.title = 'Toggle expand';
+
+  // Dot
+  const dot = document.createElement('span');
+  dot.className = 'dot dot-' + status;
+  dot.setAttribute('aria-label', status);
+
+  // Type chip
+  const chip = document.createElement('span');
+  chip.className = 'type-chip chip-' + (type || 'analysis');
+  chip.textContent = typeLabel(type);
+  if (!typeLabel(type)) chip.style.display = 'none';
+
+  // Label — click = inspector lock
+  const lbl = document.createElement('span');
+  lbl.className = 'node-label';
+  lbl.textContent = shortLabel(label);
+  lbl.title = label;
+
+  h.append(chev, dot, chip, lbl);
+
+  // Success badge for root
+  if (isRoot) {
+    const badge = document.createElement('span');
+    badge.className = 'success-badge';
+    badge.id = 'successBadge';
+    badge.textContent = '✓ All valid';
+    h.appendChild(badge);
+  }
+
+  // ── children container ──
+  const body = document.createElement('div');
+  body.className = 'node-children' + (status === 'ok' && !isRoot ? ' collapsed' : '');
+
+  children.forEach(c => body.appendChild(c));
+  wrap.append(h, body);
+
+  // ── Chevron click: toggle collapse/expand ──
+  chev.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const collapsed = body.classList.toggle('collapsed');
+    chev.classList.toggle('open', !collapsed);
+    h.setAttribute('aria-expanded', String(!collapsed));
+  });
+
+  // ── Label / header click: lock inspector ──
+  h.addEventListener('click', (e) => {
+    if (e.target === chev) return;
+    lockInspector(json, label, issues, h);
+  });
+
+  // ── Hover: preview inspector if not locked ──
+  h.addEventListener('mouseenter', () => {
+    if (!LOCKED_NODE) showInspector(json, label, issues);
+  });
+
+  // ── Keyboard: Enter locks, Space toggles ──
+  h.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') lockInspector(json, label, issues, h);
+    if (e.key === ' ') {
+      e.preventDefault();
+      chev.click();
+    }
+  });
+
+  return wrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INSPECTOR
+═══════════════════════════════════════════════════════════════════ */
+function lockInspector(json, label, issues, headerEl) {
+  if (LOCKED_EL) LOCKED_EL.classList.remove('locked');
+  LOCKED_NODE = json;
+  LOCKED_EL = headerEl;
+  headerEl.classList.add('locked');
+  document.getElementById('lockBadge').classList.add('visible');
+  showInspector(json, label, issues);
+}
+
+function showInspector(json, label, issues) {
+  const el = document.getElementById('inspector');
+
+  let html = '';
+
+  // Issues first
+  if (issues && issues.length > 0) {
+    html += '<ul class="issue-list" aria-label="Validation issues">';
+    issues.forEach(i => {
+      html += `<li class="issue-item issue-${i.level}">
+        <span aria-hidden="true">${i.level === 'err' ? '✕' : '⚠'}</span>
+        <span>${escHtml(i.msg)}</span>
+      </li>`;
+    });
+    html += '</ul>';
+  }
+
+  // Syntax-highlighted JSON
+  html += '<pre>' + syntaxHighlight(json, label) + '</pre>';
+
+  el.innerHTML = html;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function syntaxHighlight(json, focusLabel) {
+  const str  = JSON.stringify(json, null, 2);
+  const focus = focusLabel ? focusLabel.split('/').pop().replace('.json','') : null;
+
+  // Tokenise line by line for correct highlighting
+  return str.split('\n').map(line => {
+    // highlight the focus term first
+    let hl = escHtml(line);
+
+    // JSON syntax colouring (simple regex on escaped html)
+    hl = hl.replace(/"([^"]+)":/g, '<span class="hl-key">"$1"</span>:');
+    hl = hl.replace(/: "([^"]*)"/g, ': <span class="hl-str">"$1"</span>');
+    hl = hl.replace(/: (-?\d+\.?\d*)/g, ': <span class="hl-num">$1</span>');
+    hl = hl.replace(/: (true|false)/g, ': <span class="hl-bool">$1</span>');
+    hl = hl.replace(/: (null)/g, ': <span class="hl-null">$1</span>');
+
+    // Focus highlight: wrap matching term
+    if (focus && focus !== '*' && focus.length > 2) {
+      const esc = focus.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      hl = hl.replace(new RegExp(esc, 'gi'), m => `<span class="hl-focus">${m}</span>`);
+    }
+
+    return hl;
+  }).join('\n');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CLICK OUTSIDE → UNLOCK
+═══════════════════════════════════════════════════════════════════ */
+document.body.addEventListener('click', e => {
+  if (!e.target.closest('.node-header') && !e.target.closest('.inspector-pane')) {
+    if (LOCKED_EL) LOCKED_EL.classList.remove('locked');
+    LOCKED_NODE = null;
+    LOCKED_EL = null;
+    document.getElementById('lockBadge').classList.remove('visible');
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   MENU
+═══════════════════════════════════════════════════════════════════ */
+function toggleMenu() {
+  const m = document.getElementById('menu');
+  const open = m.classList.toggle('open');
+  m.querySelector('.menu-btn').setAttribute('aria-expanded', String(open));
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#menu')) {
+    document.getElementById('menu').classList.remove('open');
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════
+   TREE EXPAND / COLLAPSE
+═══════════════════════════════════════════════════════════════════ */
+function expandAll() {
+  document.querySelectorAll('.node-children').forEach(n => {
+    n.classList.remove('collapsed');
+  });
+  document.querySelectorAll('.chevron:not(.leaf)').forEach(c => {
+    c.classList.add('open');
+  });
+}
+
+function collapseAll() {
+  document.querySelectorAll('.node-children').forEach(n => {
+    n.classList.add('collapsed');
+  });
+  document.querySelectorAll('.chevron:not(.leaf)').forEach(c => {
+    c.classList.remove('open');
+  });
+}
+
+function focusErrors() {
+  // Collapse all, then expand only paths to err/warn nodes
+  collapseAll();
+  document.querySelectorAll('.dot-err, .dot-warn').forEach(dot => {
+    let el = dot.closest('.node-wrap');
+    while (el) {
+      const body = el.querySelector(':scope > .node-children');
+      if (body) {
+        body.classList.remove('collapsed');
+        const chev = el.querySelector(':scope > .node-header .chevron');
+        if (chev) chev.classList.add('open');
+      }
+      el = el.parentElement?.closest('.node-wrap');
+    }
+  });
+  toggleMenu();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FILTERS — hierarchical
+═══════════════════════════════════════════════════════════════════ */
+function handleFilter(cb) {
+  const type   = cb.dataset.filter;
+  const parent = cb.dataset.parent;
+
+  // If parent type is unchecked, children can't be checked
+  if (parent) {
+    const parentCb = document.querySelector(`[data-filter="${parent}"]`);
+    if (parentCb && !parentCb.checked) {
+      cb.checked = false; return;
+    }
+  }
+
+  // Apply visibility
+  applyFilter(type, cb.checked);
+
+  // If unchecking a parent, cascade to children
+  if (!cb.checked) {
+    document.querySelectorAll(`[data-parent="${type}"]`).forEach(child => {
+      child.checked = false;
+      document.getElementById('fi-'+child.dataset.filter)?.classList.add('disabled');
+      applyFilter(child.dataset.filter, false);
+    });
+  } else {
+    // Re-enable child filter labels
+    document.querySelectorAll(`[data-parent="${type}"]`).forEach(child => {
+      document.getElementById('fi-'+child.dataset.filter)?.classList.remove('disabled');
+    });
+  }
+}
+
+function applyFilter(type, visible) {
+  document.querySelectorAll(`[data-type="${type}"]`).forEach(n => {
+    n.style.display = visible ? '' : 'none';
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CORE RUN
+═══════════════════════════════════════════════════════════════════ */
+async function run(govFile) {
+  COUNTS = { ok:0, warn:0, err:0 };
+
+  const gov = await loadJSON(govFile);
+  const govIssues = gov.__error
+    ? [{ level:'err', msg: 'Cannot load: ' + (gov.message || govFile) }]
+    : validateGovernance(gov, govFile);
+
+  const policyNodes = [];
+
+  for (const pPath of (gov.policies || [])) {
+
+    const pj = await loadJSON(pPath);
+    const pIssues = pj.__error
+      ? [{ level:'err', msg: 'Cannot load: ' + (pj.message || pPath) }]
+      : validatePolicy(pj, pPath);
+
+    const groupNodes = [];
+
+    // ── DOMAINS ────────────────────────────────────────────────
+    if (pj.what?.domains?.length) {
+      const domainPatNodes = [];
+
+      for (const pat of pj.what.domains) {
+        const matchKey = pat.replace('*','').replace('./','');
+        const files = FILE_INDEX.filter(f => f.replace('./','').startsWith(matchKey));
+        const fileNodes = [];
+
+        for (const f of files) {
+          const dj = await loadJSON(f);
+          const dIssues = dj.__error
+            ? [{ level:'err', msg: 'Cannot load: ' + (dj.message||f) }]
+            : validateDomainNode(dj, f);
+          const dStatus = dj.__error ? 'err' : worstStatus(dIssues);
+
+          const urlNodes = (dj.nodes || []).map(url => {
+            return createNode({
+              label: url, status: 'ok', json: { url }, issues: [], children: [], isLeaf: true
+            });
+          });
+
+          fileNodes.push(createNode({
+            label: f, status: dStatus, json: dj, issues: dIssues, children: urlNodes
+          }));
+        }
+
+        const patStatus = fileNodes.length === 0 ? 'warn' : worstStatus(
+          fileNodes.map(n => n.querySelector('.dot').classList.contains('dot-err') ? 'err'
+                           : n.querySelector('.dot').classList.contains('dot-warn') ? 'warn' : 'ok')
+          .map(s => ({ level: s }))
+        );
+
+        const patIssues = files.length === 0
+          ? [{ level:'warn', msg:`No files matched pattern "${pat}"` }]
+          : [];
+
+        domainPatNodes.push(createNode({
+          label: pat, status: worstStatus(patIssues) === 'warn' ? 'warn' : patStatus,
+          json: { pattern: pat, matched: files }, issues: patIssues, children: fileNodes
+        }));
+      }
+
+      const domGroupStatus = domainPatNodes.some(n => n.querySelector('.dot-err')) ? 'err'
+                           : domainPatNodes.some(n => n.querySelector('.dot-warn')) ? 'warn' : 'ok';
+      groupNodes.push(createNode({
+        label: './domains', status: domGroupStatus, json: { group:'domains' }, issues: [], children: domainPatNodes
+      }));
+    }
+
+    // ── REGIONS ────────────────────────────────────────────────
+    if (pj.what?.regions?.length) {
+      const regionFileNodes = [];
+
+      for (const rPath of pj.what.regions) {
+        const rj = await loadJSON(rPath);
+        const rIssues = rj.__error
+          ? [{ level:'err', msg: 'Cannot load: ' + (rj.message||rPath) }]
+          : validateRegionNode(rj, rPath);
+        const rStatus = rj.__error ? 'err' : worstStatus(rIssues);
+
+        // Country sub-nodes
+        const countryNodes = (rj.countries || []).map(cc => {
+          return createNode({
+            label: cc, status: 'ok', json: { country: cc }, issues: [], children: [], isLeaf: true
+          });
+        });
+
+        regionFileNodes.push(createNode({
+          label: rPath, status: rStatus, json: rj, issues: rIssues, children: countryNodes
+        }));
+      }
+
+      const regGroupStatus = regionFileNodes.some(n => n.querySelector('.dot-err')) ? 'err'
+                           : regionFileNodes.some(n => n.querySelector('.dot-warn')) ? 'warn' : 'ok';
+      groupNodes.push(createNode({
+        label: './regions', status: regGroupStatus, json: { group:'regions' }, issues: [], children: regionFileNodes
+      }));
+    }
+
+    // ── ANALYSIS ────────────────────────────────────────────────
+    if (pj.how?.length) {
+      const analysisNodes = [];
+      for (const aPath of pj.how) {
+        const aj = await loadJSON(aPath);
+        const aIssues = aj.__error
+          ? [{ level:'err', msg: 'Cannot load: ' + (aj.message||aPath) }]
+          : validateAnalysis(aj, aPath);
+        const aStatus = aj.__error ? 'err' : worstStatus(aIssues);
+        analysisNodes.push(createNode({
+          label: aPath, status: aStatus, json: aj, issues: aIssues, children: [], isLeaf: true
+        }));
+      }
+      const aGroupStatus = analysisNodes.some(n => n.querySelector('.dot-err')) ? 'err'
+                         : analysisNodes.some(n => n.querySelector('.dot-warn')) ? 'warn' : 'ok';
+      groupNodes.push(createNode({
+        label: './analysis', status: aGroupStatus, json: { group:'analysis' }, issues: [], children: analysisNodes
+      }));
+    }
+
+    const pStatus = pj.__error ? 'err' : worstStatus([
+      ...pIssues,
+      ...(groupNodes.some(n => n.querySelector('.dot-err')) ? [{level:'err'}]:[]),
+      ...(groupNodes.some(n => n.querySelector('.dot-warn')) ? [{level:'warn'}]:[])
+    ]);
+
+    policyNodes.push(createNode({
+      label: pPath, status: pStatus, json: pj, issues: pIssues, children: groupNodes
+    }));
+  }
+
+  const govStatus = gov.__error ? 'err' : worstStatus([
+    ...govIssues,
+    ...(policyNodes.some(n => n.querySelector('.dot-err')) ? [{level:'err'}]:[]),
+    ...(policyNodes.some(n => n.querySelector('.dot-warn')) ? [{level:'warn'}]:[])
+  ]);
+
+  return createNode({
+    label: govFile, status: govStatus, json: gov, issues: govIssues,
+    children: policyNodes, isRoot: true
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════════ */
+async function init() {
+  const idx = await loadJSON('./file-index.json');
+  FILE_INDEX = idx.files || [];
+
+  const sel = document.getElementById('govSelect');
+  FILE_INDEX.filter(f => f.includes('governance')).forEach(g => {
+    const o = document.createElement('option');
+    o.value = g;
+    const name = g.split('/').pop().replace('.json','');
+    o.textContent = name;
+    sel.appendChild(o);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   START
+═══════════════════════════════════════════════════════════════════ */
+async function start() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.classList.add('running');
+  document.getElementById('runLabel').textContent = 'Running…';
+
+  const tree = document.getElementById('treePane');
+  document.getElementById('emptyState')?.remove();
+  tree.innerHTML = '';
+
+  const govFile = document.getElementById('govSelect').value;
+  const rootNode = await run(govFile);
+  tree.appendChild(rootNode);
+
+  // Update counters
+  document.getElementById('okCount').textContent   = COUNTS.ok;
+  document.getElementById('warnCount').textContent = COUNTS.warn;
+  document.getElementById('errCount').textContent  = COUNTS.err;
+
+  // Show success badge if all-green
+  const allGreen = COUNTS.err === 0 && COUNTS.warn === 0;
+  const badge = document.getElementById('successBadge');
+  if (badge) badge.classList.toggle('visible', allGreen);
+
+  // Auto-focus: collapse OK, expand errors
+  if (!allGreen) {
+    focusErrorsQuiet();
+  } else {
+    collapseAll();
+    // Keep root open
+    const rootBody = rootNode.querySelector(':scope > .node-children');
+    if (rootBody) {
+      rootBody.classList.remove('collapsed');
+      const chev = rootNode.querySelector(':scope > .node-header .chevron');
+      if (chev) chev.classList.add('open');
+    }
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('running');
+  document.getElementById('runLabel').textContent = 'Validate';
+}
+
+function focusErrorsQuiet() {
+  collapseAll();
+  document.querySelectorAll('.dot-err, .dot-warn').forEach(dot => {
+    let el = dot.closest('.node-wrap');
+    while (el) {
+      const body = el.querySelector(':scope > .node-children');
+      if (body) {
+        body.classList.remove('collapsed');
+        const chev = el.querySelector(':scope > .node-header .chevron');
+        if (chev) chev.classList.add('open');
+      }
+      el = el.parentElement?.closest('.node-wrap');
+    }
+  });
+}
+
+init();
+</script>
+
+</body>
+</html>
