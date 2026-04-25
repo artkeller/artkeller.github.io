@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "region": "NA-SA",
+  "nodes": [
+    "https://www.globo.com",
+    "https://www.lanacion.com.ar"
+  ]
+}
