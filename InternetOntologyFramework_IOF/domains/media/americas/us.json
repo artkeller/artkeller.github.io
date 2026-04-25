@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "region": "NA-SA",
+  "nodes": [
+    "https://www.nytimes.com",
+    "https://www.cbc.ca"
+  ]
+}
