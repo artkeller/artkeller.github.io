@@ -1,0 +1,7 @@
+{
+  "domain": "media",
+  "region": "AS",
+  "nodes": [
+    "https://www.asahi.com"
+  ]
+}
