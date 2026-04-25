@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Runtime</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+:root{
+  --bg:#fff; --fg:#111;
+  --ok:#2ecc71; --warn:#f39c12; --err:#e74c3c;
+}
+
+body{font-family:system-ui;margin:0;background:var(--bg);color:var(--fg);}
+header{padding:1rem;border-bottom:1px solid #ddd;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;}
+main{padding:1rem;max-width:1600px;margin:auto;}
+
+.node{margin-left:1rem;border-left:1px dashed #ddd;padding-left:0.5rem;}
+.node-header{display:flex;gap:0.5rem;cursor:pointer;}
+
+.status{width:10px;height:10px;border-radius:50%;}
+.ok{background:var(--ok);}
+.warn{background:var(--warn);}
+.err{background:var(--err);}
+
+.hidden{display:none;}
+
+.card{padding:0.5rem 1rem;border:1px solid #ddd;border-radius:6px;}
+.dashboard{display:flex;gap:1rem;}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>IOF Runtime</h2>
+
+  <select id="govSelect"></select>
+  <button onclick="start()">Run</button>
+
+  <div class="dashboard">
+    <div class="card">OK: <span id="okCount">0</span></div>
+    <div class="card">WARN: <span id="warnCount">0</span></div>
+    <div class="card">ERR: <span id="errCount">0</span></div>
+  </div>
+</header>
+
+<main>
+  <div id="tree"></div>
+</main>
+
+<script>
+
+/* =========================
+   GLOBAL STATE
+========================= */
+
+let FILE_INDEX=[];
+let COUNTS={ok:0,warn:0,err:0};
+
+/* =========================
+   LOAD JSON (NO CACHE + ERROR TYPES)
+========================= */
+
+async function loadJSON(path){
+  try{
+    const res = await fetch(path,{
+      method:"GET",
+      cache:"no-store",
+      headers:{
+        "Cache-Control":"no-cache",
+        "Pragma":"no-cache"
+      }
+    });
+
+    if(!res.ok){
+      return {
+        __error:"HTTP_ERROR",
+        status:res.status,
+        statusText:res.statusText,
+        path
+      };
+    }
+
+    const text = await res.text();
+
+    try{
+      return JSON.parse(text);
+    }catch(e){
+      return {
+        __error:"INVALID_JSON",
+        message:e.message,
+        path,
+        snippet:text.slice(0,200)
+      };
+    }
+
+  }catch(e){
+    return {
+      __error:"NETWORK_ERROR",
+      message:e.message,
+      path
+    };
+  }
+}
+
+/* =========================
+   UTIL
+========================= */
+
+function issue(type,code,msg,ctx={}){
+  return {type,code,msg,...ctx};
+}
+
+function resolvePattern(pattern){
+  const r=new RegExp("^"+pattern.replace(/\*/g,".*")+"$");
+  return FILE_INDEX.filter(f=>r.test(f));
+}
+
+function agg(statuses){
+  if(statuses.includes("err")) return "err";
+  if(statuses.includes("warn")) return "warn";
+  return "ok";
+}
+
+/* =========================
+   VALIDATION
+========================= */
+
+function validate(path,json){
+
+  const issues=[];
+
+  if(json.__error){
+    issues.push(issue("err",json.__error,"Load failure",{path,json}));
+    return issues;
+  }
+
+  if(path.includes("/policies/")){
+    if(!json.what)
+      issues.push(issue("err","POLICY_WHAT_MISSING","Missing 'what'"));
+    if(!json.how)
+      issues.push(issue("err","POLICY_HOW_MISSING","Missing 'how'"));
+  }
+
+  if(path.includes("/domains/")){
+    if(!json.nodes)
+      issues.push(issue("err","NODES_MISSING","Missing nodes[]"));
+
+    if(Array.isArray(json.nodes)){
+      json.nodes.forEach((u,i)=>{
+        try{ new URL(u); }
+        catch{
+          issues.push(issue("warn","INVALID_URL","Malformed URL",{url:u,index:i}));
+        }
+      });
+    }
+  }
+
+  return issues;
+}
+
+/* =========================
+   REFERENCE VALIDATION
+========================= */
+
+function validateReferences(policy){
+
+  const issues=[];
+
+  (policy.what?.domains || []).forEach(pattern=>{
+    const matches = resolvePattern(pattern);
+
+    if(matches.length===0){
+      issues.push(issue(
+        "err",
+        "PATTERN_NO_MATCH",
+        "Pattern matches no files",
+        {pattern}
+      ));
+    }
+  });
+
+  (policy.how || []).forEach(p=>{
+    if(!FILE_INDEX.includes(p)){
+      issues.push(issue(
+        "err",
+        "ANALYSIS_NOT_FOUND",
+        "Analysis file not found",
+        {path:p}
+      ));
+    }
+  });
+
+  return issues;
+}
+
+/* =========================
+   LIVE CHECK
+========================= */
+
+async function checkURL(url){
+  try{
+    await fetch(url,{
+      method:"GET",
+      cache:"no-store",
+      mode:"no-cors"
+    });
+    return "ok";
+  }catch(e){
+    return "warn";
+  }
+}
+
+/* =========================
+   TREE
+========================= */
+
+function createNode(label,status,issues,children){
+
+  const el=document.createElement("div");
+  el.className="node";
+
+  COUNTS[status]++;
+
+  const header=document.createElement("div");
+  header.className="node-header";
+
+  const dot=document.createElement("div");
+  dot.className="status "+status;
+
+  const text=document.createElement("span");
+  text.textContent=label;
+
+  header.append(dot,text);
+
+  const body=document.createElement("div");
+
+  // 🔥 expand if not ok
+  if(status==="ok") body.classList.add("hidden");
+
+  header.onclick=()=>body.classList.toggle("hidden");
+
+  issues.forEach(i=>{
+    const d=document.createElement("div");
+
+    d.innerHTML = `
+      <b>${i.type.toUpperCase()}</b> [${i.code}]<br>
+      ${i.msg}<br>
+      ${i.path ? "<i>"+i.path+"</i>" : ""}
+      ${i.pattern ? "<br>pattern: "+i.pattern : ""}
+      ${i.url ? "<br>url: "+i.url : ""}
+    `;
+
+    d.style.color = i.type==="err"?"red":"orange";
+    d.style.marginBottom="4px";
+
+    body.appendChild(d);
+  });
+
+  children.forEach(c=>body.appendChild(c));
+
+  el.append(header,body);
+  return el;
+}
+
+/* =========================
+   PIPELINE
+========================= */
+
+async function run(govFile){
+
+  COUNTS={ok:0,warn:0,err:0};
+
+  const gov = await loadJSON(govFile);
+
+  const policies=[];
+
+  for(let p of gov.policies){
+
+    const pj = await loadJSON(p);
+
+    let issues = validate(p,pj);
+    issues = issues.concat(validateReferences(pj));
+
+    const domains=[];
+
+    for(let pat of (pj.what?.domains || [])){
+
+      const files = resolvePattern(pat);
+
+      const children=[];
+
+      for(let f of files){
+
+        const dj = await loadJSON(f);
+        const dIssues = validate(f,dj);
+
+        let urlStatuses=[];
+
+        if(dj.nodes){
+          for(let u of dj.nodes){
+            const s = await checkURL(u);
+            urlStatuses.push(s);
+          }
+        }
+
+        const status = agg([
+          ...dIssues.map(i=>i.type),
+          ...urlStatuses
+        ]);
+
+        children.push(
+          createNode(f,status,
+            dIssues.map(i=>({...i,source:f,referencedBy:pat})),
+            []
+          )
+        );
+      }
+
+      const status = agg(children.map(c=>c.querySelector(".status").classList[1]));
+
+      domains.push(createNode(pat,status,[],children));
+    }
+
+    const pStatus = agg([
+      ...domains.map(d=>d.querySelector(".status").classList[1]),
+      ...issues.map(i=>i.type)
+    ]);
+
+    policies.push(createNode(p,pStatus,issues,domains));
+  }
+
+  const rootStatus = agg(
+    policies.map(p=>p.querySelector(".status").classList[1])
+  );
+
+  return createNode(gov.id,rootStatus,[],policies);
+}
+
+/* =========================
+   INIT
+========================= */
+
+async function init(){
+
+  FILE_INDEX = (await loadJSON("/file-index.json")).files;
+
+  const govs = FILE_INDEX.filter(f=>f.includes("governance-profiles"));
+
+  const sel=document.getElementById("govSelect");
+
+  govs.forEach(g=>{
+    const o=document.createElement("option");
+    o.value=g;
+    o.textContent=g;
+    sel.appendChild(o);
+  });
+}
+
+async function start(){
+
+  const tree=document.getElementById("tree");
+  tree.innerHTML="";
+
+  const g=document.getElementById("govSelect").value;
+
+  const t = await run(g);
+
+  tree.appendChild(t);
+
+  document.getElementById("okCount").textContent=COUNTS.ok;
+  document.getElementById("warnCount").textContent=COUNTS.warn;
+  document.getElementById("errCount").textContent=COUNTS.err;
+}
+
+init();
+
+</script>
+
+</body>
+</html>
