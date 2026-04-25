@@ -1,0 +1,9 @@
+{
+  "domain": "government",
+  "region": "SA",
+  "country": "BR",
+
+  "nodes": [
+    "https://www.gov.br"
+  ]
+}
