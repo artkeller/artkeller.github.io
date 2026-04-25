@@ -8,9 +8,11 @@ Die Policies beschreiben im Kontext eines Einsatz durch ein Web-Analyse-Tool zur
 
 Die Policy `default-economic-policy` definiert einen umfassenden Überwachungsrahmen für wirtschaftsrelevante Netzwerkdomänen. Im **What**-Bereich werden sechs Domainkategorien erfasst: Infrastruktur, Medien, Behörden, Industrie, Plattformen und X-Initiativen – ergänzt durch vier Weltregionen (EU, Asien, Nordamerika, Afrika). Die **How**-Komponente delegiert die Verarbeitung an ein Standard-Analyseprofil. Die **Selection** aktiviert rekursives Traversieren der Verzeichnisstrukturen sowie Regex-basierte Filterung zur präzisen Zielauswahl.
 
-## /resilience-policy.json
+## resilience-policy.json
 
-**Global Neutral Governance** ist eine unvoreingenommene Web-Analyse-Governance zur globalen Netzwerküberwachung. Sie kombiniert zwei Kernpolicies – eine ökonomische Standardrichtlinie sowie eine Resilienz-Policy – um ausgewogene Erreichbarkeitsanalysen ohne regionale oder politische Verzerrung sicherzustellen. Drei Views strukturieren die Auswertung: *multiPerspectiveAnalysis* bewertet Domains aus mehreren Blickwinkeln, *domainSpecificEvaluation* analysiert zielgerichtet einzelne Domains, und *resilienceAssessment* prüft die Ausfallsicherheit der Netzwerkinfrastruktur.
+**Resilience Policy – Technische Beschreibung**
+
+Die Policy `resilience-policy` analysiert Netzwerkdomänen aus den Bereichen Infrastructure, Media und Industrial über fünf globale Regionen (EU, AS, NA, AF, SA) hinweg. Die Analyse erfolgt mittels `resilience-analysis`-Profil und bewertet Ausfalltoleranz sowie Verfügbarkeit. Die Selektion arbeitet rekursiv mit Regex-Unterstützung und erfordert mindestens 3 Domänen sowie 5 Regionen; eine Fehlertoleranz von 30 % ist zulässig.
 
 ---
 
