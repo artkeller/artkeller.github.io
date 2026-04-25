@@ -1,7 +1,10 @@
 {
   "domain": "media",
   "region": "EU",
+  "country": "FR",
+
   "nodes": [
-    "https://www.lemonde.fr"
+    "https://www.lemonde.fr",
+    "https://www.lefigaro.fr"
   ]
 }
