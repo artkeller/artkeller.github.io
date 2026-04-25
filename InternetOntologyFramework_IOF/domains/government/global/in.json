@@ -1,9 +1,0 @@
-{
-  "domain": "government",
-  "region": "AS",
-  "country": "IN",
-
-  "nodes": [
-    "https://www.nic.in"
-  ]
-}

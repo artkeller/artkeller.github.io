@@ -1,9 +1,0 @@
-{
-  "domain": "government",
-  "region": "NA",
-  "country": "US",
-
-  "nodes": [
-    "https://www.whitehouse.gov"
-  ]
-}

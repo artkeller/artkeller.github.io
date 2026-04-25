@@ -1,9 +1,0 @@
-{
-  "domain": "media",
-  "region": "AF",
-  "nodes": [
-    "https://www.news24.com",
-    "https://www.nation.africa",
-    "https://www.egypttoday.com"
-  ]
-}
