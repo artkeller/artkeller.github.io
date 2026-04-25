@@ -283,9 +283,15 @@ async function run(govFile){
   for(let p of gov.policies){
 
     const pj=await loadJSON(p);
-    const domains=[];
 
-    for(let pat of pj.what.domains){
+    const domainNodes=[];
+    const regionNodes=[];
+    const analysisNodes=[];
+
+    /* =========================
+       DOMAINS (bestehend)
+    ========================= */
+    for(let pat of (pj.what?.domains || [])){
 
       const files = FILE_INDEX.filter(f=>f.includes(pat.replace("*","")));
       const children=[];
@@ -295,16 +301,55 @@ async function run(govFile){
         children.push(createNode(f,"ok",dj,[]));
       }
 
-      domains.push(createNode(pat,"ok",pj,children));
+      domainNodes.push(createNode(pat,"ok",pj,children));
     }
 
-    policies.push(createNode(p,"ok",pj,domains));
+    /* =========================
+       REGIONS (NEU)
+    ========================= */
+    for(let pat of (pj.what?.regions || [])){
+
+      const files = FILE_INDEX.filter(f=>f.includes(pat.replace("*","")));
+      const children=[];
+
+      for(let f of files){
+        const rj=await loadJSON(f);
+        children.push(createNode(f,"ok",rj,[]));
+      }
+
+      regionNodes.push(createNode(pat,"ok",pj,children));
+    }
+
+    /* =========================
+       ANALYSIS (NEU)
+    ========================= */
+    for(let a of (pj.how || [])){
+
+      const aj=await loadJSON(a);
+      analysisNodes.push(createNode(a,"ok",aj,[]));
+    }
+
+    /* =========================
+       GROUP NODES (UI ONLY)
+    ========================= */
+    const groups=[];
+
+    if(domainNodes.length)
+      groups.push(createNode("domains","ok",pj,domainNodes));
+
+    if(regionNodes.length)
+      groups.push(createNode("regions","ok",pj,regionNodes));
+
+    if(analysisNodes.length)
+      groups.push(createNode("analysis","ok",pj,analysisNodes));
+
+    policies.push(createNode(p,"ok",pj,groups));
   }
 
   return createNode(gov.id,"ok",gov,policies);
 }
-
-/* INIT */
+  
+  /* INIT */
 async function init(){
   FILE_INDEX=(await loadJSON("./file-index.json")).files;
 
