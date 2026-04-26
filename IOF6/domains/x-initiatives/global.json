@@ -1,0 +1,11 @@
+{
+  "domain": "x-initiatives",
+  "countries": ["*"],
+  "nodes": [
+    "https://www.itu.int",
+    "https://www.icann.org",
+    "https://www.ietf.org",
+    "https://www.w3.org",
+    "https://www.isoc.org"
+  ]
+}

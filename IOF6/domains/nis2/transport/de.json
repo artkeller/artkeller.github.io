@@ -1,0 +1,13 @@
+{
+  "domain": "nis2",
+  "sector": "transport",
+  "regulation": "NIS2 Directive 2022/2555 — Annex I",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.deutschebahn.com",
+    "https://www.fraport.de",
+    "https://www.munich-airport.de",
+    "https://www.hafen-hamburg.de",
+    "https://www.bundesluftfahrtamt.de"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "domain": "travel",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.deutschebahn.com",
+    "https://www.fraport.de",
+    "https://www.lufthansa.com"
+  ]
+}

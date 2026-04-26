@@ -1,0 +1,14 @@
+{
+  "domain": "kritis",
+  "sector": "energie",
+  "regulation": "BSI-KritisV §2 — Betreiber kritischer Infrastrukturen",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bundesnetzagentur.de",
+    "https://www.rwe.com",
+    "https://www.enbw.com",
+    "https://www.e-on.com",
+    "https://www.uniper.energy",
+    "https://www.ontras.com"
+  ]
+}
