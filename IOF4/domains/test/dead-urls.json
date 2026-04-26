@@ -1,0 +1,10 @@
+{
+  "domain": "test-domain",
+  "countries": ["DE"],
+  "nodes": [
+    "https://this-domain-does-not-exist-iof-test-404.invalid",
+    "https://another-nonexistent-url-iof-validator-test.example",
+    "https://www.bundesregierung.de"
+  ],
+  "_comment": "EXPECTED ERR on Deep Validate: first two URLs unreachable, third valid"
+}

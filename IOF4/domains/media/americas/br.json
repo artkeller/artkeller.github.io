@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "countries": ["BR"],
+  "nodes": [
+    "https://www.folha.uol.com.br",
+    "https://www.globo.com"
+  ]
+}

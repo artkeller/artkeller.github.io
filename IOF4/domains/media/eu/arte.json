@@ -1,0 +1,7 @@
+{
+  "domain": "media",
+  "countries": ["DE", "FR"],
+  "nodes": [
+    "https://www.arte.tv"
+  ]
+}
