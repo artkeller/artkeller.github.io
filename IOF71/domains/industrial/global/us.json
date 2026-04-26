@@ -1,9 +1,0 @@
-{
-  "domain": "industrial",
-  "countries": ["US"],
-  "nodes": [
-    "https://www.ge.com",
-    "https://www.boeing.com",
-    "https://www.lockheedmartin.com"
-  ]
-}
