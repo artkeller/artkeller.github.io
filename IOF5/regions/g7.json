@@ -1,0 +1,6 @@
+{
+  "region": "g7",
+  "name": "G7",
+  "description": "Group of Seven leading industrialized nations",
+  "countries": ["US","CA","GB","DE","FR","IT","JP"]
+}

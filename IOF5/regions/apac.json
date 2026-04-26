@@ -1,0 +1,6 @@
+{
+  "region": "apac",
+  "name": "Asia-Pacific (APAC)",
+  "description": "Asia-Pacific economic and strategic region",
+  "countries": ["JP","CN","KR","AU","NZ","SG","TW","IN","ID","TH","MY","PH","VN","HK"]
+}
