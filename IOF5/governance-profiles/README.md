@@ -69,7 +69,7 @@ Die technische Kontrolle wird durch dedizierte Ansichten (**domainView** und **r
 ---
 
 
-## File: x.json
+## File: global-neutral.json
 
 ---
 
