@@ -109,11 +109,6 @@ Die Überwachung erfolgt über verschiedene Analyseebenen (**domainView** und **
 
 ---
 
-
-## File: x.json
-
----
-
 ## PROMPT
 
 Domain: Web-Analyse und „Governance, Risk & Compliance (GRC)“. 
