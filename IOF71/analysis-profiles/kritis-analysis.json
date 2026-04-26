@@ -1,0 +1,24 @@
+{
+  "id": "kritis-analysis",
+  "description": "Strict availability analysis for KRITIS and NIS2 essential entities",
+  "weights": {
+    "infrastructure": 5,
+    "kritis": 5,
+    "nis2": 5,
+    "continent": 3,
+    "country": 2
+  },
+  "latency": {
+    "good": 300,
+    "acceptable": 800,
+    "critical": 2000
+  },
+  "thresholds": {
+    "BLU": 1.0,
+    "GRN": 0.95,
+    "AMB": 0.85,
+    "RED": 0.0
+  },
+  "timeout": 6000,
+  "notes": "Stricter thresholds than standard — KRITIS/NIS2 require 95%+ for GRN"
+}

@@ -1,0 +1,66 @@
+{
+  "id": "active-standard",
+  "name": "Active Standard Measurement",
+  "version": "1.0",
+
+  "description": "Active measurement profile. Uses GET requests, follows content, checks response body. Only for endpoints where active probing is explicitly permitted or agreed upon. NOT suitable for critical infrastructure without operator agreement.",
+
+  "conflictClass": "active",
+
+  "schedule": {
+    "interval": 120,
+    "unit": "seconds",
+    "timeWindow": "24x7",
+    "cooldownAfterError": 60,
+    "burstAllowed": false
+  },
+
+  "method": {
+    "primary": "GET",
+    "followRedirects": 5,
+    "checkResponseBody": true,
+    "expectedStatusCodes": [200, 301, 302, 304],
+    "tlsValidation": true,
+    "tlsMinVersion": "TLS1.2"
+  },
+
+  "timeouts": {
+    "connect": 5000,
+    "response": 10000,
+    "total": 15000
+  },
+
+  "sources": {
+    "type": "single",
+    "distributed": false
+  },
+
+  "legal": {
+    "robotsTxtRespect": true,
+    "rateLimit": "moderate",
+    "maxRequestsPerMinutePerUrl": 2,
+    "userAgent": "IOF-Monitor/1.0 (active; +https://iof.example/about)",
+    "notes": "Active monitoring. Only deploy against endpoints with explicit permission or public APIs."
+  },
+
+  "alerting": {
+    "onDown": "immediate",
+    "onDegraded": "10min",
+    "statrep": "1h",
+    "colourTransitionAlert": true
+  },
+
+  "metrics": {
+    "record": ["latency_ms", "ttfb_ms", "status_code", "content_length", "tls_valid", "redirect_count"],
+    "percentiles": ["p50", "p95", "p99"],
+    "windowSize": "1h",
+    "retentionDays": 30
+  },
+
+  "colourThresholds": {
+    "BLU": 1.0,
+    "GRN": 0.80,
+    "AMB": 0.50,
+    "RED": 0.0
+  }
+}
