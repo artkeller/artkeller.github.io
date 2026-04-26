@@ -1,0 +1,15 @@
+{
+  "id": "nis2-eu-policy",
+  "what": {
+    "domains": {
+      "match": [
+        { "field": "domain", "op": "equals", "value": "nis2" },
+        { "field": "countries", "op": "intersects", "value": "$regions" }
+      ]
+    },
+    "regions": ["./regions/eu-political.json"],
+    "exclude": { "paths": ["./domains/test/*"] }
+  },
+  "how": ["./analysis-profiles/kritis-analysis.json"],
+  "selection": { "matchLogic": "AND", "includeGlobal": true }
+}
