@@ -92,7 +92,20 @@ Durch die Integration der `global-infrastructure-policy.json` wird die strategis
 
 ## File: test-validation.json
 
+Die vorliegende Governance-Struktur fungiert als dediziertes Prüfprotokoll innerhalb des Internal Ontology Frameworks (IOF), um die Integrität und Validierungslogik des Webanalyse-Tools sicherzustellen. Im Kern dieser GRC-Richtlinie steht die **automatisierte Fehlererkennung (Validation by Design)**, die darauf abzielt, die Belastbarkeit des Systems gegenüber strukturellen und semantischen Fehlkonfigurationen zu verifizieren.
 
+### Funktionale Compliance-Steuerung
+Die Governance definiert spezifische Kontrollmechanismen, um die operative Sicherheit der Netzwerküberwachung durch proaktive Fehlermeldungen zu gewährleisten. Hierbei werden zwei Eskalationsstufen unterschieden:
+
+* **Kritische Validierungsfehler (ERR):** Das System identifiziert fehlende Referenzdateien, unvollständige Datenarrays (Nodes) sowie fehlende Gewichtungen in Analyseprofilen. Ein wesentlicher Bestandteil der semantischen Prüfung ist der **Deep-Validate-Check**, der die Erreichbarkeit von URLs prüft und bei Nichterreichbarkeit die Freigabe blockiert.
+* **Warnhinweise (WARN):** Zur Sicherung der Datenqualität meldet das Framework unvollständige Datensätze, wie etwa leere Länderlisten in Regionalprofilen oder leere Knoten-Arrays, die zwar technisch valide sein könnten, aber die Analysefähigkeit einschränken.
+
+---
+
+### Anforderungen an das Risikomanagement
+Gemäß dem Standard **IOF-TEST-v1** ist die Governance so konzipiert, dass sie die Erteilung eines „Ready for Task“ (RFT)-Status systemseitig verhindert. Dies dient als Schutzmechanismus, um sicherzustellen, dass nur vollständig valide und geprüfte Konfigurationen in den operativen Betrieb übergehen. 
+
+Die Überwachung erfolgt über verschiedene Analyseebenen (**domainView** und **regionView**), wodurch eine lückenlose GRC-Überwachung sowohl auf Domänen- als auch auf regionaler Ebene simuliert wird. Damit stellt dieses Framework sicher, dass die Governance-Logik des Webanalyse-Tools selbst bei komplexen Fehlerszenarien eine konsistente und regelkonforme Berichterstattung gemäß den definierten Anforderungen (REQ-IOF-TEST-001 bis 006) liefert.
 
 ---
 
