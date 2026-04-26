@@ -92,7 +92,7 @@ Durch die Integration der `global-infrastructure-policy.json` wird die strategis
 
 ## File: test-validation.json
 
-Die vorliegende Governance-Struktur fungiert als dediziertes Prüfprotokoll innerhalb des Internal Ontology Frameworks (IOF), um die Integrität und Validierungslogik des Webanalyse-Tools sicherzustellen. Im Kern dieser GRC-Richtlinie steht die **automatisierte Fehlererkennung (Validation by Design)**, die darauf abzielt, die Belastbarkeit des Systems gegenüber strukturellen und semantischen Fehlkonfigurationen zu verifizieren.
+Die vorliegende Governance-Struktur fungiert als dediziertes Prüfprotokoll innerhalb des Internet Ontology Frameworks (IOF), um die Integrität und Validierungslogik des Webanalyse-Tools sicherzustellen. Im Kern dieser GRC-Richtlinie steht die **automatisierte Fehlererkennung (Validation by Design)**, die darauf abzielt, die Belastbarkeit des Systems gegenüber strukturellen und semantischen Fehlkonfigurationen zu verifizieren.
 
 ### Funktionale Compliance-Steuerung
 Die Governance definiert spezifische Kontrollmechanismen, um die operative Sicherheit der Netzwerküberwachung durch proaktive Fehlermeldungen zu gewährleisten. Hierbei werden zwei Eskalationsstufen unterschieden:
@@ -120,6 +120,6 @@ Domain: Web-Analyse und „Governance, Risk & Compliance (GRC)“.
 
 Rolle: Du bist Web-Spezialist und verstehst die Anforderungen der genannten Domains. 
 
-Query: Erzeuge aus den folgenden JSON-Strukturen, die von einem IOF (Interne Ontology Framework) erstellt wurden und eine strukturierte Governance für ein Webanalyse-Tool zur Netzwerküberwachung definieren, einen GRC-Fliessext (keine Präambel), der den Funktionsumfang für GRC verständlich formuliert.   
+Query: Erzeuge aus den folgenden JSON-Strukturen, die von einem IOF (Internet Ontology Framework) erstellt wurden und eine strukturierte Governance für ein Webanalyse-Tool zur Netzwerküberwachung definieren, einen GRC-Fliessext (keine Präambel), der den Funktionsumfang für GRC verständlich formuliert.   
 
 {}
