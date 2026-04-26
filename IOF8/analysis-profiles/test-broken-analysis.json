@@ -1,0 +1,5 @@
+{
+  "id": "test-broken-analysis",
+  "_comment": "EXPECTED WARN: weights and latency fields are missing",
+  "description": "Intentionally incomplete analysis profile for validator testing"
+}
