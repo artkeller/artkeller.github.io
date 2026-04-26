@@ -1,0 +1,16 @@
+{
+  "id": "standard-analysis",
+  "weights": {
+    "infrastructure": 5,
+    "continent": 4,
+    "country": 1
+  },
+  "latency": {
+    "good": 500,
+    "acceptable": 1500
+  },
+  "thresholds": {
+    "green": 60,
+    "yellow": 30
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "resilience-policy-doc",
+  "summary": "Resilience-focused policy covering infrastructure, media, and industrial domains across 5 regions with failure tolerance.",
+  "derivedFrom": "policies/resilience-policy.json",
+  "coverage": [
+    "infrastructure",
+    "media",
+    "industrial"
+  ]
+}
