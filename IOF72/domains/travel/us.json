@@ -1,8 +1,0 @@
-{
-  "domain": "travel",
-  "countries": ["US"],
-  "nodes": [
-    "https://www.faa.gov",
-    "https://www.amtrak.com"
-  ]
-}

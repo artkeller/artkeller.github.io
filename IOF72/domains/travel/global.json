@@ -1,8 +1,0 @@
-{
-  "domain": "travel",
-  "countries": ["*"],
-  "nodes": [
-    "https://www.iata.org",
-    "https://www.icao.int"
-  ]
-}

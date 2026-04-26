@@ -1,8 +1,0 @@
-{
-  "domain": "energy",
-  "countries": ["AT"],
-  "nodes": [
-    "https://www.apg.at",
-    "https://www.verbund.com"
-  ]
-}
