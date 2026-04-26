@@ -71,6 +71,22 @@ Die technische Kontrolle wird durch dedizierte Ansichten (**domainView** und **r
 
 ## File: global-neutral.json
 
+Die vorliegende Governance-Struktur „Global Neutral Reachability“ etabliert einen politisch neutralen Referenzrahmen für die Überwachung der globalen Internet-Erreichbarkeit innerhalb des Webanalyse-Tools. Kernziel dieser GRC-Richtlinie ist die Bereitstellung eines objektiven Basispunktes, der unabhängig von geopolitischen Kontexten agiert, indem ausschließlich Infrastruktur- und Carrier-Knoten validiert werden, die eine explizit globale Relevanz besitzen (`countries:[*]`). 
+
+### Funktionale Compliance und Kontrollmechanismen
+Um eine neutrale Bewertung sicherzustellen, implementiert das Framework strikte Kontrollen, die länderspezifische Scopes und regionale Verzerrungen systematisch ausschließen. Der Fokus liegt technisch auf der Messung der Erreichbarkeit aus dem Browser-Kontext, ohne dabei regionale Annahmen zu treffen. Zur Vermeidung politischer Interpretationsspielräume schließt die Governance sensible Sektoren wie Regierungseinrichtungen, das Finanzwesen, Medien, Energie sowie Reiseportale explizit aus dem Monitoring-Scope aus. Stattdessen beschränkt sich der Überwachungsumfang auf essenzielle Infrastruktur-, Carrier- und Plattform-Domains.
+
+### Standardisierung und regulatorische Anforderungen
+Die technische Umsetzung folgt dem Standard `IOF-GOVERNANCE-v1` unter Anwendung der Verfügbarkeitssemantik gemäß `RFC 2119`. Dies stellt eine konsistente und verbindliche Interpretation der Messergebnisse sicher. Die spezifischen Anforderungen (Requirements) der Governance gliedern sich in drei zentrale Säulen:
+* **REQ-IOF-GLB-001:** Validierung der Erreichbarkeit von Core-DNS- und CDN-Infrastrukturen.
+* **REQ-IOF-GLB-002:** Überprüfung der Präsenz globaler Tier-1-Carrier.
+* **REQ-IOF-GLB-003:** Sicherstellung der Verfügbarkeit zentraler Entwickler-Plattformen, wie Package Registries und Versionskontrollsysteme (VCS).
+
+
+
+### Operativer Scope und Policy-Integration
+Durch die Integration der `global-infrastructure-policy.json` wird die strategische Ausrichtung in operative Richtlinien überführt. Der funktionale Umfang konzentriert sich in der `domainView` ausschließlich auf globale Knoten, wodurch eine saubere Trennung zwischen allgemeiner Netzwerkinfrastruktur und länderspezifischen Diensten gewährleistet ist. Dies ermöglicht es Unternehmen, eine belastbare Baseline für die Netzwerkkonnektivität zu definieren, die als stabiler Referenzwert für Risikoanalysen und Compliance-Audits im Bereich der globalen IT-Infrastruktur dient.
+
 ---
 
 
