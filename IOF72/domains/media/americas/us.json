@@ -1,0 +1,9 @@
+{
+  "domain": "media",
+  "countries": ["US"],
+  "nodes": [
+    "https://www.nytimes.com",
+    "https://www.washingtonpost.com",
+    "https://apnews.com"
+  ]
+}

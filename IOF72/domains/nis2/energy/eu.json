@@ -1,0 +1,11 @@
+{
+  "domain": "nis2",
+  "sector": "energy",
+  "regulation": "NIS2 Directive 2022/2555 — Annex I (essential entities)",
+  "countries": ["DE","FR","NL","BE","AT","PL","SE","FI","DK","ES","IT","PT"],
+  "nodes": [
+    "https://www.entsoe.eu",
+    "https://www.entsog.eu",
+    "https://www.acer.europa.eu"
+  ]
+}
