@@ -1,0 +1,8 @@
+{
+  "domain": "energy",
+  "countries": ["DE", "FR", "NL", "BE", "AT"],
+  "nodes": [
+    "https://www.entsoe.eu",
+    "https://www.tennet.eu"
+  ]
+}

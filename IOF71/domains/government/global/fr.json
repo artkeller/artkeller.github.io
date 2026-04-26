@@ -1,0 +1,8 @@
+{
+  "domain": "government",
+  "countries": ["FR"],
+  "nodes": [
+    "https://www.gouvernement.fr",
+    "https://www.assemblee-nationale.fr"
+  ]
+}
