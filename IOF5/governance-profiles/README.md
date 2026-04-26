@@ -29,6 +29,21 @@ Durch die Integration der hinterlegten Policy-Strukturen (`dach-policy.json`) er
 
 ## File: eu-innovation.json
 
+Das vorliegende Framework zur **EU Innovation Governance (v1.0)** definiert eine spezialisierte GRC-Struktur, die primär auf die Resilienz und Verfügbarkeit der digitalen Infrastruktur innerhalb der Europäischen Union und ihrer strategischen Nachbarn ausgerichtet ist. Im Einklang mit den Anforderungen der **ENISA NIS2 (Art. 21)** zielt dieses Governance-Modell darauf ab, die Erreichbarkeit ökonomisch kritischer Internetknoten als Indikator für die operative Stabilität sicherzustellen. Der Fokus liegt dabei auf einer gezielten Überwachung der Sektoren Regierung, Finanzwesen, Telekommunikation (Carrier) und Energie, während unkritische Bereiche wie Medien oder Plattformdienste explizit exkludiert werden, um eine hohe operative Schärfe zu gewährleisten.
+
+### Operative Kontrollen und regulatorische Ausrichtung
+Die Implementierung erfolgt durch strikte technische Kontrollen, die sicherstellen, dass alle referenzierten Regierungsportale von EU-weiten Beobachtungspunkten aus erreichbar sind. Für die Finanzmarktinfrastruktur sieht das Framework zudem die Einhaltung definierter Latenzschwellen vor. Ein wesentlicher GRC-Aspekt ist das Verbot von Wildcard-Scopes; jede Überwachungseinheit muss explizit definiert sein, um Fehlalarme zu vermeiden und die Compliance mit dem Standard **IOF-GOVERNANCE-v1** zu wahren.
+
+### Anforderungskatalog und regionale Abgrenzung
+Die spezifischen Anforderungen (**REQ-IOF-EU-001 bis 004**) unterteilen das Überwachungsgebiet in dedizierte Zonen:
+* **Behörden und Finanzen:** Fokus auf den EU-politischen Raum inklusive der Schweiz (CH).
+* **Infrastruktur:** Validierung der Carrier-Präsenz mit Schwerpunkt auf die DACH-Region sowie Überprüfung der Energieversorger mit Fokus auf Deutschland.
+
+---
+
+### Datenstruktur und Policy-Integration
+Die Governance wird durch ein integriertes Policy-Management gestützt, welches über die Dateien `eu-gov-finance-policy.json` und `dach-carrier-energy-policy.json` gesteuert wird. Diese ermöglichen eine automatisierte Überprüfung der Erreichbarkeit durch verschiedene Analyseansichten wie die **DomainView** und die **RegionView**. Damit stellt das Framework ein robustes Instrumentarium dar, um die strategische Abhängigkeit von digitaler Infrastruktur durch kontinuierliches Monitoring und Governance-Reporting abzusichern.
+
 ---
 
 
