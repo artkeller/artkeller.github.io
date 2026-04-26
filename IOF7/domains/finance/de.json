@@ -1,0 +1,9 @@
+{
+  "domain": "finance",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bundesbank.de",
+    "https://www.bafin.de",
+    "https://www.deutsche-boerse.com"
+  ]
+}

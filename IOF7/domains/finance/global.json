@@ -1,0 +1,10 @@
+{
+  "domain": "finance",
+  "countries": ["*"],
+  "nodes": [
+    "https://www.swift.com",
+    "https://www.imf.org",
+    "https://www.worldbank.org",
+    "https://www.bis.org"
+  ]
+}
