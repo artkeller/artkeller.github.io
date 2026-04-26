@@ -1,8 +1,0 @@
-{
-  "domain": "finance",
-  "countries": ["GB"],
-  "nodes": [
-    "https://www.bankofengland.co.uk",
-    "https://www.fca.org.uk"
-  ]
-}

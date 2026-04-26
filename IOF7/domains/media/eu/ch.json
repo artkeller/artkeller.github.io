@@ -1,8 +1,0 @@
-{
-  "domain": "media",
-  "countries": ["CH"],
-  "nodes": [
-    "https://www.srf.ch",
-    "https://www.nzz.ch"
-  ]
-}

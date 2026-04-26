@@ -1,8 +1,0 @@
-{
-  "domain": "media",
-  "countries": ["JP"],
-  "nodes": [
-    "https://www3.nhk.or.jp",
-    "https://www.asahi.com"
-  ]
-}
