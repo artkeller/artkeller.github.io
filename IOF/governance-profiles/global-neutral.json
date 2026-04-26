@@ -1,14 +1,33 @@
 {
   "id": "global-neutral",
-  "name": "Global Neutral Governance",
+  "name": "Global Neutral Reachability Governance",
+  "version": "1.0",
+
+  "rational": "A politically neutral baseline for global internet reachability. Validates only infrastructure and carrier nodes that are explicitly global (countries:[*]) — no country-specific nodes, no regional bias. Intended as an objective reference point independent of geopolitical context.",
+
+  "controls": [
+    "Only nodes with countries:[*] are included — no country-specific scope",
+    "Infrastructure, carrier and platform domains only",
+    "No government, finance, media or energy nodes — avoids political interpretation",
+    "Reachability measured from browser context without regional assumption"
+  ],
+
+  "standard": "IOF-GOVERNANCE-v1 / RFC 2119 availability semantics",
+
+  "requirements": [
+    "REQ-IOF-GLB-001: Core DNS and CDN infrastructure reachability",
+    "REQ-IOF-GLB-002: Global carrier tier-1 presence validation",
+    "REQ-IOF-GLB-003: Developer platform availability (package registries, VCS)"
+  ],
 
   "policies": [
-    "./policies/default-economic-policy.json",
-    "./policies/resilience-policy.json"
+    "./policies/global-infrastructure-policy.json"
   ],
 
   "description": {
-    "purpose": "Balanced global reachability without regional or political bias",
-    "views": ["domainView", "regionView", "multiPerspectiveAnalysis"]
+    "purpose": "Neutral global baseline — infrastructure, carrier, platform. No geopolitical scope.",
+    "scope": "Global nodes only (countries:[*])",
+    "excludes": ["country-specific nodes", "government", "finance", "media", "energy", "travel"],
+    "views": ["domainView"]
   }
 }

@@ -1,13 +1,33 @@
 {
   "id": "g7-focus",
-  "name": "G7 Focus Governance",
+  "name": "G7 Critical Infrastructure Governance",
+  "version": "1.0",
+
+  "rational": "Validates reachability of government and financial infrastructure nodes for G7 nations. The G7 represents the majority of global financial transaction volume and democratic governance coordination. NMC status in any G7 node has systemic implications beyond national borders.",
+
+  "controls": [
+    "Government portal reachability for all 7 G7 nations",
+    "Financial regulator and central bank reachability for all 7 G7 nations",
+    "Industrial anchor company web presence as proxy for B2B connectivity",
+    "Wildcard nodes explicitly excluded — precision scope only"
+  ],
+
+  "standard": "IOF-GOVERNANCE-v1 / G7 Digital Ministers commitment on critical infrastructure",
+
+  "requirements": [
+    "REQ-IOF-G7-001: Government portal — all 7 nations reachable",
+    "REQ-IOF-G7-002: Financial regulator — all 7 nations reachable",
+    "REQ-IOF-G7-003: Industrial anchor — min 5 of 7 nations reachable"
+  ],
 
   "policies": [
     "./policies/g7-policy.json"
   ],
 
   "description": {
-    "purpose": "Focused validation of G7 nation reachability across government, finance and industrial domains",
-    "views": ["regionView", "domainView"]
+    "purpose": "G7 government, finance and industrial reachability — no wildcards, precision scope",
+    "scope": "G7 countries: US CA GB DE FR IT JP",
+    "excludes": ["wildcard nodes", "platform", "carrier", "media", "energy", "travel"],
+    "views": ["domainView", "regionView"]
   }
 }

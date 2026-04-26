@@ -1,5 +1,5 @@
 {
-  "id": "g7-policy",
+  "id": "global-infrastructure-policy",
   "what": {
     "domains": {
       "match": [
@@ -7,28 +7,18 @@
           "field": "domain",
           "op": "in",
           "value": [
-            "government",
-            "finance",
-            "industrial"
+            "infrastructure",
+            "carrier",
+            "platform"
           ]
         },
         {
           "field": "countries",
-          "op": "intersects",
-          "value": "$regions"
-        },
-        {
-          "field": "countries",
-          "op": "not-in",
-          "value": [
-            "*"
-          ]
+          "op": "equals",
+          "value": "*"
         }
       ]
     },
-    "regions": [
-      "./regions/g7.json"
-    ],
     "exclude": {
       "paths": [
         "./domains/test/*"
@@ -40,6 +30,6 @@
   ],
   "selection": {
     "matchLogic": "AND",
-    "includeGlobal": false
+    "includeGlobal": true
   }
 }

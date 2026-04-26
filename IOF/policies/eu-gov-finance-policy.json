@@ -1,5 +1,5 @@
 {
-  "id": "g7-policy",
+  "id": "eu-gov-finance-policy",
   "what": {
     "domains": {
       "match": [
@@ -8,8 +8,7 @@
           "op": "in",
           "value": [
             "government",
-            "finance",
-            "industrial"
+            "finance"
           ]
         },
         {
@@ -27,7 +26,7 @@
       ]
     },
     "regions": [
-      "./regions/g7.json"
+      "./regions/eu-political.json"
     ],
     "exclude": {
       "paths": [

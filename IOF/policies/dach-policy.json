@@ -1,25 +1,46 @@
 {
   "id": "dach-policy",
-
   "what": {
-    "domains": [
-      "./domains/media/*",
-      "./domains/government/*",
-      "./domains/carrier/*",
-      "./domains/energy/*"
-    ],
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "in",
+          "value": [
+            "media",
+            "government",
+            "carrier",
+            "energy"
+          ]
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        },
+        {
+          "field": "countries",
+          "op": "not-in",
+          "value": [
+            "*"
+          ]
+        }
+      ]
+    },
     "regions": [
       "./regions/dach.json"
-    ]
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
   },
-
   "how": [
     "./analysis-profiles/standard-analysis.json"
   ],
-
   "selection": {
-    "countryMatch": "intersection",
-    "includeGlobal": false,
-    "recursive": true
+    "matchLogic": "AND",
+    "includeGlobal": false
   }
 }

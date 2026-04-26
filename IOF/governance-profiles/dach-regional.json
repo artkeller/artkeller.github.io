@@ -1,13 +1,34 @@
 {
   "id": "dach-regional",
   "name": "DACH Regional Governance",
+  "version": "1.0",
+
+  "rational": "German-speaking countries (DE, AT, CH) share regulatory frameworks, language, and economic integration. This governance validates media, government, carrier and energy reachability within DACH as a coherent regional unit — relevant for national resilience monitoring and cross-border incident correlation.",
+
+  "controls": [
+    "Media outlets reachable — public broadcaster priority",
+    "Government portals reachable for DE, AT, CH",
+    "Carrier web presence as proxy for ISP operational status",
+    "Energy operator reachability — critical infrastructure indicator"
+  ],
+
+  "standard": "IOF-GOVERNANCE-v1 / BSI IT-Grundschutz availability requirements",
+
+  "requirements": [
+    "REQ-IOF-DACH-001: Public broadcaster reachability — DE AT CH",
+    "REQ-IOF-DACH-002: Government portal availability — DE AT CH",
+    "REQ-IOF-DACH-003: Carrier presence — DE primary, AT CH secondary",
+    "REQ-IOF-DACH-004: Energy operator reachability — DE primary"
+  ],
 
   "policies": [
     "./policies/dach-policy.json"
   ],
 
   "description": {
-    "purpose": "Regional validation for German-speaking countries: media, government, carrier, energy",
-    "views": ["regionView", "domainView"]
+    "purpose": "DACH regional resilience — media, government, carrier, energy",
+    "scope": "DE, AT, CH",
+    "excludes": ["finance", "industrial", "platform", "wildcard nodes"],
+    "views": ["domainView", "regionView"]
   }
 }

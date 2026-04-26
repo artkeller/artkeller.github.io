@@ -1,6 +1,5 @@
 {
   "id": "default-economic-policy",
-
   "what": {
     "domains": [
       "./domains/infrastructure/*",
@@ -17,13 +16,16 @@
       "./regions/na.json",
       "./regions/as.json",
       "./regions/af.json"
-    ]
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
   },
-
   "how": [
     "./analysis-profiles/standard-analysis.json"
   ],
-
   "selection": {
     "countryMatch": "intersection",
     "includeGlobal": true,

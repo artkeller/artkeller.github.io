@@ -1,0 +1,18 @@
+{
+  "id": "test-structural-policy",
+
+  "what": {
+    "domains": {
+      "match": [
+        { "field": "domain", "op": "in", "value": ["test-domain"] }
+      ]
+    },
+    "regions": [
+      "./regions/test-empty-region.json"
+    ]
+  },
+
+  "how": ["./analysis-profiles/test-broken-analysis.json"],
+
+  "selection": { "matchLogic": "AND", "includeGlobal": false }
+}
