@@ -1,8 +1,0 @@
-{
-  "domain": "government",
-  "countries": ["ZA"],
-  "nodes": [
-    "https://www.gov.za",
-    "https://www.parliament.gov.za"
-  ]
-}
