@@ -1,0 +1,6 @@
+{
+  "region": "five-eyes",
+  "name": "Five Eyes",
+  "description": "Intelligence alliance: US, UK, Canada, Australia, New Zealand",
+  "countries": ["US","GB","CA","AU","NZ"]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "dach-carrier-energy-policy",
+  "what": {
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "in",
+          "value": [
+            "carrier",
+            "energy"
+          ]
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        },
+        {
+          "field": "countries",
+          "op": "not-in",
+          "value": [
+            "*"
+          ]
+        }
+      ]
+    },
+    "regions": [
+      "./regions/dach.json"
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/resilience-analysis.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": false
+  },
+  "measure": [
+    "./measurement-profiles/passive-standard.json"
+  ]
+}
