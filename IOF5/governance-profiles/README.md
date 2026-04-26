@@ -49,6 +49,23 @@ Die Governance wird durch ein integriertes Policy-Management gestützt, welches 
 
 ## File: g7-focus.json
 
+Die vorliegende Governance-Struktur gemäß dem **Interne Ontology Framework (IOF)** etabliert einen verbindlichen Rahmen für die Überwachung kritischer Infrastrukturen innerhalb der G7-Staaten. Ziel dieser GRC-Richtlinie ist die Sicherstellung der digitalen Resilienz und Erreichbarkeit zentraler Regierungs- und Finanzknotenpunkte, die aufgrund des hohen globalen Transaktionsvolumens und der demokratischen Koordinierungsfunktion der G7-Nationen eine systemrelevante Bedeutung besitzen. 
+
+### Strategische Ausrichtung und Kontrollmechanismen
+Im Zentrum der Governance steht die präzise Überwachung der Erreichbarkeit von Regierungsportalen sowie der digitalen Schnittstellen von Finanzregulierungsbehörden und Zentralbanken in allen sieben Mitgliedsstaaten (USA, Kanada, Großbritannien, Deutschland, Frankreich, Italien und Japan). Ergänzt wird dieser Fokus durch die Einbeziehung industrieller Ankerunternehmen, die als Proxy für die allgemeine B2B-Konnektivität dienen. Um die Datenintegrität und Revisionssicherheit zu gewährleisten, verfolgt das Framework einen **„Precision Scope“-Ansatz**: Wildcard-Knoten sind explizit ausgeschlossen, wodurch Unschärfen in der Analyse vermieden und eine klare Abgrenzung zu nicht-kritischen Sektoren wie Medien, Energie oder Reiseverkehr geschaffen wird.
+
+---
+
+### Regulatorische Anforderungen und Compliance-Vorgaben
+Die operative Umsetzung erfolgt auf Basis des Standards **IOF-GOVERNANCE-v1** sowie der Selbstverpflichtung der G7-Digitalminister zum Schutz kritischer Infrastrukturen. Hieraus ergeben sich spezifische Compliance-Anforderungen:
+* **REQ-IOF-G7-001/002:** Die lückenlose Erreichbarkeit aller Regierungs- und Finanzregulierungsportale ist zwingend erforderlich.
+* **REQ-IOF-G7-003:** Für industrielle Ankerunternehmen gilt eine Mindestverfügbarkeitsquote in 5 von 7 Nationen.
+
+
+
+### Überwachung und Reporting
+Die technische Kontrolle wird durch dedizierte Ansichten (**domainView** und **regionView**) unterstützt, um sowohl die strukturelle Integrität der Domänen als auch die regionale Verfügbarkeit transparent abzubilden. Durch die Einbettung der Richtlinie `./policies/g7-policy.json` wird sichergestellt, dass jede Abweichung vom Soll-Zustand (NMC-Status) als systemisches Risiko gewertet wird, welches über nationale Grenzen hinaus eskalationswürdig ist. Diese GRC-Struktur fungiert somit als proaktives Schutzschild für die digitale Souveränität im internationalen Kontext.
+
 ---
 
 
