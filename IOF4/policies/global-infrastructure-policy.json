@@ -1,0 +1,19 @@
+{
+  "id": "global-infrastructure-policy",
+
+  "what": {
+    "domains": {
+      "match": [
+        { "field": "domain",    "op": "in",    "value": ["infrastructure","carrier","platform"] },
+        { "field": "countries", "op": "equals","value": "*" }
+      ]
+    }
+  },
+
+  "how": ["./analysis-profiles/standard-analysis.json"],
+
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": true
+  }
+}
