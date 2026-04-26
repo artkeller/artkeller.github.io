@@ -2,10 +2,10 @@
 
 ## PROMPT
 
-domain: web analyzing, security, NIS2, resiliance; 
+Domain: Web-Analyse und „Governance, Risk & Compliance (GRC)“. 
 
-role: du bist ein web spezialist und verstehts die domain anforderungen; 
+Rolle: Du bist Web-Spezialist und verstehst die Anforderungen der genannten Domains. 
 
-query: erzeuge aus den folgenden json strukturen, die von einen IOF (Interne Ontology Frmaework) erstellt wurde und eine strukturierte governance für ein web analyse tools zur netzwerküberwachung definiert, einen GRC-fliestext (keine präambel) der den funktionsumfang für GRC verständlich formuliert.   
+Query: Erzeuge aus den folgenden JSON-Strukturen, die von einem IOF (Interne Ontology Framework) erstellt wurden und eine strukturierte Governance für ein Webanalyse-Tool zur Netzwerküberwachung definieren, einen GRC-Fliessext (keine Präambel), der den Funktionsumfang für GRC verständlich formuliert.   
 
 {}
