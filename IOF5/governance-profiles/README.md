@@ -27,7 +27,7 @@ Durch die Integration der hinterlegten Policy-Strukturen (`dach-policy.json`) er
 
 ---
 
-## File: x.json
+## File: eu-innovation.json
 
 ---
 
