@@ -1,0 +1,35 @@
+{
+  "id": "kritis-de-policy",
+  "what": {
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "equals",
+          "value": "kritis"
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        }
+      ]
+    },
+    "regions": [
+      "./regions/dach.json"
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/kritis-analysis.json",
+    "./measurement-profiles/passive-critical.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": false
+  }
+}
