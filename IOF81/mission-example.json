@@ -26,9 +26,433 @@
   },
   "statistics": {
     "resolvedCount": 23,
-    "suspectedCount": 2,
+    "suspectedCount": 5,
     "deletedCount": 0
   },
-  "resolvedNodes": [...],
-  "suspectedNodes": [...]
+  "resolvedNodes": [
+    {
+      "url": "https://www.bsi.bund.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/cyber.json"
+    },
+    {
+      "url": "https://www.allianz-fuer-cybersicherheit.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/cyber.json"
+    },
+    {
+      "url": "https://www.cert-bund.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/cyber.json"
+    },
+    {
+      "url": "https://www.bundesverfassungsgericht.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/justiz.json"
+    },
+    {
+      "url": "https://www.bundesgerichtshof.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/justiz.json"
+    },
+    {
+      "url": "https://www.bundesjustizamt.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/justiz.json"
+    },
+    {
+      "url": "https://www.bmj.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/justiz.json"
+    },
+    {
+      "url": "https://www.bbk.bund.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/katastrophenschutz.json"
+    },
+    {
+      "url": "https://www.thw.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/katastrophenschutz.json"
+    },
+    {
+      "url": "https://www.drk.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/katastrophenschutz.json"
+    },
+    {
+      "url": "https://warnung.bund.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/katastrophenschutz.json"
+    },
+    {
+      "url": "https://www.feuerwehrverband.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/katastrophenschutz.json"
+    },
+    {
+      "url": "https://www.bka.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/polizei.json"
+    },
+    {
+      "url": "https://www.bundespolizei.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/polizei.json"
+    },
+    {
+      "url": "https://www.verfassungsschutz.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/polizei.json"
+    },
+    {
+      "url": "https://www.bnd.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/polizei.json"
+    },
+    {
+      "url": "https://www.bfdi.bund.de",
+      "domain": "pubsec",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/pubsec/de/polizei.json"
+    },
+    {
+      "url": "https://www.rwe.com",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/energie/de.json"
+    },
+    {
+      "url": "https://www.uniper.energy",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/energie/de.json"
+    },
+    {
+      "url": "https://www.ontras.com",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/energie/de.json"
+    },
+    {
+      "url": "https://www.bvl.bund.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/ernaehrung/de.json"
+    },
+    {
+      "url": "https://www.bmel.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/ernaehrung/de.json"
+    },
+    {
+      "url": "https://www.ble.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/ernaehrung/de.json"
+    },
+    {
+      "url": "https://www.bundesbank.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/finanz/de.json"
+    },
+    {
+      "url": "https://www.bafin.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/finanz/de.json"
+    },
+    {
+      "url": "https://www.deutsche-boerse.com",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/finanz/de.json"
+    },
+    {
+      "url": "https://www.dsgv.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/finanz/de.json"
+    },
+    {
+      "url": "https://www.bdb.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/finanz/de.json"
+    },
+    {
+      "url": "https://www.rki.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/gesundheit/de.json"
+    },
+    {
+      "url": "https://www.bfarm.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/gesundheit/de.json"
+    },
+    {
+      "url": "https://www.gkv-spitzenverband.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/gesundheit/de.json"
+    },
+    {
+      "url": "https://www.kbv.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/gesundheit/de.json"
+    },
+    {
+      "url": "https://www.dkgev.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/gesundheit/de.json"
+    },
+    {
+      "url": "https://www.telekom.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/itk/de.json"
+    },
+    {
+      "url": "https://www.vodafone.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/itk/de.json"
+    },
+    {
+      "url": "https://www.de-cix.net",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/itk/de.json"
+    },
+    {
+      "url": "https://www.denic.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/itk/de.json"
+    },
+    {
+      "url": "https://www.bundesregierung.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/staat/de.json"
+    },
+    {
+      "url": "https://www.bundestag.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/staat/de.json"
+    },
+    {
+      "url": "https://www.bundesrat.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/staat/de.json"
+    },
+    {
+      "url": "https://www.bmi.bund.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/staat/de.json"
+    },
+    {
+      "url": "https://www.deutschebahn.com",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/transport/de.json"
+    },
+    {
+      "url": "https://www.fraport.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/transport/de.json"
+    },
+    {
+      "url": "https://www.hafen-hamburg.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/transport/de.json"
+    },
+    {
+      "url": "https://www.bav.bund.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/transport/de.json"
+    },
+    {
+      "url": "https://www.eba.bund.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/transport/de.json"
+    },
+    {
+      "url": "https://www.dvgw.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/wasser/de.json"
+    },
+    {
+      "url": "https://www.bdew.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/wasser/de.json"
+    },
+    {
+      "url": "https://www.bwb.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/wasser/de.json"
+    }
+  ],
+  "suspectedNodes": [
+    {
+      "url": "https://www.bundesnetzagentur.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/energie/de.json",
+      "suspectReason": "unreachable at validation time — may reflect transient condition (DDoS, rate-limiting, scan-blocking, maintenance)",
+      "validatedAt": "2026-04-27T00:44:01.830Z"
+    },
+    {
+      "url": "https://www.enbw.com",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/energie/de.json",
+      "suspectReason": "unreachable at validation time — may reflect transient condition (DDoS, rate-limiting, scan-blocking, maintenance)",
+      "validatedAt": "2026-04-27T00:44:01.830Z"
+    },
+    {
+      "url": "https://www.e-on.de",
+      "domain": "kritis",
+      "countries": [
+        "DE"
+      ],
+      "sourceFile": "./domains/kritis/energie/de.json",
+      "suspectReason": "unreachable at validation time — may reflect transient condition (DDoS, rate-limiting, scan-blocking, maintenance)",
+      "validatedAt": "2026-04-27T00:44:01.830Z"
+    }
+  ]
 }
