@@ -1,0 +1,34 @@
+{
+  "specVersion": "open-iof/1.0",
+  "id": "iof:mission:20260427T142300Z:g7-focus",
+  "type": "iof:Mission",
+  "created": "2026-04-27T14:23:00Z",
+  "generator": {
+    "tool": "IOF Validator",
+    "version": "8.5",
+    "ref": "https://github.com/.../iof-validator"
+  },
+  "governance": {
+    "ref": "./governance-profiles/g7-focus.json",
+    "id": "g7-focus",
+    "standard": "IOF-GOVERNANCE-v1"
+  },
+  "scope": {
+    "domains": ["government","finance","industrial"],
+    "countries": ["US","CA","GB","DE","FR","IT","JP"],
+    "regions": ["g7"]
+  },
+  "readiness": {
+    "structural": "PASS",
+    "deep": "PASS",
+    "colourState": "GRN",
+    "rftAt": "2026-04-27T14:25:00Z"
+  },
+  "statistics": {
+    "resolvedCount": 23,
+    "suspectedCount": 2,
+    "deletedCount": 0
+  },
+  "resolvedNodes": [...],
+  "suspectedNodes": [...]
+}
