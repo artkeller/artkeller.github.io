@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "countries": ["FR"],
+  "nodes": [
+    "https://www.lemonde.fr",
+    "https://www.lefigaro.fr"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "domain": "pubsec",
+  "sector": "justiz",
+  "regulation": "Öffentliche Sicherheit DE",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bundesverfassungsgericht.de",
+    "https://www.bundesgerichtshof.de",
+    "https://www.bundesjustizamt.de",
+    "https://www.bmj.de"
+  ]
+}

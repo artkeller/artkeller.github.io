@@ -1,0 +1,8 @@
+{
+  "domain": "finance",
+  "countries": ["JP"],
+  "nodes": [
+    "https://www.boj.or.jp",
+    "https://www.fsa.go.jp"
+  ]
+}

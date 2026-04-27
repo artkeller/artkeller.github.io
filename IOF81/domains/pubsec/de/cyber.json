@@ -1,0 +1,11 @@
+{
+  "domain": "pubsec",
+  "sector": "cyber-sicherheit",
+  "regulation": "BSIG / NIS2-Umsetzungsgesetz DE",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bsi.bund.de",
+    "https://www.allianz-fuer-cybersicherheit.de",
+    "https://www.cert-bund.de"
+  ]
+}

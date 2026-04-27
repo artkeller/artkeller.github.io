@@ -1,0 +1,5 @@
+{
+  "domain": "test-domain",
+  "countries": ["DE"],
+  "_comment": "EXPECTED ERR: nodes array is missing"
+}
