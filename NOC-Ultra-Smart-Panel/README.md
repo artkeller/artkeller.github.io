@@ -65,7 +65,9 @@ Echte Secrets gehören nicht in den Browser. Sie gehören auf den Server. Alles,
 
 
 
---- TODOS
+--- 
+
+### TODOS
 
 ```javascript
 await fetch(m.url,{method:"GET",mode:"no-cors",cache:"no-store",signal:controller.signal});
