@@ -62,3 +62,15 @@ Das Interface definiert eine **explizite, saubere API** für Entwickler und mach
 
 **Die goldene Regel für Browser-Apps:**  
 Echte Secrets gehören nicht in den Browser. Sie gehören auf den Server. Alles, was der Browser bekommt, kann der User sehen – mit oder ohne F12-Einschränkung.
+
+
+
+--- TODOS
+
+```javascript
+await fetch(m.url,{method:"GET",mode:"no-cors",cache:"no-store",signal:controller.signal});
+
+await fetch(m.url,{method:"HEAD",mode:"no-cors",cache:"no-store",signal:controller.signal});
+
+
+```
