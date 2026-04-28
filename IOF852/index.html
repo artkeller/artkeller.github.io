@@ -117,15 +117,22 @@ select#govSel{background:var(--bg);border:1px solid var(--border);color:var(--fg
 .cdom {color:var(--domain);background:#f0fdf4;border-color:#86efac;}
 .creg {color:var(--region);background:#fffbeb;border-color:#fde68a;}
 .cana {color:var(--analysis);background:#f3f4f6;border-color:#d1d5db;}
-.cmea {color:#6d28d9;background:#f5f3ff;border-color:#c4b5fd;}
+.cmea {color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe;}
 .curl {color:#0369a1;      background:#f0f9ff;border-color:#bae6fd;}
 .curl.dead{color:#64748b;background:#f1f5f9;border-color:#cbd5e1;}
 @media(prefers-color-scheme:dark){
   .cgov{background:#0c1a3a;border-color:#1e3a6e;}.cpol{background:#1c0a3a;border-color:#4c1d95;}
   .cdom{background:#052e16;border-color:#166534;}.creg{background:#1c1400;border-color:#7c4f0a;}
   .cana{background:#1a1d21;border-color:#30363d;}.curl{background:#0a1e2e;border-color:#0369a1;}
+  .cmea{background:#1e1040;border-color:#4c1d95;}
   .curl.dead{background:#1a1d21;border-color:#30363d;}
 }
+/* Duplicate node styling (Point 4) */
+.nw.duplicate > .nh { opacity:0.45; }
+.nw.duplicate > .nh .nlbl { text-decoration: line-through; }
+.nw.duplicate > .nc { display:none; }
+/* Live URL counter (Point 6) */
+.url-counter{font-size:var(--fs-xs);color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
 .nlbl{font-size:var(--fs-sm);color:var(--fg);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
 .nlbl:hover{text-decoration:underline;}
 .ub{font-size:10px;padding:1px 5px;border-radius:10px;margin-left:3px;font-weight:600;flex-shrink:0;border:1px solid transparent;}
@@ -205,6 +212,7 @@ pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--
     <div class="pill pwarn"><b id="wC">—</b></div>
     <div class="pill perr" ><b id="eC">—</b></div>
   </div>
+  <div class="url-counter" id="urlCounter" aria-live="polite" title="Active URLs (non-deleted, non-duplicate)"></div>
   <div class="menu" id="menu">
     <button class="btn bg menu-btn" onclick="toggleMenu()" aria-label="Options" aria-expanded="false">⋯</button>
     <div class="mpanel" id="mpanel" role="menu">
@@ -221,7 +229,8 @@ pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--
         <label class="fi fc1" id="fi-policy"><input type="checkbox" checked data-f="policy" data-p="gov" onchange="hf(this)"><span class="fd" style="background:var(--policy)"></span><span>Policies</span></label>
         <label class="fi fc2" id="fi-domain"><input type="checkbox" checked data-f="domain" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--domain)"></span><span>Domains</span></label>
         <label class="fi fc2" id="fi-region"><input type="checkbox" checked data-f="region" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--region)"></span><span>Regions</span></label>
-        <label class="fi fc2" id="fi-analysis"><input type="checkbox" checked data-f="analysis" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--analysis)"></span><span>How (analysis + measure)</span></label>
+        <label class="fi fc2" id="fi-analysis"><input type="checkbox" checked data-f="analysis" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--analysis)"></span><span>Analysis</span></label>
+        <label class="fi fc2" id="fi-measure"><input type="checkbox" checked data-f="measure" data-p="policy" onchange="hf(this)"><span class="fd" style="background:#7c3aed"></span><span>Measurement</span></label>
       </div>
     </div>
   </div>
@@ -464,10 +473,15 @@ function mkN({label,status,json,issues,children,isRoot,isLeaf,scopeTag,urlSt}){
 
   h.appendChild(delBtn);
 
-  const body=document.createElement('div');
-  body.className='nc'+(status==='ok'&&!isRoot?' col':'');
-  children.forEach(c=>body.appendChild(c));
-  wrap.append(h,body);
+  // Duplicate detection for URL nodes
+  if(type==='url' && label?.startsWith('http')){
+    if(SEEN_URLS_IN_TREE.has(label)){
+      wrap.classList.add('duplicate');
+      wrap.dataset.dupOf = label; // reference to original
+    } else {
+      SEEN_URLS_IN_TREE.add(label);
+    }
+  }
 
   // Chevron
   chev.addEventListener('click',e=>{e.stopPropagation();const c=body.classList.toggle('col');chev.classList.toggle('open',!c);h.setAttribute('aria-expanded',String(!c));});
@@ -554,8 +568,11 @@ function hf(cb){
 function setCS(code,label){const b=document.getElementById('cbadge');b.className='cbadge vis c'+code;b.textContent=code+(label?' — '+label:'');}
 
 /* ═══ BUILD TREE ══════════════════════════════════════════════════ */
+let SEEN_URLS_IN_TREE = new Set(); // for duplicate detection across whole tree
+
 async function buildTree(govFile){
   COUNTS={ok:0,warn:0,err:0};
+  SEEN_URLS_IN_TREE = new Set();
   const gov=await loadJ(govFile);
   const govI=gov.__error?[{level:'err',msg:'Cannot load: '+(gov.message||govFile)}]:vGov(gov);
   const pNodes=[];
@@ -680,24 +697,37 @@ async function buildTree(govFile){
     }
 
     // ── ANALYSIS ───────────────────────────────────────────────
-    if(pj.how?.length){
-      const hNs=[];
-      for(const hP of pj.how){
-        const hj=await loadJ(hP);
-        const isMeasure=hP.includes('measurement-profiles');
-        const hI=hj.__error
-          ?[{level:'err',msg:'Cannot load'}]
-          :isMeasure?vMeasure(hj):vAna(hj);
-        // Override gtype label for measurement entries
-        const node=mkN({label:hP,status:hj.__error?'err':worst(hI),json:hj,issues:hI,children:[],isLeaf:true});
-        if(isMeasure){
-          // Patch chip to show MEASURE instead of ANALYSIS
-          const chip=node.querySelector('.chip');
-          if(chip){chip.className='chip cmea';chip.textContent='MEASURE';}
-        }
-        hNs.push(node);
+    // ── ANALYSIS (separate group) ──────────────────────────────
+    const analysisEntries = (pj.how||[]).filter(h=>!h.includes('measurement-profiles'));
+    if(analysisEntries.length){
+      const aNs=[];
+      for(const aP of analysisEntries){
+        const aj=await loadJ(aP);
+        const aI=aj.__error?[{level:'err',msg:'Cannot load'}]:vAna(aj);
+        aNs.push(mkN({label:aP,status:aj.__error?'err':worst(aI),json:aj,issues:aI,children:[],isLeaf:true}));
       }
-      gNodes.push(mkN({label:'./how',status:worst(hNs.map(n=>({level:nst(n)}))),json:{group:'how'},issues:[],children:hNs}));
+      gNodes.push(mkN({label:'./analysis',status:worst(aNs.map(n=>({level:nst(n)}))),json:{group:'analysis'},issues:[],children:aNs}));
+    }
+
+    // ── MEASUREMENT (separate group) ───────────────────────────
+    const measureEntries = (pj.how||[]).filter(h=>h.includes('measurement-profiles'));
+    if(measureEntries.length){
+      const mNs=[];
+      for(const mP of measureEntries){
+        const mj=await loadJ(mP);
+        const mI=mj.__error?[{level:'err',msg:'Cannot load'}]:vMeasure(mj);
+        const node=mkN({label:mP,status:mj.__error?'err':worst(mI),json:mj,issues:mI,children:[],isLeaf:true});
+        // Patch chip to MEASURE
+        const chip=node.querySelector('.chip');
+        if(chip){chip.className='chip cmea';chip.textContent='MEASURE';}
+        mNs.push(node);
+      }
+      gNodes.push(mkN({label:'./measure',status:worst(mNs.map(n=>({level:nst(n)}))),json:{group:'measurement'},issues:[],children:mNs}));
+    } else if(!pj.id?.startsWith('test')){
+      gNodes.push(mkN({label:'./measure',status:'warn',
+        json:{group:'measurement',note:'No measurement profile defined'},
+        issues:[{level:'warn',msg:'No measurement profile — scanner has no timing/method config'}],
+        children:[],isLeaf:true}));
     }
 
     const pS=pj.__error?'err':worst([...pI,...gNodes.map(n=>({level:nst(n)}))]);
@@ -824,74 +854,97 @@ async function startDeep(){
 
 /* ═══ MISSION ════════════════════════════════════════════════════ */
 function buildMission(dead){
-  const govId   = LAST_GOV.split('/').pop().replace('.json','');
-  const govJ    = CACHE[LAST_GOV] || {};
-  const ts      = new Date().toISOString();
-  // ID: iof:mission:{timestamp}:{governance-id}  — STIX-inspired, URI-safe
-  const mid     = `iof:mission:${ts.replace(/[-:.]/g,'').slice(0,15)}:${govId}`;
+  const govId = LAST_GOV.split('/').pop().replace('.json','');
+  const govJ  = CACHE[LAST_GOV] || {};
+  const ts    = new Date().toISOString();
+  const mid   = `iof:mission:${ts.replace(/[-:.]/g,'').slice(0,15)}:${govId}`;
 
-  // Collect how-profiles across all policies (deduplicated)
-  const analysisRefs  = new Set();
-  const measureRefs   = new Set();
-  const policyIds     = [];
+  // ── Collect profiles per policy (first policy = strongest) ──
+  // profileMap: path → {embedded content + ref}
+  const profileMap = {};
+  const policyIds  = [];
+  const policyProfileMap = {}; // policyId → {analysis:[], measurement:[]}
+
   for(const pPath of (govJ.policies||[])){
     const pj=CACHE[pPath];
     if(!pj||pj.__error) continue;
-    policyIds.push(pj.id||pPath);
+    const pid = pj.id||pPath;
+    policyIds.push(pid);
+    policyProfileMap[pid] = {analysis:[], measurement:[]};
     for(const h of (pj.how||[])){
-      if(h.includes('measurement-profiles')) measureRefs.add(h);
-      else analysisRefs.add(h);
+      const hj = CACHE[h];
+      if(!hj||hj.__error) continue;
+      const isMeasure = h.includes('measurement-profiles');
+      if(!profileMap[h]){
+        // Embed full profile — scanner needs no external lookup
+        const embedded = {
+          ref: h,
+          ...hj
+        };
+        profileMap[h] = embedded;
+      }
+      if(isMeasure) policyProfileMap[pid].measurement.push(h);
+      else          policyProfileMap[pid].analysis.push(h);
     }
   }
 
-  // Build resolved/suspected node list with policy attribution
-  const urlWraps=[...document.querySelectorAll('[data-type="url"]')]
+  // ── Build node list — first-policy-wins, duplicates get alsoIn ──
+  const urlWraps = [...document.querySelectorAll('[data-type="url"]')]
     .filter(n=>!n.closest('.nw.deleted'));
   const resolved=[], suspected=[];
-  const seen=new Set();
+  const seenUrls = new Map(); // url → entry index in resolved/suspected
 
   urlWraps.forEach(w=>{
-    const url=w.querySelector('.nlbl')?.title;
-    if(!url||!url.startsWith('http')||seen.has(url)) return;
-    seen.add(url);
+    const url = w.querySelector('.nlbl')?.title;
+    if(!url||!url.startsWith('http')) return;
 
-    // Walk up .nw chain to find domain and policy wraps
-    let cur = w.parentElement?.closest('.nw');
-    let dw = null, pw = null;
+    // Walk up to find domain + policy
+    let cur=w.parentElement?.closest('.nw'), dw=null, pw=null;
     while(cur){
-      if(!dw && cur.dataset.type==='domain') dw=cur;
-      if(!pw && cur.dataset.type==='policy') pw=cur;
-      if(dw && pw) break;
-      cur = cur.parentElement?.closest('.nw');
+      if(!dw&&cur.dataset.type==='domain') dw=cur;
+      if(!pw&&cur.dataset.type==='policy') pw=cur;
+      if(dw&&pw) break;
+      cur=cur.parentElement?.closest('.nw');
     }
-    const dj  = dw?.dataset?.label ? CACHE[dw.dataset.label] : null;
-    const pj  = pw?.dataset?.label ? CACHE[pw.dataset.label] : null;
+    const dj = dw?.dataset?.label ? CACHE[dw.dataset.label] : null;
+    const pj = pw?.dataset?.label ? CACHE[pw.dataset.label] : null;
+    const pid = pj?.id || null;
+    const profiles = pid ? policyProfileMap[pid] : {analysis:[],measurement:[]};
 
-    // Per-URL how references from its policy
-    const urlAnalysis  = (pj?.how||[]).filter(h=>!h.includes('measurement-profiles'));
-    const urlMeasure   = (pj?.how||[]).filter(h=> h.includes('measurement-profiles'));
+    if(seenUrls.has(url)){
+      // Duplicate — add alsoIn to existing entry
+      const {list, idx} = seenUrls.get(url);
+      list[idx].alsoIn = list[idx].alsoIn || [];
+      list[idx].alsoIn.push({
+        policy: pid,
+        analysis:    profiles.analysis.length    ? profiles.analysis    : null,
+        measurement: profiles.measurement.length ? profiles.measurement : null
+      });
+      return;
+    }
 
     const entry = {
       url,
-      domain:     dj?.domain   || null,
-      countries:  dj?.countries || null,
-      sourceFile: dw?.dataset?.label || null,
-      policy:     pj?.id || null,
-      analysis:   urlAnalysis.length ? urlAnalysis : null,
-      measurement:urlMeasure.length  ? urlMeasure  : null
+      domain:      dj?.domain    || null,
+      countries:   dj?.countries || null,
+      sourceFile:  dw?.dataset?.label || null,
+      policy:      pid,
+      analysis:    profiles.analysis.length    ? profiles.analysis    : null,
+      measurement: profiles.measurement.length ? profiles.measurement : null
     };
 
+    const targetList = dead.has(url) ? suspected : resolved;
+    const idx = targetList.length;
     if(dead.has(url)){
-      suspected.push({
-        ...entry,
-        suspect: {
-          reason: 'unreachable at validation time',
-          note:   'Transient conditions possible: DDoS, rate-limiting, scan-blocking, maintenance. Scanner may re-evaluate independently.',
-          testedAt: ts
-        }
-      });
+      suspected.push({...entry, suspect:{
+        reason:   'unreachable at validation time',
+        note:     'Transient conditions possible: DDoS, rate-limiting, scan-blocking, maintenance. Scanner may re-evaluate independently.',
+        testedAt: ts
+      }});
+      seenUrls.set(url, {list:suspected, idx});
     } else {
       resolved.push(entry);
+      seenUrls.set(url, {list:resolved, idx});
     }
   });
 
@@ -899,39 +952,31 @@ function buildMission(dead){
   const countries = [...new Set(resolved.flatMap(n=>n.countries||[]).filter(c=>c!=='*'))].sort();
   const code      = document.getElementById('cbadge').textContent.split(' ')[0]||'GRN';
 
-  // Open-IOF Mission schema — aligned with W3C PROV-O + Dublin Core + STIX ID convention
   return {
-    // ── Identity ──────────────────────────────────────────────
     "specVersion":  "open-iof/1.0",
     "id":           mid,
     "type":         "iof:Mission",
     "created":      ts,
 
-    // ── Provenance (W3C PROV-O: wasGeneratedBy, wasAttributedTo) ──
     "generator": {
       "tool":       "IOF Validator",
-      "version":    "8.5",
+      "version":    "9.0",
       "governance": govId,
       "policies":   policyIds
     },
 
-    // ── Readiness ─────────────────────────────────────────────
     "readiness": {
-      "structural": "PASS",
-      "deep":       "PASS",
+      "structural":  "PASS",
+      "deep":        "PASS",
       "colourState": code,
-      "rftAt":      ts
+      "rftAt":       ts
     },
 
-    // ── Scope ─────────────────────────────────────────────────
     "scope": {
       "domains":   domains,
-      "countries": countries,
-      "analysis":  [...analysisRefs],
-      "measurement": [...measureRefs]
+      "countries": countries
     },
 
-    // ── Statistics ────────────────────────────────────────────
     "statistics": {
       "resolvedCount":  resolved.length,
       "suspectedCount": suspected.length,
@@ -940,7 +985,9 @@ function buildMission(dead){
         : null
     },
 
-    // ── Nodes ─────────────────────────────────────────────────
+    // Embedded profiles — scanner needs no external lookup
+    "profiles": Object.values(profileMap),
+
     "resolvedNodes":  resolved,
     "suspectedNodes": suspected
   };
