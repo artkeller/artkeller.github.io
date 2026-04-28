@@ -1,0 +1,13 @@
+{
+  "domain": "kritis",
+  "sector": "wasser",
+  "regulation": "BSI-KritisV \u00a72",
+  "countries": [
+    "DE"
+  ],
+  "nodes": [
+    "https://www.dvgw.de",
+    "https://www.bdew.de",
+    "https://www.bwb.de"
+  ]
+}
