@@ -76,3 +76,5 @@ await fetch(m.url,{method:"HEAD",mode:"no-cors",cache:"no-store",signal:controll
 
 
 ```
+
+Network Level Scouting (CORS-konform) -> Deep Level Renderimg (V8 Crawler)
