@@ -1,6 +1,15 @@
+
+
+---
+
+## README.md (aktualisiert)
+
+```markdown
 # Internet Ontology Framework (IOF)
 
 ## A Multi-Perspective Ontology for Internet Reachability, Resilience, and Strategic Functionality
+
+**Extended to include AI system observability and compliance governance.**
 
 ---
 
@@ -16,9 +25,9 @@ The IOF defines a conceptual and technical foundation for modeling Internet reac
 
 The Internet Ontology Framework (IOF) is a structured data model for observing and evaluating Internet reachability, resilience, and functional availability. It replaces binary monitoring approaches with a multi-dimensional model that distinguishes between local observability, global systemic behavior, and strategic functional availability.
 
-The IOF separates semantic classification from measurement endpoints. This enables extensibility, neutrality, and applicability across domains such as industrial systems, public infrastructure, digital platforms, and federated data ecosystems.
+The IOF separates semantic classification from measurement endpoints. This enables extensibility, neutrality, and applicability across domains such as industrial systems, public infrastructure, digital platforms, **and AI systems**.
 
-**Scope:** The IOF is explicitly oriented toward availability analysis for economic, industrial, and innovation-driven purposes. It aligns with principles of open innovation, interoperability, and responsible technology development.
+**Scope:** The IOF is explicitly oriented toward availability analysis for economic, industrial, and innovation-driven purposes. It aligns with principles of open innovation, interoperability, and responsible technology development. **AI extensions enable governance‑aware measurement of AI API endpoints, compliance with the EU AI Act, the Korean Basic Act on AI, and other regional frameworks.**
 
 ---
 
@@ -50,6 +59,8 @@ The Internet has evolved into critical infrastructure supporting industrial prod
 
 The IOF provides a structured ontology that enables multi-dimensional modeling of Internet observability. It is designed to support multi-perspective analysis, domain-specific evaluation, resilience assessment, and economic availability analysis.
 
+**AI Extension:** With the proliferation of AI systems as critical infrastructure (LLM APIs, embedding services, real‑time video generation), the IOF has been extended to model AI entry points, their legal compliance frameworks, and governance‑specific measurement profiles. This allows operators and regulators to assess not only reachability but also adherence to emerging AI laws (EU AI Act, Korean Basic Act, China’s Algorithmic Provisions, etc.) and overload resilience.
+
 ---
 
 ## 2. Terminology
@@ -65,6 +76,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 | Policy      | A rule set combining domains, regions, and analysis method     |
 | Governance  | A profile defining which policies apply and why                |
 | Measurement | A method for evaluating a node                                 |
+| **AI Entry Point** | A URL (API, web UI, SDK) that provides access to an AI system |
 
 ---
 
@@ -78,6 +90,7 @@ The IOF defines a framework for:
 - Evaluating functional availability of economically relevant systems
 - Supporting resilience analysis in industrial and digital ecosystems
 - Enabling interoperability across monitoring and observability tools
+- **Assessing availability and compliance of AI system endpoints (AI Extension)**
 
 ### 3.2 Non-Goals
 
@@ -90,7 +103,7 @@ The IOF does NOT:
 
 ### 3.3 Ethical Alignment
 
-Implementations SHOULD align with principles of open innovation, interoperability, transparency, and accountability. The framework is designed to be consistent with European approaches to digital sovereignty and collaborative innovation.
+Implementations SHOULD align with principles of open innovation, interoperability, transparency, and accountability. The framework is designed to be consistent with European approaches to digital sovereignty and collaborative innovation. **AI‑specific measurement profiles include a `conflictClass` (`passive`/`active`/`stress`) and `legal` constraints to avoid unauthorized probing.**
 
 ---
 
@@ -109,15 +122,16 @@ These dimensions are independent and composable.
 The runtime is organized as a layered configuration stack:
 
 ```
-Governance  ->  Policy  ->  Domains + Regions  ->  Analysis
+Governance  ->  Policy  ->  Domains + Regions  ->  Analysis + Measurement
    WHY            WHAT          WHERE               HOW
 ```
 
 A **Governance profile** defines the purpose and references one or more policies.
-A **Policy** selects domains and/or regions and references an analysis profile.
+A **Policy** selects domains and/or regions and references an analysis and/or measurement profile.
 **Domain files** contain URL nodes classified by functional role.
 **Region files** define geographic scopes with country lists.
 **Analysis profiles** define evaluation weights and thresholds.
+**Measurement profiles** (AI Extension) define operational probing methods (passive/active/stress).
 
 ---
 
@@ -159,6 +173,8 @@ Models the Internet as a distributed system.
 
 Evaluates availability of systems critical to societal and economic functions. Abstracts from pure connectivity and focuses on functional operability.
 
+**AI Extension:** In the strategic view, AI systems (especially large language models, embedding APIs, and real‑time media generators) are treated as critical infrastructure. Their availability directly affects economic sectors such as finance, health, logistics, and public administration.
+
 ---
 
 ## 6. Domain Dimension
@@ -175,6 +191,20 @@ Domains classify nodes by functional role. A policy may reference any combinatio
 | x-initiatives  | Cross-industry federations          |
 | science        | Research and knowledge systems      |
 | finance        | Financial systems                   |
+
+**AI Extension – AI‑specific domains:**  
+To model AI systems, the following additional domains are defined and stored in the separate `ai-domains/` folder:
+
+| AI Domain         | Description                                   |
+|-------------------|-----------------------------------------------|
+| llm               | Large Language Model APIs (chat, completion)  |
+| embedding         | Vector embedding services                     |
+| image             | Image generation and editing APIs             |
+| code              | Code generation and analysis APIs             |
+| tts               | Text‑to‑Speech and voice synthesis            |
+| video             | Video generation, avatar platforms            |
+| overload_detection| Public endpoints reporting network overload   |
+| governance        | Regulatory portals, compliance checkers       |
 
 Nodes SHOULD be assigned to at least one domain. Nodes MAY belong to multiple domains if functionally justified.
 
@@ -198,6 +228,17 @@ Regions classify nodes geographically. A policy may reference any combination of
 
 Region files live in `regions/{code}.json` and define the member country list.
 
+**AI Extension – Governance‑specific regions:**  
+For AI compliance, additional region files reside in `ai-regions/`. They include legal framework metadata and are used in policies that filter by `jurisdiction` or `legal_framework`.
+
+| Region file            | Governance Framework                   |
+|------------------------|----------------------------------------|
+| `eu-ai-act.json`       | EU AI Act + GDPR                       |
+| `us-ai-federal.json`   | US Executive Order + state laws (CA/NY)|
+| `cn-ai-cyberspace.json`| China’s Algorithmic Provisions, PIPL   |
+| `kr-ai-basic-act.json` | South Korea Basic Act on AI (2026)     |
+| `br-lgpd-proposed.json`| Brazil LGPD + proposed AI Act          |
+
 ### 7.2 Access Type
 
 | Type       | Description                          |
@@ -206,6 +247,14 @@ Region files live in `regions/{code}.json` and define the member country list.
 | restricted | Limited by policy or region          |
 | internal   | Private network                      |
 | federated  | Requires identity or trust framework |
+
+**AI Extension – AI‑specific access classes:**
+| Class      | Description                                         |
+|------------|-----------------------------------------------------|
+| public     | No authentication required (e.g. public chat UI)    |
+| api_key    | API key required (typical for LLM APIs)             |
+| restricted | Only available in certain jurisdictions             |
+| regulated  | Subject to specific legal audit (EU AI Act high‑risk)|
 
 ### 7.3 Protocol
 
@@ -224,6 +273,9 @@ Region files live in `regions/{code}.json` and define the member country list.
 | latency      | Response time       |
 | availability | Stability over time |
 | consistency  | Result uniformity   |
+
+**AI Extension – Measurement profiles:**  
+For AI entry points, the IOF introduces dedicated measurement profiles that define how (and how often) to probe an endpoint, including legal constraints. They are referenced in a policy’s `how` array and may be of class `passive`, `active`, or `stress`.
 
 ### 7.5 Criticality
 
@@ -253,7 +305,21 @@ Region files live in `regions/{code}.json` and define the member country list.
 }
 ```
 
-`domain` and `region` are optional depending on view context. A file may define nodes belonging only to a region (no domain), only to a domain (no region), or both.
+`domain` and `region` are optional depending on view context.
+
+**AI‑specific node file example** (`ai-domains/llm/global.json`):
+```json
+{
+  "domain": "llm",
+  "description": "Large Language Models with global API access",
+  "countries": ["*"],
+  "nodes": [
+    "https://api.openai.com/v1",
+    "https://api.anthropic.com",
+    "https://api.x.ai/v1"
+  ]
+}
+```
 
 ### 8.2 Region File
 
@@ -262,6 +328,17 @@ Region files live in `regions/{code}.json` and define the member country list.
   "region": "EU",
   "name": "Europe",
   "countries": ["DE", "FR", "IT", "ES", "NL", "UK"]
+}
+```
+
+**AI‑specific region file** (`ai-regions/eu-ai-act.json`):
+```json
+{
+  "region": "eu-ai-act",
+  "name": "EU AI Act Jurisdiction",
+  "governance_framework": "EU AI Act",
+  "risk_classes": ["unacceptable", "high", "limited", "minimal"],
+  "countries": ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","NO","IS","LI"]
 }
 ```
 
@@ -284,6 +361,26 @@ Region files live in `regions/{code}.json` and define the member country list.
 
 `what.domains` and `what.regions` are both optional. A policy with only `domains` performs a domain-only view. A policy with only `regions` performs a region-only view. Both together gives a combined view.
 
+**AI policy with match predicates** (`ai-global-reachability-policy.json`):
+```json
+{
+  "id": "ai-global-reachability",
+  "what": {
+    "ai_systems": {
+      "match": [
+        { "field": "category", "op": "in", "value": ["llm", "embedding"] },
+        { "field": "access_type", "op": "in", "value": ["api", "web"] }
+      ],
+      "matchLogic": "AND"
+    }
+  },
+  "how": [
+    "./analysis-profiles/ai-governance-analysis.json",
+    "./measurement-profiles/ai-entrypoint-measure-passive.json"
+  ]
+}
+```
+
 ### 8.4 Governance File
 
 ```json
@@ -300,20 +397,61 @@ Region files live in `regions/{code}.json` and define the member country list.
 }
 ```
 
-### 8.5 TypeScript Reference Type
+### 8.5 Analysis Profile
+
+```json
+{
+  "id": "standard-analysis",
+  "weights": { "infrastructure": 5, "continent": 4, "country": 1 },
+  "latency": { "good": 500, "acceptable": 1500 },
+  "thresholds": { "green": 60, "yellow": 30 }
+}
+```
+
+**AI‑specific analysis profile** (`ai-governance-analysis.json`):
+```json
+{
+  "id": "ai-governance-analysis",
+  "weights": { "security": 5, "compliance": 5, "transparency": 4, "data_residency": 4 },
+  "compliance_scoring": {
+    "EU AI Act": { "high_risk_penalty": 35, "weight": 5 }
+  },
+  "thresholds": { "BLU": 0.95, "GRN": 0.80, "AMB": 0.60, "RED": 0.0 }
+}
+```
+
+### 8.6 Measurement Profile (AI Extension)
+
+```json
+{
+  "id": "ai-entrypoint-passive",
+  "conflictClass": "passive",
+  "access_class": "public",
+  "schedule": { "interval": 600, "unit": "seconds" },
+  "method": { "primary": "HEAD", "fallback": "GET" },
+  "legal": { "robotsTxtRespect": true, "maxRequestsPerMinute": 2 }
+}
+```
+
+### 8.7 TypeScript Reference Type
 
 ```ts
 type OntologyNode = {
   id: string;
   view: "local" | "global" | "strategic";
   domain?: "infrastructure" | "industrial" | "media" | "government"
-         | "finance" | "science" | "platform" | "x-initiatives";
-  region?: "EU" | "NA" | "SA" | "AS" | "AF" | "OC" | "ME";
+         | "finance" | "science" | "platform" | "x-initiatives"
+         | "llm" | "embedding" | "image" | "code" | "tts" | "video" | "overload_detection" | "governance";
+  region?: "EU" | "NA" | "SA" | "AS" | "AF" | "OC" | "ME" | "eu-ai-act" | "us-ai-federal" | "cn-ai-cyberspace" | "kr-ai-basic-act" | "br-lgpd-proposed";
   country?: string;            // ISO 3166-1 alpha-2
-  access?: "open" | "restricted" | "internal" | "federated";
+  access?: "open" | "restricted" | "internal" | "federated" | "api_key" | "regulated";
   protocol?: "https" | "dns" | "api" | "custom";
   measurement?: "reachability" | "latency" | "availability" | "consistency";
   criticality?: 1 | 2 | 3 | 4 | 5;
+  // AI Extension fields
+  ai_category?: "llm" | "embedding" | "image" | "code" | "tts" | "video";
+  legal_framework?: string[];
+  data_residency?: string;
 };
 ```
 
@@ -331,6 +469,8 @@ Both `domain` and `region` are optional to allow pure domain-views, pure region-
 
 Implementations SHOULD distinguish between layers to avoid misinterpretation.
 
+**AI Extension – Compliance layer:** For AI systems, an additional interpretative layer is defined: *Governance compliance* – measures whether an AI endpoint adheres to applicable legal frameworks (e.g., EU AI Act transparency, Korean audit requirements). This is reflected in analysis profiles that assign penalty scores for missing compliance features.
+
 ---
 
 ## 10. Design Considerations
@@ -339,13 +479,15 @@ Implementations SHOULD distinguish between layers to avoid misinterpretation.
 
 **Extensibility** — the ontology MUST allow addition of new domains, regions, and attributes without structural changes to existing files.
 
-**View flexibility** — a policy MUST support domain-only, region-only, and combined domain+region views. The runtime resolves nodes accordingly.
+**View flexibility** — a policy MUST support domain-only, region-only, and combined domain+region views. For AI systems, the same principle applies using `ai_systems` instead of `domains`.
 
 **Neutrality** — the framework MUST NOT assume geographic or political bias.
 
 **Partial failure** — the model MUST support partial connectivity scenarios.
 
 **file-index.json** — the one-pager runtime cannot parse the server directory. `file-index.json` is the authoritative list of all data files. It is generated by `generate-index.js` and MUST NOT be edited manually. Run `node generate-index.js` after any structural change.
+
+**Legal‑aware measurement** — For AI endpoints, measurement profiles include `conflictClass` and `legal` constraints to ensure that probing respects robots.txt, rate limits, and jurisdictional consent requirements. Active and stress profiles require explicit authorization.
 
 ---
 
@@ -359,6 +501,12 @@ The IOF itself does not introduce new network protocols. However:
 
 Implementations SHOULD respect legal and policy constraints.
 
+**AI‑specific considerations:**
+
+- Active compliance probes (e.g., sending test prompts to an LLM API) may be subject to terms of service. Measurement profiles with `conflictClass: "active"` MUST NOT be used without explicit written permission.
+- Stress profiles (`conflictClass: "stress"`) may cause service degradation and SHALL only be used in isolated test environments or with the explicit consent of the API provider.
+- Passive monitoring (HEAD requests) is generally considered safe and is the default for public AI entry points.
+
 ---
 
 ## 12. IANA Considerations
@@ -370,3 +518,5 @@ This document has no IANA actions.
 ## References
 
 - RFC 2119 — Key words for use in RFCs
+- EU AI Act (Regulation (EU) 2024/1689)
+- Republic of Korea Basic Act on Artificial Intelligence (2026)
