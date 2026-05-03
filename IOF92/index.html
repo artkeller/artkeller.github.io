@@ -445,7 +445,8 @@ function evalP(dj,pred,ctx){
 }
 
 async function resolveMatchFiles(matchDef, pj, baseDir='domains') {
-  const domainFiles = FILE_INDEX.filter(f=>f.includes(`/${baseDir}/`));
+  // FIX: tolerate './ai-domains/' as well as '/ai-domains/'
+  const domainFiles = FILE_INDEX.filter(f=>f.includes(`${baseDir}/`));
   await Promise.all(domainFiles.map(f=>loadJ(f)));
   const rcc=[], rfiles=[];
   for(const rp of (pj.what?.regions||[])){
@@ -758,14 +759,15 @@ async function buildTree(govFile){
         }
         files = [...new Set(files)];
       } else if(dval.match){
-        await Promise.all(FILE_INDEX.filter(f=>f.includes('/ai-domains/')).map(f=>loadJ(f)));
+        // FIX: tolerate './ai-domains/' path
+        await Promise.all(FILE_INDEX.filter(f=>f.includes('ai-domains/')).map(f=>loadJ(f)));
         files = await resolveMatchFiles(dval, pj, 'ai-domains');
       }
       files = files.filter(f=>{const dj=CACHE[f]||{}; return !isExcluded(f,dj,excl);});
       const fileNodes = [];
       for(const f of files){
         const dj = await loadJ(f);
-        const dI = dj.__error ? [{level:'err',msg:'Cannot load'}] : (()=>{const i=[]; if(!dj.category) i.push({level:'warn',msg:'Missing "category"'}); return i;})();
+        const dI = dj.__error ? [{level:'err',msg:'Cannot load'}] : (()=>{const i=[]; if(!dj.domain) i.push({level:'warn',msg:'Missing "domain"'}); return i;})();
         const dS = dj.__error ? 'err' : worst(dI);
         const isG = dj.countries?.[0]==='*';
         const st = !dj.countries ? null : (isG ? '★ global' : dj.countries.join(' · '));
@@ -806,7 +808,7 @@ async function buildTree(govFile){
         const rI=rj.__error?[{level:'err',msg:'Cannot load'}]:vReg(rj);
         const rCCs=rj.countries||[];
 
-        const allDomFiles=FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('/ai-domains/'));
+        const allDomFiles=FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('ai-domains/'));
         const matched=[];
         for(const f of allDomFiles){
           const dj=await loadJ(f);
@@ -1139,7 +1141,7 @@ async function init(){
     fill.style.width = '10%';
     stage.style.setProperty('--blur-amount','16px');
 
-    const domainFiles = FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('/ai-domains/'));
+    const domainFiles = FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('ai-domains/'));
     const total = domainFiles.length;
     let done = 0;
     status.textContent = `Loading domains…`;
