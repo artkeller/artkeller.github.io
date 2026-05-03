@@ -122,7 +122,7 @@
     "./docs/resilience-policy-doc.json",
     "./governance-profiles/ai-global-neutral.json",
     "./policies/ai-global-reachability-policy.json",
-    "./ai-domains/global-llms.json",
+    "./ai-domains/ai-global-llms.json",
     "./analysis-profiles/ai-governance-analysis.json",
     "./measurement-profiles/ai-entrypoint-measure-passive.json",
     "./measurement-profiles/ai-compliance-active.json",

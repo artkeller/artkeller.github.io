@@ -2,24 +2,13 @@
   "id": "ai-global-reachability",
   "name": "AI Global Reachability & Governance Policy",
   "version": "1.0",
-  "rational": "Measure availability and compliance of AI systems worldwide, considering regional legal frameworks and entry point types.",
+  "rational": "Measure availability and compliance of AI systems worldwide.",
   "what": {
     "ai_systems": {
       "match": [
         { "field": "domain", "op": "equals", "value": "ai_systems" }
       ]
-    },
-    "jurisdictions": {
-      "match": [
-        { "field": "legal_framework", "op": "intersects", "value": ["EU AI Act", "Basic Act on AI", "CCP Guidelines", "US EO 14110"] }
-      ]
     }
-  },
-  "exclude": {
-    "paths": ["./ai-domains/test/", "./ai-domains/deprecated/"],
-    "match": [
-      { "field": "sunset_date", "op": "lt", "value": "2026-01-01" }
-    ]
   },
   "how": [
     "./analysis-profiles/ai-governance-analysis.json",
@@ -28,7 +17,6 @@
   ],
   "selection": {
     "matchLogic": "AND",
-    "includeGlobal": true,
-    "prioritize_by": "governance_maturity"
+    "includeGlobal": true
   }
 }
