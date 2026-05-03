@@ -1,8 +1,0 @@
-{
-  "domain": "carrier",
-  "countries": ["CH"],
-  "nodes": [
-    "https://www.swisscom.ch",
-    "https://www.sunrise.ch"
-  ]
-}

@@ -1,6 +1,0 @@
-{
-  "region": "eu",
-  "name": "Europe (alias → eu-geo)",
-  "description": "Alias for eu-geo. Use eu-political, eu-all, or eu-geo for precision.",
-  "countries": ["DE","FR","IT","ES","PL","NL","BE","AT","CH","SE","NO","DK","FI","PT","GR","CZ","HU","RO","SK","HR","BG","GB","IE","IS","LU","SI","LT","LV","EE","MT","CY"]
-}
