@@ -131,11 +131,11 @@ select#govSel{background:var(--bg);border:1px solid var(--border);color:var(--fg
   .cai-region{background:#1c1400;border-color:#7c4f0a;}
   .curl.dead{background:#1a1d21;border-color:#30363d;}
 }
-/* Duplicate node styling (Point 4) */
+/* Duplicate node styling */
 .nw.duplicate > .nh { opacity:0.45; }
 .nw.duplicate > .nh .nlbl { text-decoration: line-through; }
 .nw.duplicate > .nc { display:none; }
-/* Live URL counter (Point 6) */
+/* Live URL counter */
 .url-counter{font-size:var(--fs-xs);color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
 .nlbl{font-size:var(--fs-sm);color:var(--fg);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
 .nlbl:hover{text-decoration:underline;}
@@ -155,7 +155,6 @@ select#govSel{background:var(--bg);border:1px solid var(--border);color:var(--fg
 @media(prefers-color-scheme:dark){.nh.locked{background:#0c1a3a;}}
 .nc{margin-left:19px;border-left:1px dashed var(--border);padding-left:5px;}
 .nc.col{display:none;}
-/* deleted node style */
 .nw.deleted > .nh{opacity:.35;text-decoration:line-through;}
 .nw.deleted > .nc{display:none;}
 /* INSPECTOR */
@@ -226,7 +225,6 @@ pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--
 </head>
 <body>
 
-<!-- ── FOCUS-REVEAL LOADING OVERLAY ──────────────────────────── -->
 <div id="loading-stage" class="glass-overlay" role="status" aria-live="polite" aria-label="Loading IOF Validator">
   <div class="content-box">
     <div class="logo-big" aria-hidden="true">
@@ -297,7 +295,6 @@ pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--
         <label class="fi fc2" id="fi-region"><input type="checkbox" checked data-f="region" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--region)"></span><span>Regions</span></label>
         <label class="fi fc2" id="fi-analysis"><input type="checkbox" checked data-f="analysis" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--analysis)"></span><span>Analysis</span></label>
         <label class="fi fc2" id="fi-measure"><input type="checkbox" checked data-f="measure" data-p="policy" onchange="hf(this)"><span class="fd" style="background:#7c3aed"></span><span>Measurement</span></label>
-        <!-- AI extensions -->
         <label class="fi"><input type="checkbox" checked data-f="ai" onchange="hf(this)"><span class="fd" style="background:#7c3aed"></span><span>AI Systems</span></label>
         <label class="fi"><input type="checkbox" checked data-f="ai-region" onchange="hf(this)"><span class="fd" style="background:#b45309"></span><span>AI Regions</span></label>
       </div>
@@ -307,7 +304,6 @@ pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--
 
 <div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
 
-<!-- RESTORE BANNER -->
 <div class="restore-bar" id="restoreBar">
   <span>⚠ Tree has manual deletions.</span>
   <button onclick="restoreTree()">↺ Restore original</button>
@@ -331,7 +327,6 @@ pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--
 <script>
 'use strict';
 
-/* ═══ STATE ═══════════════════════════════════════════════════════ */
 let FILE_INDEX=[], CACHE={}, LOCKED_EL=null;
 let COUNTS={ok:0,warn:0,err:0};
 let STATE='idle', MISSION=null, curFS=15;
@@ -345,7 +340,6 @@ function cancelDeep(){
   document.getElementById('deepLbl').textContent='Cancelling…';
 }
 
-/* ═══ FONT / RESIZER ══════════════════════════════════════════════ */
 function adjF(d){curFS=Math.min(22,Math.max(12,curFS+d));['--fs','--fs-sm','--fs-xs'].forEach((v,i)=>document.documentElement.style.setProperty(v,(curFS-i*2)+'px'));document.getElementById('fsLbl').textContent=curFS;}
 
 (function(){
@@ -357,7 +351,6 @@ function adjF(d){curFS=Math.min(22,Math.max(12,curFS+d));['--fs','--fs-sm','--fs
   r.addEventListener('keydown',e=>{const cw=c.getBoundingClientRect().width,tw=t.getBoundingClientRect().width;if(e.key==='ArrowLeft')t.style.width=Math.max(180,tw-20)+'px';if(e.key==='ArrowRight')t.style.width=Math.min(cw-160,tw+20)+'px';});
 })();
 
-/* ═══ UTILS ═══════════════════════════════════════════════════════ */
 function gtype(p){
   if(!p) return '';
   if(p.includes('governance')) return 'gov';
@@ -406,7 +399,6 @@ function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 function nst(el){if(el.querySelector('.derr'))return'err';if(el.querySelector('.dwarn'))return'warn';return'ok';}
 function worst(arr){if(arr.some(i=>i.level==='err'))return'err';if(arr.some(i=>i.level==='warn'))return'warn';return'ok';}
 
-/* ═══ EXCLUDE LOGIC ══════════════════════════════════════════════ */
 function isExcluded(filePath, fileJson, excludeDef) {
   if (!excludeDef) return false;
   if (excludeDef.paths) {
@@ -422,7 +414,6 @@ function isExcluded(filePath, fileJson, excludeDef) {
   return false;
 }
 
-/* ═══ MATCH RESOLVER ══════════════════════════════════════════════ */
 const SREX=/^[\w\^\$\(\)\|\.\*\+\?\[\]\-]{1,80}$/;
 function safeRx(p){if(!SREX.test(p))throw new Error('Unsafe regex: '+p);return new RegExp(p);}
 function rval(v,ctx){if(v==='$regions')return ctx.rcc||[];if(typeof v==='string'&&v.startsWith('$regions.')){const c=v.split('.')[1];return(ctx.rfiles||[]).find(r=>r.region===c)?.countries||[];}return v;}
@@ -445,7 +436,6 @@ function evalP(dj,pred,ctx){
 }
 
 async function resolveMatchFiles(matchDef, pj, baseDir='domains') {
-  // FIX: tolerate './ai-domains/' as well as '/ai-domains/'
   const domainFiles = FILE_INDEX.filter(f=>f.includes(`${baseDir}/`));
   await Promise.all(domainFiles.map(f=>loadJ(f)));
   const rcc=[], rfiles=[];
@@ -468,7 +458,6 @@ async function resolveMatchFiles(matchDef, pj, baseDir='domains') {
   return results;
 }
 
-/* ═══ URL CHECK ═══════════════════════════════════════════════════ */
 async function checkUrl(url, timeoutMs=8000){
   const ctrl=new AbortController();
   const tid=setTimeout(()=>ctrl.abort(),timeoutMs);
@@ -482,7 +471,6 @@ async function checkUrl(url, timeoutMs=8000){
   }
 }
 
-/* ═══ VALIDATION ══════════════════════════════════════════════════ */
 function vGov(g){
   const i=[];
   if(!g.id)    i.push({level:'warn',msg:'Missing "id"'});
@@ -495,13 +483,13 @@ function vGov(g){
   else if(!g.policies.length)    i.push({level:'warn',msg:'"policies" is empty'});
   return i;
 }
+
 function vPol(p){
   const i=[];
   if(!p.id) i.push({level:'warn',msg:'Missing "id"'});
   if(!p.what){i.push({level:'err',msg:'"what" required'});return i;}
   const hd=p.what.domains&&(Array.isArray(p.what.domains)?p.what.domains.length:p.what.domains.match);
   const hr=p.what.regions?.length;
-  // FIX: allow ai_systems as valid selection
   if(!hd && !hr && !p.what.ai_systems) i.push({level:'err',msg:'"what.domains", "what.regions" or "what.ai_systems" must be defined'});
   if(!p.how?.length) i.push({level:'err',msg:'"how" required'});
   return i;
@@ -528,7 +516,6 @@ function vMeasure(m){
   return i;
 }
 
-/* ═══ NODE BUILDER ════════════════════════════════════════════════ */
 function mkN({label,status,json,issues,children,isRoot,isLeaf,scopeTag,urlSt}){
   const type=gtype(label);
   const wrap=document.createElement('div');
@@ -606,7 +593,6 @@ function mkN({label,status,json,issues,children,isRoot,isLeaf,scopeTag,urlSt}){
   return wrap;
 }
 
-/* ═══ DELETE / RESTORE ════════════════════════════════════════════ */
 function updateRestoreBar(){
   const bar=document.getElementById('restoreBar');
   const n=DELETED_LABELS.size;
@@ -636,7 +622,6 @@ function restoreTree(){
   if(LAST_GOV) startValidate();
 }
 
-/* ═══ INSPECTOR ═══════════════════════════════════════════════════ */
 function lockInsp(json,label,issues,el){
   if(LOCKED_EL)LOCKED_EL.classList.remove('locked');
   LOCKED_EL=el; el.classList.add('locked');
@@ -665,7 +650,6 @@ function synHL(json,focus){
 }
 document.body.addEventListener('click',e=>{if(!e.target.closest('.nh')&&!e.target.closest('.inspp')){if(LOCKED_EL)LOCKED_EL.classList.remove('locked');LOCKED_EL=null;document.getElementById('lbadge').classList.remove('vis');}});
 
-/* ═══ MENU ════════════════════════════════════════════════════════ */
 function toggleMenu(){const m=document.getElementById('menu');const o=m.classList.toggle('open');m.querySelector('.menu-btn').setAttribute('aria-expanded',String(o));}
 document.addEventListener('click',e=>{if(!e.target.closest('#menu'))document.getElementById('menu').classList.remove('open');});
 function expandAll(){document.querySelectorAll('.nc').forEach(n=>n.classList.remove('col'));document.querySelectorAll('.chev:not(.leaf)').forEach(c=>c.classList.add('open'));}
