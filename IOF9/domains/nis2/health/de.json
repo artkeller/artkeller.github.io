@@ -1,0 +1,12 @@
+{
+  "domain": "nis2",
+  "sector": "health",
+  "regulation": "NIS2 Directive 2022/2555 — Annex I",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.rki.de",
+    "https://www.pei.de",
+    "https://www.bfarm.de",
+    "https://www.gematik.de"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "domain": "energy",
+  "countries": ["CH"],
+  "nodes": [
+    "https://www.swissgrid.ch",
+    "https://www.bfe.admin.ch"
+  ]
+}

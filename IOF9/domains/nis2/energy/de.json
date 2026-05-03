@@ -1,0 +1,14 @@
+{
+  "domain": "nis2",
+  "sector": "energy",
+  "regulation": "NIS2 Directive 2022/2555 — Annex I (essential entities)",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bundesnetzagentur.de",
+    "https://www.tennet.eu",
+    "https://www.amprion.net",
+    "https://www.50hertz.com",
+    "https://www.transnetbw.de",
+    "https://www.gasunie.de"
+  ]
+}
