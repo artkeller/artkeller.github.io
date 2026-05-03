@@ -8,13 +8,8 @@
       "match": [
         { "field": "domain", "op": "equals", "value": "ai_systems" }
       ]
-    },
-    "jurisdictions": {
-      "match": [
-        { "field": "legal_framework", "op": "intersects", "value": ["EU AI Act", "Basic Act on AI", "CCP Guidelines", "US EO 14110"] }
-      ]
     }
-  },
+  }
   "exclude": {
     "paths": ["./ai-domains/test/", "./ai-domains/deprecated/"],
     "match": [
