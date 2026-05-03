@@ -1,10 +1,3 @@
-
-
----
-
-## README.md (aktualisiert)
-
-```markdown
 # Internet Ontology Framework (IOF)
 
 ## A Multi-Perspective Ontology for Internet Reachability, Resilience, and Strategic Functionality
