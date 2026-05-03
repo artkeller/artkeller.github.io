@@ -1,0 +1,13 @@
+{
+  "domain": "kritis",
+  "sector": "finanz-versicherung",
+  "regulation": "BSI-KritisV §2",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bundesbank.de",
+    "https://www.bafin.de",
+    "https://www.deutsche-boerse.com",
+    "https://www.dsgv.de",
+    "https://www.bdb.de"
+  ]
+}

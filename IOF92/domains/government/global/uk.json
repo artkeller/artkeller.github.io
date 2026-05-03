@@ -1,0 +1,8 @@
+{
+  "domain": "government",
+  "countries": ["GB"],
+  "nodes": [
+    "https://www.gov.uk",
+    "https://www.parliament.uk"
+  ]
+}

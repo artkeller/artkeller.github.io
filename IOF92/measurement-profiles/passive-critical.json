@@ -1,0 +1,72 @@
+{
+  "id": "passive-critical",
+  "name": "Passive Critical Infrastructure Measurement",
+  "version": "1.0",
+
+  "description": "Passive measurement profile for KRITIS and NIS2 essential entities. More frequent than standard but strictly passive. Intended for continuous availability monitoring of critical infrastructure web presence.",
+
+  "conflictClass": "passive",
+
+  "schedule": {
+    "interval": 60,
+    "unit": "seconds",
+    "timeWindow": "24x7",
+    "cooldownAfterError": 30,
+    "burstAllowed": false
+  },
+
+  "method": {
+    "primary": "HEAD",
+    "fallback": "GET",
+    "followRedirects": 2,
+    "tlsValidation": true,
+    "tlsMinVersion": "TLS1.2",
+    "tlsExpiryWarningDays": 30
+  },
+
+  "timeouts": {
+    "connect": 3000,
+    "response": 6000,
+    "total": 8000
+  },
+
+  "sources": {
+    "type": "single",
+    "distributed": false,
+    "notes": "Single-source passive only. Distributed probing requires explicit operator agreement."
+  },
+
+  "legal": {
+    "robotsTxtRespect": true,
+    "rateLimit": "conservative",
+    "maxRequestsPerMinutePerUrl": 1,
+    "userAgent": "IOF-Monitor/1.0 (critical-passive; +https://iof.example/about)",
+    "notes": "Critical infrastructure monitoring. Strictly passive. Contact: noc@iof.example"
+  },
+
+  "alerting": {
+    "onDown": "immediate",
+    "onDegraded": "5min",
+    "statrep": "15min",
+    "colourTransitionAlert": true,
+    "escalation": {
+      "RED": "immediate-pagerduty",
+      "AMB": "5min-email"
+    }
+  },
+
+  "metrics": {
+    "record": ["latency_ms", "status_code", "tls_valid", "tls_expiry_days", "redirect_count", "dns_ms"],
+    "percentiles": ["p50", "p95", "p99"],
+    "windowSize": "1h",
+    "retentionDays": 90
+  },
+
+  "colourThresholds": {
+    "BLU": 1.0,
+    "GRN": 0.95,
+    "AMB": 0.85,
+    "RED": 0.0,
+    "notes": "Stricter than standard — 95% minimum for GRN per KRITIS/NIS2 requirements"
+  }
+}
