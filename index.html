@@ -491,7 +491,7 @@ function vPol(p){
   if(!p.what){i.push({level:'err',msg:'"what" required'});return i;}
   const hd=p.what.domains&&(Array.isArray(p.what.domains)?p.what.domains.length:p.what.domains.match);
   const hr=p.what.regions?.length;
-  // FIX: allow ai_systems as valid selection
+  // FIX: allow ai_systems as valid selection 
   if(!hd && !hr && !p.what.ai_systems) i.push({level:'err',msg:'"what.domains", "what.regions" or "what.ai_systems" must be defined'});
   if(!p.how?.length) i.push({level:'err',msg:'"how" required'});
   return i;
