@@ -27,7 +27,7 @@
     "./measurement-profiles/ai-compliance-active.json"
   ],
   "selection": {
-    "matchLogic": "AND",
+    "matchLogic": "OR",
     "includeGlobal": true,
     "prioritize_by": "governance_maturity"
   }
