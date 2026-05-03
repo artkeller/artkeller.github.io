@@ -1,0 +1,48 @@
+{
+  "id": "g7-policy",
+  "name": "G7 Policy",
+  "version": "1.0",
+  "what": {
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "in",
+          "value": [
+            "government",
+            "finance",
+            "industrial"
+          ]
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        },
+        {
+          "field": "countries",
+          "op": "not-in",
+          "value": [
+            "*"
+          ]
+        }
+      ]
+    },
+    "regions": [
+      "./regions/g7.json"
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/standard-analysis.json",
+    "./measurement-profiles/passive-standard.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": false
+  }
+}

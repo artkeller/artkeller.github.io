@@ -1,0 +1,15 @@
+{
+  "domain": "pubsec",
+  "sector": "katastrophenschutz",
+  "regulation": "\u00d6ffentliche Sicherheit DE",
+  "countries": [
+    "DE"
+  ],
+  "nodes": [
+    "https://www.bbk.bund.de",
+    "https://www.thw.de",
+    "https://www.drk.de",
+    "https://warnung.bund.de",
+    "https://www.feuerwehrverband.de"
+  ]
+}

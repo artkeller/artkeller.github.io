@@ -1,0 +1,58 @@
+{
+  "id": "passive-standard",
+  "name": "Passive Standard Measurement",
+  "version": "1.0",
+
+  "description": "Conservative passive measurement profile for civilian use. Suitable for all public internet endpoints without special authorization. Respects robots.txt, minimal footprint.",
+
+  "conflictClass": "passive",
+
+  "schedule": {
+    "interval": 300,
+    "unit": "seconds",
+    "timeWindow": "24x7",
+    "cooldownAfterError": 60,
+    "burstAllowed": false
+  },
+
+  "method": {
+    "primary": "HEAD",
+    "fallback": "GET",
+    "followRedirects": 3,
+    "tlsValidation": true,
+    "tlsMinVersion": "TLS1.2"
+  },
+
+  "timeouts": {
+    "connect": 5000,
+    "response": 8000,
+    "total": 10000
+  },
+
+  "sources": {
+    "type": "single",
+    "distributed": false
+  },
+
+  "legal": {
+    "robotsTxtRespect": true,
+    "rateLimit": "conservative",
+    "maxRequestsPerMinutePerUrl": 1,
+    "userAgent": "IOF-Monitor/1.0 (passive; +https://iof.example/about)",
+    "notes": "Passive monitoring only. No stress testing. No authentication bypass."
+  },
+
+  "alerting": {
+    "onDown": "immediate",
+    "onDegraded": "15min",
+    "statrep": "1h",
+    "colourTransitionAlert": true
+  },
+
+  "metrics": {
+    "record": ["latency_ms", "status_code", "tls_valid", "redirect_count"],
+    "percentiles": ["p50", "p95", "p99"],
+    "windowSize": "1h",
+    "retentionDays": 30
+  }
+}
