@@ -447,7 +447,6 @@ function evalP(dj,pred,ctx){
 async function resolveMatchFiles(matchDef, pj, baseDir='domains') {
   const domainFiles = FILE_INDEX.filter(f=>f.includes(`/${baseDir}/`));
   await Promise.all(domainFiles.map(f=>loadJ(f)));
-
   const rcc=[], rfiles=[];
   for(const rp of (pj.what?.regions||[])){
     const rj=await loadJ(rp);
@@ -501,7 +500,8 @@ function vPol(p){
   if(!p.what){i.push({level:'err',msg:'"what" required'});return i;}
   const hd=p.what.domains&&(Array.isArray(p.what.domains)?p.what.domains.length:p.what.domains.match);
   const hr=p.what.regions?.length;
-  if(!hd&&!hr) i.push({level:'err',msg:'"what.domains" or "what.regions" must be defined'});
+  // FIX: allow ai_systems as valid selection
+  if(!hd && !hr && !p.what.ai_systems) i.push({level:'err',msg:'"what.domains", "what.regions" or "what.ai_systems" must be defined'});
   if(!p.how?.length) i.push({level:'err',msg:'"how" required'});
   return i;
 }
@@ -1159,7 +1159,8 @@ async function init(){
 
     const sel = document.getElementById('govSel');
     sel.addEventListener('change', resetInspector);
-    FILE_INDEX.filter(f=>f.includes('governance')).forEach(g=>{
+    // FIX: only real governance profiles (path contains '/governance-profiles/')
+    FILE_INDEX.filter(f=>f.includes('/governance-profiles/')).forEach(g=>{
       const o=document.createElement('option');
       o.value=g; o.textContent=g.split('/').pop().replace('.json','');
       sel.appendChild(o);
