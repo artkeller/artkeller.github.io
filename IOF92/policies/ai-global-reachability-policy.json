@@ -9,7 +9,7 @@
         { "field": "domain", "op": "equals", "value": "ai_systems" }
       ]
     }
-  }
+  },
   "exclude": {
     "paths": ["./ai-domains/test/", "./ai-domains/deprecated/"],
     "match": [
