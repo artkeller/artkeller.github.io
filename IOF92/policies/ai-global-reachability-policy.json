@@ -6,7 +6,7 @@
     "ai_systems": {
       "match": [
         { "field": "category", "op": "in", "value": ["llm", "embedding", "tts", "video"] },
-        { "field": "access_type", "op": "in", "value": ["api", "web", "sdk"] }
+        { "field": "type", "op": "in", "value": ["api", "web", "sdk"] }
       ]
     },
     "jurisdictions": {
