@@ -130,6 +130,6 @@
     "./ai-regions/us-ai-federal.json",
     "./ai-regions/cn-ai-cyberspace.json",
     "./ai-regions/kr-ai-basic-act.json",
-    "./ai-regions/br-lgpd-proposed.json"
+    "./ai-regions/br-lgpd-proposed.json",
   ]
 }

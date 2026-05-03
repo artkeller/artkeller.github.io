@@ -6,8 +6,7 @@
   "what": {
     "ai_systems": {
       "match": [
-        { "field": "category", "op": "in", "value": ["llm", "embedding", "tts", "stt", "video", "multimodal"] },
-        { "field": "access_type", "op": "in", "value": ["api", "web", "sdk", "cli"] }
+        { "field": "domain", "op": "equals", "value": "ai_systems" }
       ],
       "matchLogic": "AND"
     },
