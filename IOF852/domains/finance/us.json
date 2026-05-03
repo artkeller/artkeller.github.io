@@ -1,9 +1,0 @@
-{
-  "domain": "finance",
-  "countries": ["US"],
-  "nodes": [
-    "https://www.federalreserve.gov",
-    "https://www.sec.gov",
-    "https://www.nyse.com"
-  ]
-}
