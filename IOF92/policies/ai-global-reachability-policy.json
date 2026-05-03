@@ -7,8 +7,7 @@
     "ai_systems": {
       "match": [
         { "field": "domain", "op": "equals", "value": "ai_systems" }
-      ],
-      "matchLogic": "AND"
+      ]
     },
     "jurisdictions": {
       "match": [
