@@ -1,0 +1,14 @@
+{
+  "region": "eu-ai-act",
+  "name": "EU AI Act Jurisdiction",
+  "description": "All EU member states plus Norway, Iceland, Liechtenstein where EU AI Act applies. High-risk and GPAI transparency rules.",
+  "countries": ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","NO","IS","LI"],
+  "governance_framework": "EU AI Act",
+  "risk_classes": ["unacceptable", "high", "limited", "minimal"],
+  "data_residency": "GDPR Chapter V",
+  "entry_point_requirements": [
+    "GPAI transparency: must document training data",
+    "High-risk: conformity assessment required",
+    "User information: must inform about AI usage"
+  ]
+}

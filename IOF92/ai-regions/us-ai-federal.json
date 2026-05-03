@@ -1,0 +1,17 @@
+{
+  "region": "us-ai-federal",
+  "name": "United States (Federal AI Oversight)",
+  "countries": ["US"],
+  "governance_framework": "Executive Order 14110 + FTC AI enforcement",
+  "state_specific": [
+    "CA: SB 53 (Frontier Model Transparency)",
+    "NY: RAISE Act (AI discrimination)",
+    "CO: AI Consumer Protection"
+  ],
+  "data_residency": "No federal omnibus privacy law; sectoral (HIPAA, GLBA, COPPA)",
+  "entry_point_requirements": [
+    "Safety reporting for foundation models",
+    "DEI assessments",
+    "Consumer protection notices"
+  ]
+}

@@ -119,6 +119,17 @@
     "./docs/default-policy-doc.json",
     "./docs/eu-innovation-doc.json",
     "./docs/global-neutral-doc.json",
-    "./docs/resilience-policy-doc.json"
+    "./docs/resilience-policy-doc.json",
+    "./governance-profiles/ai-global-neutral.json",
+    "./policies/ai-global-reachability-policy.json",
+    "./ai-domains/global-llms.json",
+    "./analysis-profiles/ai-governance-analysis.json",
+    "./measurement-profiles/ai-entrypoint-measure-passive.json",
+    "./measurement-profiles/ai-compliance-active.json",
+    "./ai-regions/eu-ai-act.json",
+    "./ai-regions/us-ai-federal.json",
+    "./ai-regions/cn-ai-cyberspace.json",
+    "./ai-regions/kr-ai-basic-act.json",
+    "./ai-regions/br-lgpd-proposed.json"
   ]
 }

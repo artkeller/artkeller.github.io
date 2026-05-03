@@ -1,0 +1,272 @@
+{
+  "domain": "ai_systems",
+  "description": "Global AI systems with API and web entry points",
+  "countries": ["*"],
+  "nodes": [
+    "https://api.openai.com/v1",
+    "https://chat.openai.com",
+    "https://api.anthropic.com",
+    "https://claude.ai",
+    "https://generativelanguage.googleapis.com",
+    "https://aistudio.google.com",
+    "https://api.x.ai/v1",
+    "https://grok.com",
+    "https://api.mistral.ai/v1",
+    "https://chat.mistral.ai",
+    "https://api.cohere.ai/v1",
+    "https://dashboard.cohere.com",
+    "https://api.llama.com/compat/v1",
+    "https://www.llama.com",
+    "https://api.ai21.com/v1",
+    "https://www.ai21.com/studio",
+    "https://api.platform.decart.ai",
+    "https://studio.decart.ai",
+    "https://clovastudio.apigw.ntruss.com/test/v1",
+    "https://clova.ai",
+    "https://api.lgai-exaone.com",
+    "https://www.lgresearch.ai",
+    "https://api.synthesia.io/v2",
+    "https://www.synthesia.io",
+    "https://api.elevenlabs.io/v1",
+    "https://elevenlabs.io",
+    "https://chat.maritaca.ai",
+    "https://chat.maritaca.ai/api",
+    "https://api.heygaia.io",
+    "https://api.deepseek.com/v1",
+    "https://chat.deepseek.com",
+    "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions",
+    "https://yiyan.baidu.com",
+    "https://api.moonshot.cn/v1",
+    "https://kimi.moonshot.cn",
+    "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "https://tongyi.aliyun.com",
+    "https://gigachat.devices.sberbank.ru/api/v1",
+    "https://developers.sber.ru/gigachat",
+    "https://bharatgen.ai",
+    "https://sovereign-au.ai"
+  ],
+  "ai_system_metadata": {
+    "openai-gpt": {
+      "category": "llm",
+      "provider": "OpenAI",
+      "jurisdiction": "US",
+      "legal_framework": ["Executive Order 14110", "CA SB 53", "NY RAISE Act"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.openai.com/v1", "auth_required": true },
+        { "type": "web", "url": "https://chat.openai.com", "auth_required": false }
+      ],
+      "data_residency": { "default": "US", "eu_option": "Azure OpenAI" }
+    },
+    "anthropic-claude": {
+      "category": "llm",
+      "provider": "Anthropic",
+      "jurisdiction": "US",
+      "legal_framework": ["CA SB 53", "NY RAISE Act"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.anthropic.com", "auth_required": true },
+        { "type": "web", "url": "https://claude.ai", "auth_required": false }
+      ]
+    },
+    "google-gemini": {
+      "category": "multimodal",
+      "provider": "Google",
+      "jurisdiction": "US",
+      "legal_framework": ["Executive Order 14110", "CA SB 53"],
+      "entry_points": [
+        { "type": "api", "url": "https://generativelanguage.googleapis.com", "auth_required": true },
+        { "type": "web", "url": "https://aistudio.google.com", "auth_required": false }
+      ]
+    },
+    "xai-grok": {
+      "category": "llm",
+      "provider": "xAI",
+      "jurisdiction": "US",
+      "legal_framework": ["CA SB 53"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.x.ai/v1", "auth_required": true },
+        { "type": "web", "url": "https://grok.com", "auth_required": false }
+      ]
+    },
+    "mistral-ai": {
+      "category": "llm",
+      "provider": "Mistral AI",
+      "jurisdiction": "FR",
+      "legal_framework": ["EU AI Act GPAI"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.mistral.ai/v1", "auth_required": true },
+        { "type": "web", "url": "https://chat.mistral.ai", "auth_required": false }
+      ],
+      "data_residency": { "default": "EU" }
+    },
+    "cohere": {
+      "category": "llm",
+      "provider": "Cohere",
+      "jurisdiction": "CA",
+      "legal_framework": ["PIPEDA", "Canada AI Strategy"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.cohere.ai/v1", "auth_required": true },
+        { "type": "web", "url": "https://dashboard.cohere.com", "auth_required": true }
+      ]
+    },
+    "meta-llama": {
+      "category": "llm",
+      "provider": "Meta",
+      "jurisdiction": "US",
+      "legal_framework": ["CA SB 53"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.llama.com/compat/v1", "auth_required": true },
+        { "type": "web", "url": "https://www.llama.com", "auth_required": false }
+      ]
+    },
+    "ai21-jamba": {
+      "category": "llm",
+      "provider": "AI21 Labs",
+      "jurisdiction": "IL",
+      "legal_framework": ["Israel Privacy Protection Law"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.ai21.com/v1", "auth_required": true },
+        { "type": "web", "url": "https://www.ai21.com/studio", "auth_required": true }
+      ]
+    },
+    "decart": {
+      "category": "video",
+      "provider": "Decart",
+      "jurisdiction": "IL",
+      "legal_framework": ["Israel Privacy Protection Law"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.platform.decart.ai", "auth_required": true },
+        { "type": "web", "url": "https://studio.decart.ai", "auth_required": false }
+      ]
+    },
+    "naver-hyperclova": {
+      "category": "multimodal",
+      "provider": "Naver",
+      "jurisdiction": "KR",
+      "legal_framework": ["Basic Act on AI (2026)"],
+      "entry_points": [
+        { "type": "api", "url": "https://clovastudio.apigw.ntruss.com/test/v1", "auth_required": true },
+        { "type": "web", "url": "https://clova.ai", "auth_required": false }
+      ],
+      "data_residency": { "default": "KR" }
+    },
+    "lg-exaone": {
+      "category": "llm",
+      "provider": "LG AI Research",
+      "jurisdiction": "KR",
+      "legal_framework": ["Basic Act on AI (2026)"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.lgai-exaone.com", "auth_required": true },
+        { "type": "web", "url": "https://www.lgresearch.ai", "auth_required": false }
+      ]
+    },
+    "synthesia": {
+      "category": "video",
+      "provider": "Synthesia",
+      "jurisdiction": "UK",
+      "legal_framework": ["UK Online Safety Bill", "GDPR (UK version)"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.synthesia.io/v2", "auth_required": true },
+        { "type": "web", "url": "https://www.synthesia.io", "auth_required": false }
+      ]
+    },
+    "elevenlabs": {
+      "category": "tts",
+      "provider": "ElevenLabs",
+      "jurisdiction": "UK",
+      "legal_framework": ["UK Online Safety Bill", "Voice Cloning Regulations"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.elevenlabs.io/v1", "auth_required": true },
+        { "type": "web", "url": "https://elevenlabs.io", "auth_required": false }
+      ]
+    },
+    "maritaca-sabia": {
+      "category": "llm",
+      "provider": "Maritaca AI",
+      "jurisdiction": "BR",
+      "legal_framework": ["LGPD", "PL 2338/2023 (proposed)"],
+      "entry_points": [
+        { "type": "api", "url": "https://chat.maritaca.ai/api", "auth_required": true },
+        { "type": "web", "url": "https://chat.maritaca.ai", "auth_required": false }
+      ],
+      "data_residency": { "default": "BR" }
+    },
+    "gaia-br": {
+      "category": "llm",
+      "provider": "GAIA (CEIA-UFG)",
+      "jurisdiction": "BR",
+      "legal_framework": ["LGPD"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.heygaia.io", "auth_required": true },
+        { "type": "web", "url": "https://docs.heygaia.io", "auth_required": false }
+      ]
+    },
+    "deepseek": {
+      "category": "llm",
+      "provider": "DeepSeek",
+      "jurisdiction": "CN",
+      "legal_framework": ["CCP Algorithmic Provisions", "PIPL"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.deepseek.com/v1", "auth_required": true },
+        { "type": "web", "url": "https://chat.deepseek.com", "auth_required": false }
+      ]
+    },
+    "baidu-ernie": {
+      "category": "multimodal",
+      "provider": "Baidu",
+      "jurisdiction": "CN",
+      "legal_framework": ["CCP Deep Synthesis Provisions"],
+      "entry_points": [
+        { "type": "api", "url": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions", "auth_required": true },
+        { "type": "web", "url": "https://yiyan.baidu.com", "auth_required": false }
+      ]
+    },
+    "moonshot-kimi": {
+      "category": "llm",
+      "provider": "Moonshot AI",
+      "jurisdiction": "CN",
+      "legal_framework": ["CCP Algorithmic Provisions"],
+      "entry_points": [
+        { "type": "api", "url": "https://api.moonshot.cn/v1", "auth_required": true },
+        { "type": "web", "url": "https://kimi.moonshot.cn", "auth_required": false }
+      ]
+    },
+    "alibaba-qwen": {
+      "category": "multimodal",
+      "provider": "Alibaba",
+      "jurisdiction": "CN",
+      "legal_framework": ["CCP Guidelines"],
+      "entry_points": [
+        { "type": "api", "url": "https://dashscope.aliyuncs.com/compatible-mode/v1", "auth_required": true },
+        { "type": "web", "url": "https://tongyi.aliyun.com", "auth_required": false }
+      ]
+    },
+    "sber-gigachat": {
+      "category": "llm",
+      "provider": "Sber",
+      "jurisdiction": "RU",
+      "legal_framework": ["Russian Data Localization Law"],
+      "entry_points": [
+        { "type": "api", "url": "https://gigachat.devices.sberbank.ru/api/v1", "auth_required": true },
+        { "type": "web", "url": "https://developers.sber.ru/gigachat", "auth_required": false }
+      ]
+    },
+    "bharatgen": {
+      "category": "llm",
+      "provider": "IndiaAI",
+      "jurisdiction": "IN",
+      "legal_framework": ["DPDP Act 2025"],
+      "entry_points": [
+        { "type": "web", "url": "https://bharatgen.ai", "auth_required": false }
+      ]
+    },
+    "sovereign-au": {
+      "category": "llm",
+      "provider": "Sovereign AI Australia",
+      "jurisdiction": "AU",
+      "legal_framework": ["Privacy Act", "Sovereign AI Guidelines"],
+      "entry_points": [
+        { "type": "web", "url": "https://sovereign-au.ai", "auth_required": false }
+      ]
+    }
+  }
+}
