@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Rail Analyst v4</title>
+    <style>
+        :root { --sim: #00ffff; --real: #2563eb; --tile-size: 256px; }
+        body { margin: 0; background: #020617; font-family: 'Courier New', monospace; color: white; overflow: hidden; }
+        #viewport { width: 100vw; height: 100vh; overflow: auto; }
+        #map-area { position: relative; width: calc(4 * var(--tile-size)); height: calc(4 * var(--tile-size)); background: #000; }
+        #tile-grid { display: grid; grid-template-columns: repeat(4, var(--tile-size)); filter: saturate(0.1) brightness(0.2) invert(0.9) hue-rotate(190deg); }
+        .tile { width: var(--tile-size); height: var(--tile-size); display: block; pointer-events: none; }
+
+        .nav-point {
+            position: absolute; width: 14px; height: 14px; border-radius: 50%;
+            transform: translate(-50%, -50%); z-index: 100; border: 2px solid #fff;
+        }
+        #sim-nav { background: var(--sim); box-shadow: 0 0 15px var(--sim); }
+        #real-nav { background: var(--real); box-shadow: 0 0 15px var(--real); display: none; }
+
+        /* Die Schleimspur-Punkte */
+        .breadcrumb {
+            position: absolute; width: 4px; height: 4px; border-radius: 50%;
+            transform: translate(-50%, -50%); z-index: 50;
+        }
+
+        header {
+            position: fixed; top: 10px; left: 10px; z-index: 1000;
+            background: rgba(0,5,20,0.95); padding: 15px; border: 1px solid #334155; width: 320px;
+        }
+        .controls { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .row { display: flex; gap: 5px; }
+        button { background: #1e293b; color: white; border: 1px solid #475569; padding: 6px; cursor: pointer; font-size: 10px; flex: 1; }
+        button.active { border-color: #ef4444; background: #450a0a; }
+        input[type=range] { width: 100%; accent-color: var(--sim); }
+        .legend { font-size: 9px; margin-top: 5px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div id="status">ANALYZER READY</div>
+    <div class="controls">
+        <div class="row">
+            <button id="btn-sim" onclick="toggleSim()">SIM START</button>
+            <button onclick="stopAndSaveSim()">SIM STOP/SAVE</button>
+        </div>
+        <div class="row">
+            <button id="btn-real" onclick="toggleTracking()">REC REAL START</button>
+            <button onclick="exportData()">EXPORT JSON</button>
+        </div>
+        <div class="info-box">Replay-Speed:</div>
+        <input type="range" id="replay-speed" min="1" max="50" value="10">
+        <button onclick="document.getElementById('importFile').click()">IMPORT & PLAYBACK</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+    </div>
+    <div class="legend">
+        <span style="color:#ff4444">● < 5km/h</span>
+        <span style="color:#ffeb3b">● < 50km/h</span>
+        <span style="color:#4caf50">● Fast</span>
+    </div>
+</header>
+
+<div id="viewport">
+    <div id="map-area">
+        <div id="tile-grid">
+            <script>
+                for(let y=19; y<=22; y++) 
+                    for(let x=31; x<=34; x++) 
+                        document.write(`<img class="tile" src="https://tile.openstreetmap.org/6/${x}/${y}.png">`);
+            </script>
+        </div>
+        <div id="breadcrumb-layer"></div>
+        <div id="sim-nav" class="nav-point"></div>
+        <div id="real-nav" class="nav-point"></div>
+    </div>
+</div>
+
+<script>
+    const CONFIG = { zoom: 6, tileSize: 256, originTileX: 31, originTileY: 19 };
+    const detourTrack = [
+        { lat: 53.5511, lon: 9.9937, v: 0 }, { lat: 53.35, lon: 10.21, v: 120 },
+        { lat: 52.9647, lon: 10.5595, v: 0 }, { lat: 52.8510, lon: 11.1540, v: 80 },
+        { lat: 52.5920, lon: 11.8590, v: 0 }, { lat: 52.5200, lon: 13.4050, v: 160 }
+    ];
+
+    let fullTrace = [];
+    let isSimulating = false, simIdx = 0, simProgress = 0, simTimer;
+    let isTracking = false, watchID;
+
+    function getLocalPixel(lat, lon) {
+        const scale = Math.pow(2, CONFIG.zoom) * CONFIG.tileSize;
+        const x = (lon + 180) / 360 * scale - CONFIG.originTileX * CONFIG.tileSize;
+        const latRad = lat * Math.PI / 180;
+        const y = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * scale - CONFIG.originTileY * CONFIG.tileSize;
+        return { x, y };
+    }
+
+    function dropBreadcrumb(lat, lon, speed) {
+        const pos = getLocalPixel(lat, lon);
+        const b = document.createElement('div');
+        b.className = 'breadcrumb';
+        b.style.left = pos.x + 'px'; b.style.top = pos.y + 'px';
+        
+        // Speed-Coloring
+        let color = "#4caf50"; // Green (Fast)
+        if(speed < 5) color = "#ff4444"; // Red (Stop)
+        else if(speed < 50) color = "#ffeb3b"; // Yellow
+        b.style.backgroundColor = color;
+        b.style.boxShadow = `0 0 5px ${color}`;
+        
+        document.getElementById('breadcrumb-layer').appendChild(b);
+        fullTrace.push({ lat, lon, speed, ts: Date.now() });
+    }
+
+    // SIMULATION
+    function toggleSim() {
+        const btn = document.getElementById('btn-sim');
+        if(isSimulating) {
+            clearInterval(simTimer);
+            isSimulating = false;
+            btn.innerText = "SIM RESUME";
+        } else {
+            isSimulating = true;
+            btn.innerText = "SIM PAUSE";
+            simTimer = setInterval(runSim, 50);
+        }
+    }
+
+    function runSim() {
+        if(simIdx >= detourTrack.length - 1) {
+            stopAndSaveSim();
+            return;
+        }
+        const s = detourTrack[simIdx], e = detourTrack[simIdx+1];
+        simProgress += 0.01;
+        
+        const curLat = s.lat + (e.lat - s.lat) * simProgress;
+        const curLon = s.lon + (e.lon - s.lon) * simProgress;
+        const currentSpeed = simProgress < 0.1 || simProgress > 0.9 ? 2 : e.v;
+
+        const p = getLocalPixel(curLat, curLon);
+        const nav = document.getElementById('sim-nav');
+        nav.style.left = p.x + 'px'; nav.style.top = p.y + 'px';
+        
+        dropBreadcrumb(curLat, curLon, currentSpeed);
+
+        if(simProgress >= 1) { simProgress = 0; simIdx++; }
+    }
+
+    function stopAndSaveSim() {
+        clearInterval(simTimer);
+        isSimulating = false;
+        document.getElementById('btn-sim').innerText = "SIM FINISHED";
+        localStorage.setItem('last_trace', JSON.stringify(fullTrace));
+        document.getElementById('status').innerText = "SIM SAVED TO LOCAL";
+    }
+
+    // REAL TRACKING
+    function toggleTracking() {
+        const btn = document.getElementById('btn-real');
+        if(isTracking) {
+            navigator.geolocation.clearWatch(watchID);
+            isTracking = false;
+            btn.innerText = "REC REAL START";
+            btn.classList.remove('active');
+            localStorage.setItem('last_trace', JSON.stringify(fullTrace));
+        } else {
+            isTracking = true;
+            btn.innerText = "REC STOP & SAVE";
+            btn.classList.add('active');
+            document.getElementById('real-nav').style.display = "block";
+            watchID = navigator.geolocation.watchPosition(p => {
+                const lat = p.coords.latitude, lon = p.coords.longitude;
+                const speed = (p.coords.speed || 0) * 3.6; // m/s to km/h
+                const pix = getLocalPixel(lat, lon);
+                const rnav = document.getElementById('real-nav');
+                rnav.style.left = pix.x + 'px'; rnav.style.top = pix.y + 'px';
+                dropBreadcrumb(lat, lon, speed);
+                document.getElementById('status').innerText = `TRACKING: ${speed.toFixed(1)} km/h`;
+            }, null, {enableHighAccuracy: true});
+        }
+    }
+
+    // REPLAY LOGIC
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = event => {
+            const data = JSON.parse(event.target.result);
+            playReplay(data);
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    function playReplay(data) {
+        document.getElementById('breadcrumb-layer').innerHTML = "";
+        let i = 0;
+        const rnav = document.getElementById('real-nav');
+        rnav.style.display = "block";
+        rnav.style.borderColor = "#fbbf24";
+        
+        function next() {
+            if(i >= data.length) return;
+            const p = data[i];
+            const pix = getLocalPixel(p.lat, p.lon);
+            rnav.style.left = pix.x + 'px'; rnav.style.top = pix.y + 'px';
+            dropBreadcrumb(p.lat, p.lon, p.speed);
+            
+            i++;
+            const speedFactor = 100 / document.getElementById('replay-speed').value;
+            setTimeout(next, speedFactor);
+        }
+        next();
+    }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(fullTrace)], {type: "application/json"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `trace_${Date.now()}.json`;
+        a.click();
+    }
+
+    window.onload = () => {
+        const v = document.getElementById('viewport');
+        v.scrollLeft = 480; v.scrollTop = 380;
+    };
+</script>
+</body>
+</html>
