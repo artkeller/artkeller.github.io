@@ -1,33 +1,22 @@
 {
-  "id": "ai-global-reachability-policy",
+  "id": "ai-global-reachability",
   "name": "AI Global Reachability & Governance Policy",
   "version": "1.0",
+  "rational": "Measure availability and compliance of AI systems worldwide.",
   "what": {
     "ai_systems": {
       "match": [
-        { "field": "category", "op": "in", "value": ["llm", "embedding", "tts", "video"] },
-        { "field": "type", "op": "in", "value": ["api", "web", "sdk"] }
-      ]
-    },
-    "jurisdictions": {
-      "match": [
-        { "field": "legal_framework", "op": "in", "value": ["EU AI Act", "Basic Act on AI", "CCP Guidelines"] }
+        { "field": "domain", "op": "equals", "value": "ai_systems" }
       ]
     }
   },
-  "exclude": {
-    "paths": ["./ai-systems/test/*", "./ai-systems/deprecated/*"],
-    "match": [
-      { "field": "sunset_date", "op": "lt", "value": "2026-01-01" }
-    ]
-  },
   "how": [
-    "./ai-analysis/global-governance-analysis.json",
-    "./ai-measurement/entrypoint-measure.json"
+    "./analysis-profiles/ai-governance-analysis.json",
+    "./measurement-profiles/ai-entrypoint-measure-passive.json",
+    "./measurement-profiles/ai-compliance-active.json"
   ],
   "selection": {
     "matchLogic": "AND",
-    "includeGlobal": true,
-    "prioritize_by": "governance_maturity"
+    "includeGlobal": true
   }
 }
