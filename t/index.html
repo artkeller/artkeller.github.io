@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>IT-Infrastructure Germany | Precision PoC</title>
+    <style>
+        :root { --bg: #020617; --accent: #0ea5e9; --fed: #facc15; }
+        body { background: var(--bg); color: #f8fafc; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; overflow: hidden; }
+        #viewport { width: 100vw; height: 100vh; overflow: auto; background: #020617; }
+        svg { background: #020617; min-width: 1000px; min-height: 1300px; }
+        
+        /* Landeskarten-Styling */
+        .state { fill: #111827; stroke: #334155; stroke-width: 1; transition: fill 0.2s; }
+        .state:hover { fill: #1e293b; }
+        
+        /* Leitungen */
+        .conn-ring { stroke: #475569; stroke-width: 2; stroke-dasharray: 5; opacity: 0.5; fill: none; }
+        .conn-fed { stroke: var(--fed); stroke-width: 1; opacity: 0.2; fill: none; }
+        
+        .particle { fill: var(--accent); filter: drop-shadow(0 0 3px var(--accent)); }
+        .fed-particle { fill: var(--fed); opacity: 0.8; }
+        
+        .city { stroke: #fff; stroke-width: 1.5; cursor: help; }
+        .label { fill: #fff; font-size: 13px; font-weight: bold; pointer-events: none; paint-order: stroke; stroke: #000; stroke-width: 3px; }
+        .perc { fill: #94a3b8; font-size: 11px; font-weight: normal; }
+        
+        header { position: fixed; top: 0; left: 0; padding: 20px; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(8px); z-index: 10; border-bottom: 1px solid #1e293b; width: 100%; }
+    </style>
+</head>
+<body>
+
+<header>
+    <strong>Zentrales IT-Monitoring Deutschland</strong> | 
+    <span style="color:var(--fed)">Bundestopf: Berlin</span> | 
+    Systemlast: <span id="load">0</span> %
+</header>
+
+<div id="viewport">
+    <svg id="main-svg" viewBox="0 0 900 1200">
+        <!-- Deutschland Map Pfad (Mathematisch angenähert für High-Res Look) -->
+        <g id="map-layer">
+            <path class="state" d="M380,40 L450,30 L520,50 L580,40 L650,110 L780,180 L820,350 L750,550 L800,750 L720,950 L600,1100 L450,1150 L250,1100 L150,950 L80,750 L120,450 L100,250 L250,150 Z" />
+            <!-- Hier könnten weitere d-Pfade für Bundesländer rein -->
+        </g>
+        <g id="lines-layer"></g>
+        <g id="nodes-layer"></g>
+        <g id="flow-layer"></g>
+    </svg>
+</div>
+
+<script>
+/** 1. PRÄZISE KOORDINATEN & SKALIERUNG **/
+const cities = [
+    { name: "Kiel", lat: 54.32, lon: 10.12, pop: 246 },
+    { name: "Hamburg", lat: 53.55, lon: 9.99, pop: 1900 },
+    { name: "Schwerin", lat: 53.63, lon: 11.40, pop: 95 },
+    { name: "Bremen", lat: 53.07, lon: 8.80, pop: 569 },
+    { name: "Hannover", lat: 52.37, lon: 9.73, pop: 535 },
+    { name: "Magdeburg", lat: 52.12, lon: 11.62, pop: 236 },
+    { name: "Potsdam", lat: 52.39, lon: 13.06, pop: 180 },
+    { name: "Berlin (L)", lat: 52.52, lon: 13.40, pop: 3700 },
+    { name: "Berlin (B)", lat: 52.55, lon: 13.45, pop: 83000, isBund: true },
+    { name: "Dresden", lat: 51.05, lon: 13.73, pop: 556 },
+    { name: "Erfurt", lat: 50.97, lon: 11.03, pop: 213 },
+    { name: "Düsseldorf", lat: 51.22, lon: 6.77, pop: 620 },
+    { name: "Mainz", lat: 49.99, lon: 8.24, pop: 217 },
+    { name: "Wiesbaden", lat: 50.07, lon: 8.23, pop: 278 },
+    { name: "Saarbrücken", lat: 49.23, lon: 6.99, pop: 179 },
+    { name: "Stuttgart", lat: 48.77, lon: 9.18, pop: 630 },
+    { name: "München", lat: 48.13, lon: 11.57, pop: 1480 }
+];
+
+// Mercator-Mapping Funktion
+function mapCoords(lat, lon) {
+    const x = (lon - 5.8) * 90; // Horizontale Streckung
+    const y = (55.2 - lat) * 155; // Vertikale Streckung (Mercator-Korrektur)
+    return { x, y };
+}
+
+const nodes = cities.map(c => ({ ...c, ...mapCoords(c.lat, c.lon), currentFill: Math.random() * 50 }));
+
+// Netztrennung
+const ringOrder = ["Kiel", "Hamburg", "Bremen", "Hannover", "Düsseldorf", "Wiesbaden", "Mainz", "Saarbrücken", "Stuttgart", "München", "Dresden", "Erfurt", "Leipzig", "Magdeburg", "Berlin (L)", "Schwerin", "Kiel"];
+const connections = [];
+
+// Ring aufbauen
+for(let i=0; i<ringOrder.length-1; i++) {
+    const from = nodes.find(n => n.name === ringOrder[i]);
+    const to = nodes.find(n => n.name === ringOrder[i+1]);
+    if(from && to) connections.push({ from, to, type: 'ring' });
+}
+
+// Bund-Zentralisierung
+const bundNode = nodes.find(n => n.isBund);
+const landNode = nodes.find(n => n.name === "Berlin (L)");
+connections.push({ from: landNode, to: bundNode, type: 'ring' }); // Land zu Bund
+
+nodes.forEach(n => {
+    if(!n.isBund && n.name !== "Berlin (L)") {
+        connections.push({ from: bundNode, to: n, type: 'fed' });
+    }
+});
+
+/** 2. RENDER ENGINE **/
+const layers = {
+    lines: document.getElementById('lines-layer'),
+    nodes: document.getElementById('nodes-layer'),
+    flow: document.getElementById('flow-layer')
+};
+
+function init() {
+    connections.forEach(conn => {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const d = `M ${conn.from.x} ${conn.from.y} L ${conn.to.x} ${conn.to.y}`;
+        line.setAttribute("d", d);
+        line.setAttribute("class", conn.type === 'ring' ? "conn-ring" : "conn-fed");
+        layers.lines.appendChild(line);
+    });
+
+    nodes.forEach((n, i) => {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        const r = n.isBund ? 35 : Math.sqrt(n.pop) / 2 + 4;
+        g.innerHTML = `
+            <circle id="node-${i}" class="city" cx="${n.x}" cy="${n.y}" r="${r}" fill="#1e293b"/>
+            <text x="${n.x}" y="${n.y - r - 8}" class="label" text-anchor="middle">${n.name}</text>
+            <text id="perc-${i}" x="${n.x}" y="${n.y + r + 15}" class="perc" text-anchor="middle">0%</text>
+        `;
+        layers.nodes.appendChild(g);
+    });
+}
+
+function spawnParticle(conn) {
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    p.setAttribute("r", conn.type === 'ring' ? 3 : 1.5);
+    p.setAttribute("class", conn.type === 'ring' ? "particle" : "fed-particle");
+    layers.flow.appendChild(p);
+
+    let step = 0;
+    const speed = conn.type === 'ring' ? 0.008 : 0.004;
+    
+    function animate() {
+        step += speed;
+        if(step >= 1) { p.remove(); return; }
+        p.setAttribute("cx", conn.from.x + (conn.to.x - conn.from.x) * step);
+        p.setAttribute("cy", conn.from.y + (conn.to.y - conn.from.y) * step);
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+function update() {
+    let totalLoad = 0;
+    nodes.forEach((n, i) => {
+        n.currentFill += Math.random() * (n.isBund ? 150 : 20);
+        const myConns = connections.filter(c => c.from === n);
+        
+        myConns.forEach(c => {
+            let cap = n.isBund ? 80 : 25;
+            if(n.currentFill > n.pop) cap *= 3;
+            
+            const flow = Math.min(n.currentFill / myConns.length, cap);
+            n.currentFill -= flow;
+            c.to.currentFill += flow;
+            
+            if(Math.random() < 0.15) spawnParticle(c);
+        });
+
+        const pVal = Math.min(100, Math.round((n.currentFill / n.pop) * 100));
+        totalLoad += pVal;
+        document.getElementById(`perc-${i}`).textContent = pVal + "%";
+        document.getElementById(`node-${i}`).setAttribute("fill", pVal > 90 ? "#ef4444" : (n.isBund ? "#eab308" : "#0ea5e9"));
+    });
+    
+    document.getElementById('load').textContent = Math.round(totalLoad / nodes.length);
+    setTimeout(update, 60);
+}
+
+init();
+update();
+</script>
+</body>
+</html>
