@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Echte GeoMap PoC</title>
+    <style>
+        :root { --accent: #ef4444; }
+        body { margin: 0; background: #111; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        #map-wrapper {
+            position: relative;
+            width: 800px;
+            height: 1000px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            border: 2px solid #334155;
+            background: #222;
+        }
+
+        /* Die echte Karte als Hintergrundbild */
+        #geo-map {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://static-maps.yandex.ru/1.x/?ll=10.45,51.16&spn=10,10&z=6&l=map&size=600,600');
+            /* Hinweis: Yandex/OSM Static APIs liefern fertige Bilder von DE */
+            background-size: cover;
+            background-position: center;
+            filter: grayscale(0.3) brightness(0.8);
+        }
+
+        /* SVG Overlay für das DataCenter */
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .datacenter {
+            fill: var(--accent);
+            stroke: white;
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 8px var(--accent));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { r: 8; opacity: 1; }
+            100% { r: 20; opacity: 0; }
+        }
+
+        .label {
+            fill: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px black;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map-wrapper">
+    <!-- Die echte Karte -->
+    <div id="geo-map"></div>
+
+    <!-- Das statische Symbol -->
+    <svg id="overlay" viewBox="0 0 800 1000">
+        <!-- Berlin Koordinaten auf diesem statischen Bild-Ausschnitt -->
+        <g transform="translate(585, 295)">
+            <circle class="datacenter" cx="0" cy="0" r="10" />
+            <circle fill="var(--accent)" cx="0" cy="0" r="5" />
+            <text x="15" y="5" class="label">BERLIN DATACENTER</text>
+        </g>
+    </svg>
+</div>
+
+</body>
+</html>
