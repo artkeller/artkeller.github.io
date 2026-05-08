@@ -1,8 +1,0 @@
-{
-  "domain": "government",
-  "countries": ["AT"],
-  "nodes": [
-    "https://www.oesterreich.gv.at",
-    "https://www.parlament.gv.at"
-  ]
-}

@@ -1,8 +1,0 @@
-{
-  "domain": "government",
-  "countries": ["JP"],
-  "nodes": [
-    "https://www.japan.go.jp",
-    "https://www.kantei.go.jp"
-  ]
-}

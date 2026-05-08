@@ -1,8 +1,0 @@
-{
-  "domain": "government",
-  "countries": ["IN"],
-  "nodes": [
-    "https://www.india.gov.in",
-    "https://sansad.in"
-  ]
-}

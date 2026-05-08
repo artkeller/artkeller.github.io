@@ -1,8 +1,0 @@
-{
-  "domain": "finance",
-  "countries": ["CA"],
-  "nodes": [
-    "https://www.bankofcanada.ca",
-    "https://www.osfi-bsif.gc.ca"
-  ]
-}
