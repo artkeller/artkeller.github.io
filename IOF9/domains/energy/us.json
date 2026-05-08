@@ -1,8 +1,0 @@
-{
-  "domain": "energy",
-  "countries": ["US"],
-  "nodes": [
-    "https://www.eia.gov",
-    "https://www.nerc.com"
-  ]
-}

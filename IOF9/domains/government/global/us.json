@@ -1,9 +1,0 @@
-{
-  "domain": "government",
-  "countries": ["US"],
-  "nodes": [
-    "https://www.usa.gov",
-    "https://www.congress.gov",
-    "https://www.cisa.gov"
-  ]
-}
