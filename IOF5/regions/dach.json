@@ -1,6 +1,0 @@
-{
-  "region": "dach",
-  "name": "DACH",
-  "description": "German-speaking countries: Germany, Austria, Switzerland",
-  "countries": ["DE","AT","CH"]
-}

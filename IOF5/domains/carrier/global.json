@@ -1,9 +1,0 @@
-{
-  "domain": "carrier",
-  "countries": ["*"],
-  "nodes": [
-    "https://www.telia.com",
-    "https://www.lumen.com",
-    "https://www.ntt.com"
-  ]
-}
