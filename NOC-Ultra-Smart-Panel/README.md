@@ -1,4 +1,7 @@
 # **Warum NOC Ultra Smart Panel?**
+
+Network Level Scouting 
+
 **Große professionelle NOC-Lösungen sind meist nichts für unterwegs.**  
 Sie sind schwer, komplex und an feste Arbeitsplätze gebunden. Dabei findet unser Leben heute hauptsächlich auf Smartphones, Tablets und Notebooks statt – oft im Zug, im Meeting, im Auto oder im Funk-Schatten.
 
