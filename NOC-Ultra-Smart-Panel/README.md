@@ -2,6 +2,12 @@
 
 Network Level Scouting 
 
+<NEUER_INALT>
+Network Level Scouting (auf Deutsch etwa „Scouting auf Netzwerkebene“) im Internet-Kontext bezeichnet die strukturierte Analyse, Überwachung und Aufklärung der Infrastruktur eines Netzwerks, um Informationen über verbundene Geräte, Dienste, Schwachstellen oder Verkehrsmuster zu gewinnen.Es handelt sich um einen Prozess, bei dem Daten über die Architektur und die Zustände eines Netzwerks gesammelt werden, um strategische Vorteile zu erlangen, sei es für Sicherheit, Optimierung oder Marktanalyse.Kernaspekte im Internet-Kontext:Technologie-Scouting & Analyse: Hierbei werden digitale Infrastrukturen aufkommender Technologien beobachtet, um Risiken und Chancen für Unternehmen frühzeitig zu erkennen.Netzwerk-Infrastruktur-Aufklärung: Nutzung von Tools (wie Port-Scanner, Netzwerk-Mapper), um aktive Hosts, offene Ports und laufende Dienste im Internet oder in internen Netzwerken zu identifizieren. Dies dient oft der Bewertung der Sicherheitslage.Strategische Datensammlung: Ziel ist oft ein Matching, also das Herstellen von Verbindungen oder das Finden passender Technologien und Experten im Netzwerk.Automatisierung: Aufgrund der Komplexität moderner Netzwerke erfolgt das Scouting häufig automatisiert durch spezialisierte Software, die kontinuierlich neue Informationen generiert.Unterschiedliche Einsatzgebiete:IT-Sicherheit: Erkennung von Schwachstellen vor Angreifern.Netzwerkmanagement: Überwachung der Leistung und Verfügbarkeit von Diensten (z. B. DNS).Wirtschaftliche Analyse: Technologie-Scouts recherchieren neue digitale Lösungen im Internet.
+</NEUER_INALT>
+
+
+
 **Große professionelle NOC-Lösungen sind meist nichts für unterwegs.**  
 Sie sind schwer, komplex und an feste Arbeitsplätze gebunden. Dabei findet unser Leben heute hauptsächlich auf Smartphones, Tablets und Notebooks statt – oft im Zug, im Meeting, im Auto oder im Funk-Schatten.
 
