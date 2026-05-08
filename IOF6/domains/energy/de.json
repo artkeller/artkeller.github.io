@@ -1,9 +1,0 @@
-{
-  "domain": "energy",
-  "countries": ["DE"],
-  "nodes": [
-    "https://www.bundesnetzagentur.de",
-    "https://www.enbw.com",
-    "https://www.rwe.com"
-  ]
-}

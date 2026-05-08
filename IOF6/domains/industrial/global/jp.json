@@ -1,9 +1,0 @@
-{
-  "domain": "industrial",
-  "countries": ["JP"],
-  "nodes": [
-    "https://www.toyota-global.com",
-    "https://www.sony.com",
-    "https://www.panasonic.com"
-  ]
-}

@@ -1,8 +1,0 @@
-{
-  "domain": "finance",
-  "countries": ["FR"],
-  "nodes": [
-    "https://www.banque-france.fr",
-    "https://www.amf-france.org"
-  ]
-}
