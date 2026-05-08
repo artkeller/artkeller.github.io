@@ -1,8 +1,0 @@
-{
-  "domain": "finance",
-  "countries": ["IT"],
-  "nodes": [
-    "https://www.bancaditalia.it",
-    "https://www.consob.it"
-  ]
-}

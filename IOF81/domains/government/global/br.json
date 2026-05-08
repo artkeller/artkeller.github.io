@@ -1,8 +1,0 @@
-{
-  "domain": "government",
-  "countries": ["BR"],
-  "nodes": [
-    "https://www.gov.br",
-    "https://www.camara.leg.br"
-  ]
-}

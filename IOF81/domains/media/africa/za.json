@@ -1,8 +1,0 @@
-{
-  "domain": "media",
-  "countries": ["ZA"],
-  "nodes": [
-    "https://www.dailymaverick.co.za",
-    "https://www.news24.com"
-  ]
-}
