@@ -1,8 +1,0 @@
-{
-  "domain": "media",
-  "countries": ["IN"],
-  "nodes": [
-    "https://www.thehindu.com",
-    "https://timesofindia.indiatimes.com"
-  ]
-}

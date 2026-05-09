@@ -1,8 +1,0 @@
-{
-  "domain": "media",
-  "countries": ["AT"],
-  "nodes": [
-    "https://www.orf.at",
-    "https://www.derstandard.at"
-  ]
-}

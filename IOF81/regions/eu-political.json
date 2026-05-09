@@ -1,6 +1,0 @@
-{
-  "region": "eu-political",
-  "name": "European Union (Political)",
-  "description": "EU member states only — 27 members as of 2024",
-  "countries": ["DE","FR","IT","ES","PL","NL","BE","AT","SE","DK","FI","PT","GR","CZ","HU","RO","SK","HR","BG","LU","SI","LT","LV","EE","MT","CY","IE"]
-}

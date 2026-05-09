@@ -1,0 +1,48 @@
+{
+  "id": "ai-entrypoint-passive",
+  "name": "AI Entry Point Passive Reachability",
+  "conflictClass": "passive",
+  "access_class": "public",
+  "schedule": {
+    "interval": 600,
+    "unit": "seconds",
+    "timeWindow": "24x7",
+    "jitter": 30
+  },
+  "method": {
+    "primary": "HEAD",
+    "fallback": "GET",
+    "endpoint_inference": "https://{base_url}/v1/models",
+    "follow_redirects": true,
+    "max_redirects": 3
+  },
+  "auth": {
+    "required": false,
+    "public_endpoint_detection": true,
+    "api_key_in_header": false,
+    "detect_auth_required_via_401": true
+  },
+  "timeouts": {
+    "connect": 10000,
+    "response": 15000,
+    "total": 20000
+  },
+  "retry": {
+    "max_attempts": 2,
+    "backoff_ms": 1000
+  },
+  "legal": {
+    "robotsTxtRespect": true,
+    "terms_of_service_check": true,
+    "maxRequestsPerMinute": 2,
+    "maxRequestsPerHour": 120,
+    "userAgent": "IOF-AI-Monitor/1.0 (+https://iof.ai/about)",
+    "notes": "Passive monitoring of API endpoint availability only. No authentication bypass. Respects rate limits and robots.txt."
+  },
+  "reporting": {
+    "on_success": "log_availability",
+    "on_timeout": "warn",
+    "on_connection_refused": "error",
+    "on_http_401": "note_auth_required"
+  }
+}

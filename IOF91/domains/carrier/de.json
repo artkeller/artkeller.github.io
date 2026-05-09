@@ -1,9 +1,0 @@
-{
-  "domain": "carrier",
-  "countries": ["DE"],
-  "nodes": [
-    "https://www.telekom.de",
-    "https://www.vodafone.de",
-    "https://www.de-cix.net"
-  ]
-}

@@ -1,0 +1,12 @@
+{
+  "region": "br-lgpd-proposed",
+  "name": "Brazil – LGPD + PL 2338/2023",
+  "countries": ["BR"],
+  "governance_framework": "LGPD (data protection) + proposed AI Act (PL 2338/2023 expected 2026)",
+  "risk_levels": ["excessive_risk", "high_risk", "low_risk"],
+  "data_residency": "LGPD – cross-border transfer requires adequacy",
+  "entry_point_requirements": [
+    "High-risk AI: fundamental rights impact assessment",
+    "Must disclose automated decision-making logic"
+  ]
+}

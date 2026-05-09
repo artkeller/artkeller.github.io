@@ -1,9 +1,0 @@
-{
-  "domain": "carrier",
-  "countries": ["US"],
-  "nodes": [
-    "https://www.att.com",
-    "https://www.verizon.com",
-    "https://www.comcast.com"
-  ]
-}

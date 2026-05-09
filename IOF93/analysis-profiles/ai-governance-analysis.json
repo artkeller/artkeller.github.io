@@ -1,0 +1,69 @@
+{
+  "id": "ai-governance-analysis",
+  "name": "AI Global Governance Maturity Analysis",
+  "version": "1.0",
+  "rational": "Evaluate AI system entry points based on security, compliance, transparency, data residency, latency, and availability. Output BLU/GRN/AMB/RED levels.",
+  "weights": {
+    "security": 5,
+    "compliance": 5,
+    "transparency": 4,
+    "data_residency": 4,
+    "latency": 2,
+    "availability": 3
+  },
+  "latency": {
+    "good": 200,
+    "acceptable": 800,
+    "critical": 3000,
+    "unit": "ms"
+  },
+  "availability": {
+    "up_24h": 1.0,
+    "up_7d": 0.999,
+    "up_30d": 0.995
+  },
+  "compliance_scoring": {
+    "EU AI Act": {
+      "high_risk_penalty": 35,
+      "gpaip_penalty": 15,
+      "transparency_required": true,
+      "weight": 5
+    },
+    "Basic Act on AI (KR)": {
+      "extraterritorial_penalty": 10,
+      "audit_required": true,
+      "weight": 4
+    },
+    "China PIPL": {
+      "data_localization_penalty": 25,
+      "cross_border_restriction": true,
+      "weight": 4
+    },
+    "US EO 14110": {
+      "safety_reporting_required": true,
+      "weight": 3
+    },
+    "California SB 53": {
+      "transparency_reporting": true,
+      "whistleblower_protection": true,
+      "weight": 4
+    }
+  },
+  "security_scoring": {
+    "auth_required": 2,
+    "https_only": 3,
+    "rate_limits_published": 1,
+    "terms_of_service": 1
+  },
+  "transparency_scoring": {
+    "public_model_card": 2,
+    "documented_training_data": 2,
+    "explainability_api": 1
+  },
+  "thresholds": {
+    "BLU": 0.95,
+    "GRN": 0.80,
+    "AMB": 0.60,
+    "RED": 0.0
+  }
+}

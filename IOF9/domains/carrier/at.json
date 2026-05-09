@@ -1,8 +1,0 @@
-{
-  "domain": "carrier",
-  "countries": ["AT"],
-  "nodes": [
-    "https://www.a1.net",
-    "https://www.magenta.at"
-  ]
-}

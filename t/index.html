@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICE-Tracker Pro: Hamburg-Berlin Edition</title>
+    <style>
+        :root { --sim: #00ffff; --real: #2563eb; --stop: #ff4444; --slow: #ffeb3b; --fast: #4caf50; }
+        body { margin: 0; background: #020617; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; overflow: hidden; }
+        
+        #viewport { width: 100vw; height: 100vh; overflow: auto; position: relative; }
+        #map-area { position: relative; width: 1024px; height: 1024px; background: #000; }
+        #tile-grid { display: grid; grid-template-columns: repeat(4, 256px); filter: saturate(0.2) brightness(0.2) invert(0.9) hue-rotate(190deg); }
+        .tile { width: 256px; height: 256px; display: block; pointer-events: none; }
+
+        header {
+            position: fixed; top: 10px; left: 10px; z-index: 1000;
+            background: rgba(0, 8, 30, 0.9); border: 1px solid #334155; padding: 15px;
+            width: 280px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .controls { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        button { background: #1e293b; color: white; border: 1px solid #475569; padding: 8px; cursor: pointer; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        button:hover { background: #334155; border-color: var(--sim); }
+        button.active { background: #450a0a; border-color: #ef4444; animation: pulse 1.5s infinite; }
+        
+        .breadcrumb { position: absolute; width: 5px; height: 5px; border-radius: 50%; transform: translate(-50%, -50%); z-index: 50; }
+        .nav-point { position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); z-index: 100; border: 2px solid #fff; transition: left 0.2s, top 0.2s; }
+        #sim-nav { background: var(--sim); box-shadow: 0 0 10px var(--sim); }
+        #real-nav { background: var(--real); box-shadow: 0 0 10px var(--real); display: none; }
+
+        #dimmer { position: fixed; inset: 0; background: black; opacity: 0; pointer-events: none; z-index: 900; transition: opacity 0.5s; }
+        #dimmer.active { opacity: 0.85; }
+
+        input[type=range] { width: 100%; accent-color: var(--sim); margin: 5px 0; }
+        .status-line { font-family: monospace; font-size: 10px; color: var(--sim); margin-bottom: 5px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div id="dimmer"></div>
+
+<header>
+    <div class="status-line" id="status">STATUS: READY TO TRACK</div>
+    <div class="controls">
+        <button id="btn-sim" onclick="toggleSim()">Simulation starten</button>
+        <button id="btn-real" onclick="toggleTracking()">REC Real GPS (Adaptive)</button>
+        <button id="btn-dim" onclick="document.getElementById('dimmer').classList.toggle('active')">Dim Screen (Akku sparen)</button>
+        <hr style="border:0; border-top:1px solid #334155; margin: 5px 0;">
+        <label style="font-size: 9px;">REPLAY SPEED SCALER:</label>
+        <input type="range" id="replay-speed" min="1" max="100" value="25">
+        <button onclick="exportData()">Export Trace (.json)</button>
+        <button onclick="document.getElementById('importFile').click()">Import & Playback</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+    </div>
+</header>
+
+<div id="viewport">
+    <div id="map-area">
+        <div id="tile-grid">
+            <script>
+                // Load Tiles for Hamburg-Berlin region
+                for(let y=19; y<=22; y++) 
+                    for(let x=31; x<=34; x++) 
+                        document.write(`<img class="tile" src="https://tile.openstreetmap.org/6/${x}/${y}.png">`);
+            </script>
+        </div>
+        <div id="breadcrumb-layer"></div>
+        <div id="sim-nav" class="nav-point"></div>
+        <div id="real-nav" class="nav-point"></div>
+    </div>
+</div>
+
+<script>
+    const CONFIG = { zoom: 6, tileSize: 256, xOrigin: 31, yOrigin: 19 };
+    const detourTrack = [
+        { lat: 53.5511, lon: 9.9937, v: 0 }, { lat: 53.35, lon: 10.21, v: 120 },
+        { lat: 52.9647, lon: 10.5595, v: 0 }, { lat: 52.8510, lon: 11.1540, v: 70 },
+        { lat: 52.5920, lon: 11.8590, v: 0 }, { lat: 52.5200, lon: 13.4050, v: 160 }
+    ];
+
+    let fullTrace = [], isSimulating = false, simIdx = 0, simProgress = 0, simTimer;
+    let isTracking = false, lastRecTime = 0, watchID = null, wakeLock = null;
+
+    function getPos(lat, lon) {
+        const scale = Math.pow(2, CONFIG.zoom) * CONFIG.tileSize;
+        const x = (lon + 180) / 360 * scale - CONFIG.xOrigin * CONFIG.tileSize;
+        const latRad = lat * Math.PI / 180;
+        const y = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * scale - CONFIG.yOrigin * CONFIG.tileSize;
+        return { x, y };
+    }
+
+    async function requestWakeLock() {
+        if ('wakeLock' in navigator) {
+            try { wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+        }
+    }
+
+    function dropDot(lat, lon, speed) {
+        const p = getPos(lat, lon);
+        const dot = document.createElement('div');
+        dot.className = 'breadcrumb';
+        dot.style.left = p.x + 'px'; dot.style.top = p.y + 'px';
+        
+        let color = "var(--fast)";
+        if (speed < 2) color = "var(--stop)";
+        else if (speed < 60) color = "var(--slow)";
+        
+        dot.style.backgroundColor = color;
+        dot.style.boxShadow = `0 0 4px ${color}`;
+        document.getElementById('breadcrumb-layer').appendChild(dot);
+        fullTrace.push({ lat, lon, speed, ts: Date.now() });
+    }
+
+    function toggleSim() {
+        if(isSimulating) { clearInterval(simTimer); isSimulating = false; return; }
+        resetSystem();
+        isSimulating = true;
+        simTimer = setInterval(() => {
+            if(simIdx >= detourTrack.length - 1) { clearInterval(simTimer); return; }
+            const s = detourTrack[simIdx], e = detourTrack[simIdx+1];
+            simProgress += 0.005;
+            const cLat = s.lat + (e.lat - s.lat) * simProgress;
+            const cLon = s.lon + (e.lon - s.lon) * simProgress;
+            const pix = getPos(cLat, cLon);
+            const el = document.getElementById('sim-nav');
+            el.style.left = pix.x + 'px'; el.style.top = pix.y + 'px';
+            dropDot(cLat, cLon, e.v);
+            if(simProgress >= 1) { simProgress = 0; simIdx++; }
+        }, 50);
+    }
+
+    function toggleTracking() {
+        const btn = document.getElementById('btn-real');
+        if(isTracking) {
+            navigator.geolocation.clearWatch(watchID);
+            isTracking = false;
+            btn.classList.remove('active');
+            return;
+        }
+        resetSystem();
+        isTracking = true;
+        btn.classList.add('active');
+        requestWakeLock();
+        document.getElementById('real-nav').style.display = 'block';
+
+        watchID = navigator.geolocation.watchPosition(p => {
+            const speed = (p.coords.speed || 0) * 3.6;
+            const now = Date.now();
+            let interval = speed > 100 ? 1000 : (speed > 10 ? 4000 : 10000);
+
+            if(now - lastRecTime > interval) {
+                const lat = p.coords.latitude, lon = p.coords.longitude;
+                const pix = getPos(lat, lon);
+                const el = document.getElementById('real-nav');
+                el.style.left = pix.x + 'px'; el.style.top = pix.y + 'px';
+                dropDot(lat, lon, speed);
+                lastRecTime = now;
+                document.getElementById('status').innerText = `SPD: ${speed.toFixed(0)}km/h | PTS: ${fullTrace.length}`;
+            }
+        }, null, { enableHighAccuracy: true });
+    }
+
+    function resetSystem() {
+        document.getElementById('breadcrumb-layer').innerHTML = "";
+        fullTrace = []; simIdx = 0; simProgress = 0;
+    }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(fullTrace)], {type: "application/json"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `ice-trace-${new Date().getHours()}h.json`;
+        a.click();
+    }
+
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const data = JSON.parse(ev.target.result);
+            resetSystem();
+            document.getElementById('real-nav').style.display = 'block';
+            let i = 0;
+            function play() {
+                if(i >= data.length) return;
+                const p = data[i];
+                const pix = getPos(p.lat, p.lon);
+                document.getElementById('real-nav').style.left = pix.x + 'px';
+                document.getElementById('real-nav').style.top = pix.y + 'px';
+                dropDot(p.lat, p.lon, p.speed);
+                i++;
+                setTimeout(play, 2500 / document.getElementById('replay-speed').value);
+            }
+            play();
+        };
+        reader.readAsText(e.target.files[0]);
+    }
+
+    window.onload = () => {
+        const v = document.getElementById('viewport');
+        v.scrollLeft = 480; v.scrollTop = 380;
+    };
+</script>
+
+</body>
+</html>

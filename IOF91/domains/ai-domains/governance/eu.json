@@ -1,9 +1,0 @@
-{
-  "domain": "governance",
-  "description": "AI governance endpoints – EU AI Act compliance portals",
-  "countries": ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","NO","IS","LI"],
-  "nodes": [
-    "https://digital-strategy.ec.europa.eu/en/policies/ai-act",
-    "https://europa.eu/ai-act/compliance-checker"
-  ]
-}

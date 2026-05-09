@@ -1,0 +1,49 @@
+{
+  "id": "ai-compliance-active",
+  "name": "AI Active Compliance Probe",
+  "conflictClass": "active",
+  "access_class": "restricted",
+  "authorization_required": true,
+  "authorization_note": "This probe requires explicit written consent from the AI provider or is limited to authorized test environments. Do NOT run against production APIs without permission.",
+  "schedule": {
+    "interval": 86400,
+    "unit": "seconds",
+    "burstAllowed": false,
+    "executionWindow": "09:00-17:00 UTC"
+  },
+  "method": {
+    "primary": "POST",
+    "payload_template": {
+      "model": "{{model_name}}",
+      "messages": [{ "role": "user", "content": "Hello, this is a compliance test message." }],
+      "max_tokens": 10
+    },
+    "validate_response": ["model", "usage", "choices[0].message.content"],
+    "detect_censorship": true
+  },
+  "auth": {
+    "required": true,
+    "api_key_storage": "encrypted_vault",
+    "credential_rotation_days": 90
+  },
+  "timeouts": {
+    "connect": 15000,
+    "response": 30000,
+    "total": 35000
+  },
+  "legal": {
+    "requires_consent": true,
+    "consent_mechanism": "written_contract_or_self_hosted",
+    "compliance_frameworks": ["EU AI Act Art. 53", "Basic Act on AI §22", "CCP Algorithmic Provisions"],
+    "data_minimization": true,
+    "audit_trail_required": true,
+    "retain_logs_days": 90,
+    "userAgent": "IOF-AI-Compliance/1.0 (authorized; governance audit)"
+  },
+  "alerting": {
+    "on_regulatory_violation": "immediate",
+    "on_data_residency_breach": "immediate",
+    "on_sla_deviation": "1h",
+    "on_censorship_detected": "warn"
+  }
+}

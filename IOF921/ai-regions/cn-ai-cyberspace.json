@@ -1,0 +1,17 @@
+{
+  "region": "cn-ai-cyberspace",
+  "name": "China Cyberspace Administration",
+  "countries": ["CN"],
+  "governance_framework": "Algorithmic Recommendation Provisions (2022) + Deep Synthesis Provisions (2023)",
+  "requirements": [
+    "security_assessment",
+    "content_alignment_with_socialist_values",
+    "user_notification_for_synthetic_content"
+  ],
+  "data_residency": "Personal Information Protection Law (PIPL) – cross-border transfer restricted",
+  "entry_point_requirements": [
+    "Must register with CAC",
+    "Algorithm filing",
+    "Watermarking of AI-generated content"
+  ]
+}
