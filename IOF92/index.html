@@ -657,7 +657,6 @@ function collapseAll(){document.querySelectorAll('.nc').forEach(n=>n.classList.a
 function expPath(el){let cur=el;while(cur){const b=cur.querySelector(':scope > .nc');if(b){b.classList.remove('col');const ch=cur.querySelector(':scope > .nh .chev');if(ch)ch.classList.add('open');}cur=cur.parentElement?.closest('.nw');}}
 function focusErrors(){collapseAll();document.querySelectorAll('.derr,.dwarn').forEach(d=>expPath(d.closest('.nw')));toggleMenu();}
 
-/* ═══ FILTERS ═════════════════════════════════════════════════════ */
 function hf(cb){
   const t=cb.dataset.f,par=cb.dataset.p;
   if(par){const pc=document.querySelector(`[data-f="${par}"]`);if(pc&&!pc.checked){cb.checked=false;return;}}
@@ -673,10 +672,8 @@ function applyFilter(type, visible){
   document.querySelectorAll(`[data-type="${type}"]`).forEach(n=>n.style.display=visible?'':'none');
 }
 
-/* ═══ COLOUR STATE ════════════════════════════════════════════════ */
 function setCS(code,label){const b=document.getElementById('cbadge');b.className='cbadge vis c'+code;b.textContent=code+(label?' — '+label:'');}
 
-/* ═══ BUILD TREE ══════════════════════════════════════════════════ */
 async function buildTree(govFile){
   COUNTS={ok:0,warn:0,err:0};
   window._SEEN_URLS_IN_TREE = new Set();
@@ -743,7 +740,6 @@ async function buildTree(govFile){
         }
         files = [...new Set(files)];
       } else if(dval.match){
-        // FIX: tolerate './ai-domains/' path
         await Promise.all(FILE_INDEX.filter(f=>f.includes('ai-domains/')).map(f=>loadJ(f)));
         files = await resolveMatchFiles(dval, pj, 'ai-domains');
       }
@@ -863,7 +859,6 @@ async function buildTree(govFile){
   return mkN({label:govFile,status:gS,json:gov,issues:govI,children:pNodes,isRoot:true});
 }
 
-/* ═══ STRUCTURAL VALIDATE ════════════════════════════════════════ */
 async function startValidate(){
   LAST_GOV=document.getElementById('govSel').value;
   DELETED_LABELS.clear(); updateRestoreBar();
@@ -914,7 +909,6 @@ async function startValidate(){
   }
 }
 
-/* ═══ DEEP VALIDATE ══════════════════════════════════════════════ */
 async function startDeep(){
   const btn=document.getElementById('deepBtn');
   const cancelBtn=document.getElementById('cancelBtn');
@@ -979,7 +973,6 @@ async function startDeep(){
   }
 }
 
-/* ═══ MISSION ════════════════════════════════════════════════════ */
 function buildMission(dead){
   const govId = LAST_GOV.split('/').pop().replace('.json','');
   const govJ  = CACHE[LAST_GOV] || {};
@@ -1112,7 +1105,6 @@ function exportMission(){
   document.body.removeChild(a); URL.revokeObjectURL(u);
 }
 
-/* ═══ INIT WITH FOCUS-REVEAL ══════════════════════════════════════ */
 async function init(){
   const stage  = document.getElementById('loading-stage');
   const fill   = document.getElementById('load-fill');
@@ -1145,7 +1137,6 @@ async function init(){
 
     const sel = document.getElementById('govSel');
     sel.addEventListener('change', resetInspector);
-    // FIX: only real governance profiles (path contains '/governance-profiles/')
     FILE_INDEX.filter(f=>f.includes('/governance-profiles/')).forEach(g=>{
       const o=document.createElement('option');
       o.value=g; o.textContent=g.split('/').pop().replace('.json','');
