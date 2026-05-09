@@ -1,0 +1,8 @@
+{
+  "domain": "government",
+  "countries": ["CH"],
+  "nodes": [
+    "https://www.admin.ch",
+    "https://www.parlament.ch"
+  ]
+}

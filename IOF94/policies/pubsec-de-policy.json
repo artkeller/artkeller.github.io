@@ -1,0 +1,38 @@
+{
+  "id": "pubsec-de-policy",
+  "name": "Pubsec De Policy",
+  "version": "1.0",
+  "what": {
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "equals",
+          "value": "pubsec"
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        }
+      ]
+    },
+    "regions": [
+      "./regions/de.json"
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/kritis-analysis.json",
+    "./measurement-profiles/passive-critical.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": false
+  },
+  "note": "Scope limited to DE only. Public security governance covers German federal and state authorities exclusively."
+}

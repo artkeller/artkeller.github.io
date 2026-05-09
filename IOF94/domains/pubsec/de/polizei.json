@@ -1,0 +1,15 @@
+{
+  "domain": "pubsec",
+  "sector": "polizei",
+  "regulation": "\u00d6ffentliche Sicherheit DE \u2014 Bund und L\u00e4nder",
+  "countries": [
+    "DE"
+  ],
+  "nodes": [
+    "https://www.bka.de",
+    "https://www.bundespolizei.de",
+    "https://www.verfassungsschutz.de",
+    "https://www.bnd.de",
+    "https://www.bfdi.bund.de"
+  ]
+}
