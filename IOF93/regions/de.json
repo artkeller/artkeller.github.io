@@ -1,0 +1,6 @@
+{
+  "region": "de",
+  "name": "Germany",
+  "description": "Federal Republic of Germany only. Used for KRITIS-DE and PubSec-DE policies where scope is strictly national.",
+  "countries": ["DE"]
+}

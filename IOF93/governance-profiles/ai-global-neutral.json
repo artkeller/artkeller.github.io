@@ -1,0 +1,20 @@
+{
+  "id": "ai-global-neutral",
+  "name": "AI Global Neutral Governance",
+  "version": "1.0",
+  "rational": "Neutral assessment of worldwide AI system reachability, compliance, and governance maturity. No preference for any legal framework.",
+  "controls": [
+    "Include all AI systems regardless of jurisdiction",
+    "Apply all available analysis and measurement profiles",
+    "Report on compliance with major frameworks (EU AI Act, Basic Act on AI, China PIPL, US EO)"
+  ],
+  "standard": "IOF-AI:2026",
+  "requirements": [
+    "Must measure API and web entry points",
+    "Must respect legal constraints (robots.txt, rate limits)",
+    "Must classify conflictClass according to access_type"
+  ],
+  "policies": [
+    "./policies/ai-global-reachability-policy.json"
+  ]
+}

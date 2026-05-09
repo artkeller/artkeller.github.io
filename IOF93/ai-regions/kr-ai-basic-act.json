@@ -1,0 +1,17 @@
+{
+  "region": "kr-ai-basic-act",
+  "name": "South Korea – AI Basic Act",
+  "countries": ["KR"],
+  "governance_framework": "Basic Act on Artificial Intelligence (in force March 2026)",
+  "extraterritorial": true,
+  "requirements": [
+    "transparency_reporting_annually",
+    "high_risk_audits_every_two_years",
+    "impact_assessment"
+  ],
+  "data_residency": "Personal Information Protection Act (PIPA)",
+  "entry_point_requirements": [
+    "API must disclose AI model version",
+    "Provide opt-out for automated decisions"
+  ]
+}

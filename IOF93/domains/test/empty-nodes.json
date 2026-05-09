@@ -1,0 +1,6 @@
+{
+  "domain": "test-domain",
+  "countries": ["DE"],
+  "nodes": [],
+  "_comment": "EXPECTED WARN: nodes array is empty"
+}

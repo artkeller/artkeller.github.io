@@ -1,0 +1,39 @@
+{
+  "id": "kritis-de-policy",
+  "name": "Kritis De Policy",
+  "version": "1.0",
+  "what": {
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "equals",
+          "value": "kritis"
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        }
+      ]
+    },
+    "regions": [
+      "./regions/de.json"
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/kritis-analysis.json",
+    "./measurement-profiles/passive-critical.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": false
+  },
+  "description": {},
+  "note": "Scope deliberately limited to DE only. KRITIS is a German national regulation (BSI-KritisV). AT and CH are not in scope even though DACH is a common grouping."
+}

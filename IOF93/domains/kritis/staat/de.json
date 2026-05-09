@@ -1,0 +1,13 @@
+{
+  "domain": "kritis",
+  "sector": "staat-verwaltung",
+  "regulation": "BSI-KritisV §2",
+  "countries": ["DE"],
+  "nodes": [
+    "https://www.bundesregierung.de",
+    "https://www.bundestag.de",
+    "https://www.bundesrat.de",
+    "https://www.bmi.bund.de",
+    "https://www.bsi.bund.de"
+  ]
+}

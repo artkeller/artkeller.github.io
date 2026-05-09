@@ -1,0 +1,22 @@
+{
+  "id": "ai-global-reachability",
+  "name": "AI Global Reachability & Governance Policy",
+  "version": "1.0",
+  "rational": "Measure availability and compliance of AI systems worldwide.",
+  "what": {
+    "ai_systems": {
+      "match": [
+        { "field": "domain", "op": "equals", "value": "ai_systems" }
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/ai-governance-analysis.json",
+    "./measurement-profiles/ai-entrypoint-measure-passive.json",
+    "./measurement-profiles/ai-compliance-active.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": true
+  }
+}
