@@ -687,62 +687,82 @@ function synHL(json, focus){
   const foc = focus ? focus.split('/').pop().replace('.json','') : null;
 
   return str.split('\n').map(line => {
-    let h = escH(line);
+    // ── Semantic analysis on RAW line (before escaping) ──────
+    // We build a token list, then escape each token individually
 
-    // ── 1. JSON structure ─────────────────────────────────────
-    h = h.replace(/"([^"]+)":/g, '<span class="hk">"$1"</span>:');
+    // Replace the line with annotated HTML — work on raw string
+    let result = '';
+    let i = 0;
 
-    // ── 2. String values — semantic before generic ────────────
-    h = h.replace(/: "([^"]*)"/g, (match, val) => {
-      const v = val; // already HTML-escaped
+    // Simple state machine: scan char by char
+    // Detect: "key": "value"  |  "key": number  |  "key": bool/null
+    // Also handle array items: "STRING"
+    const raw = line;
 
-      // URLs → blue, clickable
-      if (v.startsWith('http://') || v.startsWith('https://')) {
-        return `: <span class="hs"><a class="h-url" href="${v}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">"${v}"</a></span>`;
+    // Fast path: use regex on raw, then escape each piece
+    // Pattern: key-colon-value or standalone quoted string
+    const processed = raw.replace(/"((?:[^"\\]|\\.)*)"/g, (match, inner, offset) => {
+      // Determine context: is this a key or a value?
+      const before = raw.slice(0, offset).trimEnd();
+      const isKey = before.endsWith('{') || before.endsWith(',') || before === '' ||
+                    /^\s*$/.test(before) || before.endsWith('[') ;
+      // Check if followed by colon (it's a key)
+      const after = raw.slice(offset + match.length).trimStart();
+      const isObjKey = after.startsWith(':');
+
+      const escaped = escH(inner);
+
+      if (isObjKey) {
+        return `<span class="hk">"${escaped}"</span>`;
       }
 
-      // ISO timestamps → muted small
-      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(v)) {
-        return `: <span class="h-ts">"${v}"</span>`;
+      // It's a value — semantic classification
+      // URLs
+      if (inner.startsWith('http://') || inner.startsWith('https://')) {
+        const href = escH(inner);
+        return `<span class="hs"><a class="h-url" href="${href}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">"${href}"</a></span>`;
       }
-
+      // ISO timestamp
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(inner)) {
+        return `<span class="h-ts">"${escaped}"</span>`;
+      }
       // conflictClass
-      if (v === 'passive') return `: <span class="h-passive">"passive"</span>`;
-      if (v === 'active')  return `: <span class="h-active">"active"</span>`;
-      if (v === 'stress')  return `: <span class="h-stress">"stress"</span>`;
-
-      // colourState / colour codes
-      if (v === 'BLU') return `: <span class="h-BLU">"BLU"</span>`;
-      if (v === 'GRN') return `: <span class="h-GRN">"GRN"</span>`;
-      if (v === 'AMB') return `: <span class="h-AMB">"AMB"</span>`;
-      if (v === 'RED') return `: <span class="h-RED">"RED"</span>`;
-
+      if (inner === 'passive') return `<span class="h-passive">"passive"</span>`;
+      if (inner === 'active')  return `<span class="h-active">"active"</span>`;
+      if (inner === 'stress')  return `<span class="h-stress">"stress"</span>`;
+      // Colour states
+      if (inner === 'BLU') return `<span class="h-BLU">"BLU"</span>`;
+      if (inner === 'GRN') return `<span class="h-GRN">"GRN"</span>`;
+      if (inner === 'AMB') return `<span class="h-AMB">"AMB"</span>`;
+      if (inner === 'RED') return `<span class="h-RED">"RED"</span>`;
       // domain values
-      if (DOMAIN_COLOURS[v]) return `: <span class="hs h-${DOMAIN_COLOURS[v]}">"${v}"</span>`;
-
-      // ISO country codes (2-letter uppercase, known)
-      if (ISO_CC.has(v)) return `: <span class="h-cc">"${v}" ${countryFlag(v)}</span>`;
-
+      if (DOMAIN_COLOURS[inner]) return `<span class="hs h-${DOMAIN_COLOURS[inner]}">"${escaped}"</span>`;
+      // ISO country codes
+      if (ISO_CC.has(inner)) return `<span class="h-cc">"${escaped}"</span> ${countryFlag(inner)}`;
       // Default string
-      return `: <span class="hs">"${v}"</span>`;
+      return `<span class="hs">"${escaped}"</span>`;
     });
 
-    // ── 3. Array string items (e.g. countries:["DE","FR"]) ────
-    // Match quoted strings inside arrays: "XX" not preceded by :
-    h = h.replace(/(?<!: )"([A-Z]{2})"(?=[,\]])/g, (match, cc) => {
-      if (ISO_CC.has(cc)) return `"<span class="h-cc">${cc}</span>" ${countryFlag(cc)}`;
-      return match;
-    });
+    // Now escape remaining non-HTML parts (numbers, colons, brackets, etc.)
+    // Replace the processed string's non-span parts
+    let h = processed
+      .replace(/(?<!<[^>]*):\s*(-?\d+\.?\d*)(?=[,\n\r\]]|$)/g,
+        (m, n) => `: <span class="hn">${escH(n)}</span>`)
+      .replace(/(?<!<[^>]*): (true|false)(?=[,\n\r]|$)/g,
+        (m, b) => `: <span class="hb">${b}</span>`)
+      .replace(/(?<!<[^>]*): (null)(?=[,\n\r]|$)/g,
+        ': <span class="hnl">null</span>');
 
-    // ── 4. Numbers, booleans, null ────────────────────────────
-    h = h.replace(/: (-?\d+\.?\d*)/g, ': <span class="hn">$1</span>');
-    h = h.replace(/: (true|false)/g,  ': <span class="hb">$1</span>');
-    h = h.replace(/: (null)/g,        ': <span class="hnl">$1</span>');
+    // Escape any remaining & < > that are not part of HTML tags
+    // (The regex replacements above already handle their own escaping)
+    // Just escape structural characters outside spans
+    h = h.replace(/&(?!amp;|lt;|gt;|quot;)/g, '&amp;');
 
-    // ── 5. Focus highlight ────────────────────────────────────
+    // Focus highlight (on already-processed HTML, skip inside tags)
     if (foc && foc !== '*' && foc.length > 2) {
       const e = foc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      h = h.replace(new RegExp(e, 'gi'), m => `<span class="hf">${m}</span>`);
+      h = h.replace(new RegExp(`(?![^<]*>)(${e})`, 'gi'),
+        m => `<span class="hf">${m}</span>`);
     }
 
     return h;

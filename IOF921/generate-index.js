@@ -19,8 +19,11 @@ const SCAN_DIRS = [
   'governance-profiles',
   'policies',
   'analysis-profiles',
+  'measurement-profiles',
   'domains',
+  'ai-domains',
   'regions',
+  'ai-regions',
   'docs'
 ];
 
