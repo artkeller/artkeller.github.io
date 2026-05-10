@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF — Internet Ontology Framework</title>
+<meta name="description" content="IOF generates mission-oriented operational views of interconnected digital society. See what modern society currently depends on.">
+<style>
+:root {
+  --bg:#f4f5f7; --surface:#ffffff; --border:#dde1e7;
+  --muted:#6b7280; --fg:#111827; --fg2:#374151;
+  --accent:#1a56db; --accent2:#7c3aed;
+  --ok:#059669; --warn:#d97706; --err:#dc2626;
+  --r:10px; --max:1100px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117; --surface:#161b22; --border:#30363d;
+  --muted:#8b949e; --fg:#e6edf3; --fg2:#c9d1d9;
+  --accent:#58a6ff; --accent2:#c084fc; --ok:#3fb950;
+}}
+*,*::before,*::after{box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{margin:0;font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--fg);line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent);text-decoration:none;}
+a:hover{text-decoration:underline;}
+h1,h2,h3,h4{line-height:1.25;letter-spacing:-.02em;margin:0;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--surface);
+  border-bottom:1px solid var(--border);padding:0 24px;height:56px;
+  display:flex;align-items:center;}
+.nav-brand{display:flex;align-items:center;gap:10px;margin-right:auto;
+  font-weight:700;font-size:15px;letter-spacing:-.02em;color:var(--fg);}
+.nav-brand:hover{text-decoration:none;}
+.nav-links{display:flex;gap:4px;align-items:center;}
+.nav-links a{font-size:13px;color:var(--muted);padding:5px 10px;
+  border-radius:6px;transition:color .15s,background .15s;}
+.nav-links a:hover{color:var(--fg);background:var(--bg);text-decoration:none;}
+.nav-cta{background:var(--accent);color:#fff!important;padding:6px 14px!important;
+  border-radius:6px;font-weight:600;margin-left:8px;transition:opacity .15s;}
+.nav-cta:hover{opacity:.85;text-decoration:none!important;}
+
+/* HERO */
+.hero{padding:80px 24px 64px;max-width:var(--max);margin:0 auto;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+@media(max-width:768px){.hero{grid-template-columns:1fr;padding:48px 20px 40px;}}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg);
+  border:1px solid var(--border);border-radius:20px;padding:4px 12px;
+  font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;
+  text-transform:uppercase;margin-bottom:20px;}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
+.hero h1{font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--fg);margin-bottom:20px;}
+.hero h1 em{font-style:normal;color:var(--accent);}
+.hero-sub{font-size:17px;color:var(--fg2);margin-bottom:32px;max-width:480px;line-height:1.65;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-primary{display:inline-flex;align-items:center;gap:7px;background:var(--accent);
+  color:#fff;border:none;padding:11px 22px;border-radius:var(--r);font-weight:600;
+  font-size:15px;cursor:pointer;transition:opacity .15s;text-decoration:none;}
+.btn-primary:hover{opacity:.85;text-decoration:none;color:#fff;}
+.btn-secondary{display:inline-flex;align-items:center;gap:7px;background:var(--surface);
+  color:var(--fg);border:1px solid var(--border);padding:11px 22px;border-radius:var(--r);
+  font-weight:600;font-size:15px;cursor:pointer;transition:background .15s;text-decoration:none;}
+.btn-secondary:hover{background:var(--bg);text-decoration:none;}
+
+/* HERO VISUAL — mission card preview */
+.hero-visual{background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:22px;overflow:hidden;}
+.mc{font-family:'SF Mono','Cascadia Code',monospace;font-size:11.5px;line-height:1.75;}
+.mc-hdr{display:flex;align-items:center;gap:8px;padding-bottom:12px;
+  border-bottom:1px solid var(--border);margin-bottom:14px;}
+.mc-rft{display:flex;align-items:center;gap:5px;margin-left:auto;
+  font-size:11px;font-weight:700;color:var(--ok);}
+.mc-row{display:flex;gap:8px;margin-bottom:4px;}
+.mc-k{color:var(--muted);min-width:90px;flex-shrink:0;}
+.mc-v{color:var(--fg);}
+.mc-v.bl{color:var(--accent);}
+.mc-v.gr{color:var(--ok);}
+.mc-v.pu{color:var(--accent2);}
+.mc-v.or{color:var(--warn);}
+.mc-sect{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.mc-stitle{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);margin-bottom:7px;}
+.mc-node{display:flex;align-items:center;gap:7px;padding:5px 7px;
+  background:var(--bg);border-radius:5px;margin-bottom:3px;font-size:11px;}
+.nd{width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0;}
+.nd.w{background:var(--warn);}
+.mc-lbl{font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;
+  border:1px solid transparent;flex-shrink:0;}
+.lbl-g{color:var(--accent);background:#eef4ff;border-color:#c3d9f9;}
+.lbl-f{color:var(--accent2);background:#f5f0ff;border-color:#d8c4fd;}
+.lbl-i{color:var(--ok);background:#f0fdf4;border-color:#86efac;}
+
+/* STATEMENT */
+.statement{background:var(--fg);color:#fff;padding:40px 24px;text-align:center;}
+.statement p{max-width:720px;margin:0 auto;
+  font-size:clamp(16px,2.5vw,21px);font-weight:400;line-height:1.7;opacity:.88;}
+.statement strong{opacity:1;font-weight:700;}
+
+/* SECTIONS */
+section{padding:64px 24px;max-width:var(--max);margin:0 auto;}
+.slabel{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--muted);margin-bottom:8px;}
+.stitle{font-size:clamp(22px,3vw,32px);font-weight:700;margin-bottom:12px;}
+.ssub{font-size:16px;color:var(--fg2);max-width:600px;margin-bottom:40px;line-height:1.65;}
+
+/* LAYER CARDS */
+.layer-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+@media(max-width:640px){.layer-grid{grid-template-columns:1fr;}}
+.lcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:28px;display:flex;flex-direction:column;gap:14px;
+  transition:border-color .2s,box-shadow .2s;}
+.lcard:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(26,86,219,.08);}
+.lcard-icon{width:44px;height:44px;border-radius:10px;background:var(--bg);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.lcard-tag{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);margin-bottom:2px;}
+.lcard h3{font-size:17px;font-weight:700;}
+.lcard p{font-size:14px;color:var(--fg2);margin:0;line-height:1.65;flex:1;}
+.lcard-items{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.lcard-items li{font-size:12px;background:var(--bg);border:1px solid var(--border);
+  border-radius:5px;padding:2px 8px;color:var(--muted);
+  font-family:'SF Mono','Cascadia Code',monospace;}
+
+/* MISSION SECTION */
+.mission-wrap{background:var(--surface);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);}
+.mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+@media(max-width:640px){.mission-grid{grid-template-columns:1fr;}}
+.mission-point{display:flex;gap:12px;align-items:flex-start;padding:16px;
+  background:var(--bg);border-radius:10px;margin-bottom:14px;}
+.mission-point h4{font-size:14px;font-weight:600;margin:0 0 4px;}
+.mission-point p{font-size:13px;color:var(--muted);margin:0;line-height:1.6;}
+.code-preview{background:var(--fg);border-radius:12px;padding:20px;
+  font-family:'SF Mono','Cascadia Code',monospace;font-size:11.5px;
+  line-height:1.8;color:#e6edf3;overflow:auto;}
+.code-preview pre{margin:0;white-space:pre;}
+.ck{color:#c084fc;}.cv{color:#3fb950;}.cu{color:#58a6ff;}
+
+/* PRINCIPLES */
+.principle-band{background:var(--surface);border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);padding:48px 24px;}
+.principle-inner{max-width:var(--max);margin:0 auto;}
+.principle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:32px;}
+@media(max-width:640px){.principle-grid{grid-template-columns:1fr;gap:20px;}}
+.pitem h4{font-size:15px;font-weight:700;margin:0 0 6px;}
+.pitem p{font-size:13px;color:var(--muted);margin:0;line-height:1.6;}
+
+/* TOOLS */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:640px){.tools-grid{grid-template-columns:1fr;}}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:28px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden;}
+.tcard.soon{opacity:.65;}
+.tcard .soon-badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;background:var(--bg);
+  border:1px solid var(--border);color:var(--muted);padding:2px 8px;border-radius:20px;}
+.tcard h3{font-size:17px;font-weight:700;}
+.tcard p{font-size:13px;color:var(--fg2);margin:0;line-height:1.6;flex:1;}
+.tlink{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;
+  color:var(--accent);padding:7px 14px;border-radius:7px;border:1px solid var(--accent);
+  width:fit-content;transition:background .15s;}
+.tlink:hover{background:#eef4ff;text-decoration:none;}
+@media(prefers-color-scheme:dark){.tlink:hover{background:#0c1a3a;}}
+
+/* FOOTER */
+.footer-wrap{border-top:1px solid var(--border);}
+footer{max-width:var(--max);margin:0 auto;padding:28px 24px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.footer-brand{font-size:13px;font-weight:700;color:var(--fg);margin-right:auto;
+  display:flex;align-items:center;gap:7px;}
+.footer-note{font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-brand">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect width="22" height="22" rx="6" fill="url(#n1)"/>
+      <circle cx="11" cy="6" r="3" fill="white" opacity=".95"/>
+      <circle cx="4.5" cy="16.5" r="2.2" fill="white" opacity=".75"/>
+      <circle cx="17.5" cy="16.5" r="2.2" fill="white" opacity=".75"/>
+      <line x1="11" y1="9" x2="5.2" y2="14.6" stroke="white" stroke-width="1.3" opacity=".6"/>
+      <line x1="11" y1="9" x2="16.8" y2="14.6" stroke="white" stroke-width="1.3" opacity=".6"/>
+      <defs><linearGradient id="n1" x1="0" y1="0" x2="22" y2="22">
+        <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+      </linearGradient></defs>
+    </svg>
+    IOF
+  </a>
+  <div class="nav-links">
+    <a href="#layers">Layers</a>
+    <a href="#mission">Mission File</a>
+    <a href="#tools">Tools</a>
+    <a href="iof-validator.html" class="nav-cta">Open Validator →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-text">
+    <div class="hero-badge"><span class="dot"></span>Internet Ontology Framework</div>
+    <h1>See what modern<br><em>society currently</em><br>depends on.</h1>
+    <p class="hero-sub">
+      IOF generates mission-oriented operational views of interconnected
+      digital infrastructure — from technical analysis to strategic
+      situational awareness.
+    </p>
+    <div class="hero-actions">
+      <a href="iof-validator.html" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.4"/>
+          <line x1="10" y1="10" x2="13" y2="13" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        Open Validator
+      </a>
+      <a href="#mission" class="btn-secondary">What is a Mission File?</a>
+    </div>
+  </div>
+
+  <!-- Mission Card Preview -->
+  <div class="hero-visual">
+    <div class="mc">
+      <div class="mc-hdr">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <rect width="13" height="13" rx="3" fill="url(#n2)"/>
+          <circle cx="6.5" cy="4" r="1.8" fill="white" opacity=".9"/>
+          <circle cx="2.5" cy="10" r="1.4" fill="white" opacity=".7"/>
+          <circle cx="10.5" cy="10" r="1.4" fill="white" opacity=".7"/>
+          <line x1="6.5" y1="5.8" x2="3.2" y2="8.8" stroke="white" stroke-width="1" opacity=".6"/>
+          <line x1="6.5" y1="5.8" x2="9.8" y2="8.8" stroke="white" stroke-width="1" opacity=".6"/>
+          <defs><linearGradient id="n2" x1="0" y1="0" x2="13" y2="13">
+            <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+          </linearGradient></defs>
+        </svg>
+        <span style="font-weight:700;font-size:12px;">Mission File</span>
+        <div class="mc-rft">
+          <svg width="7" height="7" viewBox="0 0 7 7"><circle cx="3.5" cy="3.5" r="3.5" fill="currentColor"/></svg>
+          GRN · RFT
+        </div>
+      </div>
+      <div class="mc-row"><span class="mc-k">governance</span><span class="mc-v bl">g7-focus</span></div>
+      <div class="mc-row"><span class="mc-k">colourState</span><span class="mc-v gr">GRN</span></div>
+      <div class="mc-row"><span class="mc-k">domains</span><span class="mc-v" style="font-size:10px">government · finance · industrial</span></div>
+      <div class="mc-row"><span class="mc-k">countries</span><span class="mc-v pu" style="font-size:10px">US · CA · GB · DE · FR · IT · JP</span></div>
+      <div class="mc-row"><span class="mc-k">resolved</span><span class="mc-v gr">23 nodes</span></div>
+      <div class="mc-row"><span class="mc-k">suspected</span><span class="mc-v or">2 nodes</span></div>
+      <div class="mc-sect">
+        <div class="mc-stitle">Sample nodes</div>
+        <div class="mc-node"><span class="nd"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg2)">bundesregierung.de</span><span class="mc-lbl lbl-g">GOV</span></div>
+        <div class="mc-node"><span class="nd"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg2)">federalreserve.gov</span><span class="mc-lbl lbl-f">FIN</span></div>
+        <div class="mc-node"><span class="nd w"></span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg2)">de-cix.net</span><span class="mc-lbl lbl-i">INF</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATEMENT -->
+<div class="statement">
+  <p>
+    Modern societies operate on invisible digital chains —
+    energy grids, financial systems, public services, carrier networks.
+    <strong>When these chains break, decisions fail.</strong>
+    IOF makes those chains observable, structured, and mission-ready.
+  </p>
+</div>
+
+<!-- LAYERS -->
+<section id="layers">
+  <div class="slabel">Architecture</div>
+  <h2 class="stitle">Four layers. One operational reality.</h2>
+  <p class="ssub">IOF does not define a single truth. It generates reproducible, mission-specific views from the same underlying infrastructure observations.</p>
+  <div class="layer-grid">
+
+    <div class="lcard">
+      <div class="lcard-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="8" stroke="var(--ok)" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <circle cx="11" cy="11" r="4" stroke="var(--ok)" stroke-width="1.5"/>
+          <circle cx="11" cy="11" r="1.5" fill="var(--ok)"/>
+        </svg>
+      </div>
+      <div><div class="lcard-tag">Layer 1</div><h3>Observation Layer</h3></div>
+      <p>Internet infrastructure observed as a system — not isolated services. Nodes, reachability, latency, and dependency signals form the raw operational substrate.</p>
+      <ul class="lcard-items"><li>Nodes</li><li>Reachability</li><li>Latency</li><li>Domains</li><li>Regions</li></ul>
+    </div>
+
+    <div class="lcard">
+      <div class="lcard-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <rect x="3" y="5" width="16" height="3" rx="1.5" fill="var(--accent)" opacity=".9"/>
+          <rect x="3" y="10" width="12" height="3" rx="1.5" fill="var(--accent)" opacity=".6"/>
+          <rect x="3" y="15" width="8" height="3" rx="1.5" fill="var(--accent)" opacity=".35"/>
+        </svg>
+      </div>
+      <div><div class="lcard-tag">Layer 2</div><h3>Interpretation Layer</h3></div>
+      <p>Same data — different meaning. Policies and governance define what matters, for whom, and under which criteria. Scanner ≠ Framework ≠ Management.</p>
+      <ul class="lcard-items"><li>Policies</li><li>Governance</li><li>Analysis Profiles</li><li>Conflict Classes</li></ul>
+    </div>
+
+    <div class="lcard">
+      <div class="lcard-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <polygon points="11,3 19,18 3,18" stroke="var(--accent2)" stroke-width="1.5" fill="none"/>
+          <line x1="11" y1="3" x2="11" y2="18" stroke="var(--accent2)" stroke-width="1" opacity=".4"/>
+          <line x1="7" y1="11" x2="15" y2="11" stroke="var(--accent2)" stroke-width="1" opacity=".4"/>
+        </svg>
+      </div>
+      <div><div class="lcard-tag">Layer 3</div><h3>Projection Layer</h3></div>
+      <p>One system — many perspectives. The same mission generates a scanner feed, a C-level dashboard, a graph query, and a compliance report from identical structured data.</p>
+      <ul class="lcard-items"><li>JSON-LD</li><li>Graph Views</li><li>Scanner Output</li><li>RDF-ready</li></ul>
+    </div>
+
+    <div class="lcard">
+      <div class="lcard-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <circle cx="11" cy="11" r="3" fill="var(--warn)"/>
+          <circle cx="11" cy="4" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <circle cx="11" cy="18" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <circle cx="4" cy="11" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <circle cx="18" cy="11" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <line x1="11" y1="5.5" x2="11" y2="8" stroke="var(--warn)" stroke-width="1.2"/>
+          <line x1="11" y1="14" x2="11" y2="16.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <line x1="5.5" y1="11" x2="8" y2="11" stroke="var(--warn)" stroke-width="1.2"/>
+          <line x1="14" y1="11" x2="16.5" y2="11" stroke="var(--warn)" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div><div class="lcard-tag">Layer 4</div><h3>IOF Engine</h3></div>
+      <p>The semantic motor: Governance defines purpose, Policy selects scope, Domain/Region expansion resolves nodes, Mission File packages the result. Reproducible. Deterministic. Portable.</p>
+      <ul class="lcard-items"><li>Governance</li><li>Policy resolution</li><li>Region join</li><li>Mission export</li></ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- MISSION FILE -->
+<div class="mission-wrap">
+<section id="mission">
+  <div class="slabel">The Artifact</div>
+  <h2 class="stitle">The Mission File.</h2>
+  <p class="ssub">Not a report. Not a log. A portable operational model describing digital dependencies, policies, measurements, and reachable capabilities for a defined mission scope.</p>
+
+  <div class="mission-grid">
+    <div>
+      <div class="mission-point">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:1px">
+          <circle cx="10" cy="10" r="8" stroke="var(--accent)" stroke-width="1.5"/>
+          <path d="M7 10l2 2 4-4" stroke="var(--ok)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div><h4>Portable</h4><p>Travels without its source system. Any scanner, graph engine, or dashboard can consume it independently.</p></div>
+      </div>
+      <div class="mission-point">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:1px">
+          <rect x="3" y="3" width="14" height="14" rx="3" stroke="var(--accent2)" stroke-width="1.5"/>
+          <line x1="7" y1="10" x2="13" y2="10" stroke="var(--accent2)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="10" y1="7" x2="10" y2="13" stroke="var(--accent2)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div><h4>Reproducible</h4><p>Same governance + same policy = same result. Deterministic IDs enable git-friendly diffs and audit trails.</p></div>
+      </div>
+      <div class="mission-point">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:1px">
+          <circle cx="10" cy="10" r="3" fill="var(--warn)"/>
+          <circle cx="10" cy="3.5" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <circle cx="10" cy="16.5" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <circle cx="3.5" cy="10" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+          <circle cx="16.5" cy="10" r="1.5" stroke="var(--warn)" stroke-width="1.2"/>
+        </svg>
+        <div><h4>Semantic</h4><p>JSON-LD 1.1 with stable @id references. Graph-ready for RDF backends. Human-readable for operational analysts.</p></div>
+      </div>
+      <div class="mission-point">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-top:1px">
+          <path d="M4 14l4-4 3 3 5-6" stroke="var(--ok)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div><h4>Mission-scoped</h4><p>Every mission has explicit scope: governance, policies, domains, regions, countries. No implicit global truth.</p></div>
+      </div>
+    </div>
+
+    <div class="code-preview">
+<pre>{
+  <span class="ck">"@context"</span>: <span class="cv">"iof.example/schema"</span>,
+  <span class="ck">"@type"</span>: <span class="cv">"Mission"</span>,
+  <span class="ck">"@id"</span>: <span class="cv">"…/mission/20260510-g7"</span>,
+  <span class="ck">"specVersion"</span>: <span class="cv">"open-iof/1.0"</span>,
+  <span class="ck">"readiness"</span>: {
+    <span class="ck">"@type"</span>: <span class="cv">"Readiness"</span>,
+    <span class="ck">"colourState"</span>: <span class="cv">"GRN"</span>,
+    <span class="ck">"structural"</span>: <span class="cv">"PASS"</span>
+  },
+  <span class="ck">"scope"</span>: {
+    <span class="ck">"@type"</span>: <span class="cv">"Scope"</span>,
+    <span class="ck">"domains"</span>: [<span class="cv">"government"</span>, <span class="cv">"finance"</span>],
+    <span class="ck">"countries"</span>: [<span class="cv">"DE"</span>, <span class="cv">"US"</span>, <span class="cv">"JP"</span>]
+  },
+  <span class="ck">"resolvedNodes"</span>: [{
+    <span class="ck">"@type"</span>: <span class="cv">"ResolvedNode"</span>,
+    <span class="ck">"url"</span>: <span class="cu">"https://bundesregierung.de"</span>,
+    <span class="ck">"domain"</span>: <span class="cv">"government"</span>,
+    <span class="ck">"countries"</span>: [<span class="cv">"DE"</span>],
+    <span class="ck">"policy"</span>: <span class="cu">"iof.example/policy/g7"</span>
+  }]
+}</pre>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="principle-band">
+  <div class="principle-inner">
+    <div class="slabel">Design Principles</div>
+    <div class="principle-grid">
+      <div class="pitem"><h4>No single truth</h4><p>IOF generates reproducible mission-specific views, not a universal ground truth. Different missions produce different operational realities — by design.</p></div>
+      <div class="pitem"><h4>Explicit scope</h4><p>Every Mission File carries its full scope: governance rationale, policy selection, domain classification, region definition. Nothing is implicit.</p></div>
+      <div class="pitem"><h4>Scanner-agnostic</h4><p>IOF defines what to observe and how to evaluate. It does not dictate how to observe. Any scanner can consume a Mission File.</p></div>
+      <div class="pitem"><h4>Operational safety</h4><p>Measurement profiles define conflict classes: passive, active, stress. Default is always passive — no probing without explicit policy authorization.</p></div>
+      <div class="pitem"><h4>Deterministic output</h4><p>Same governance + policy + infrastructure state = same Mission File. Stable IDs, git-friendly diffs, audit-ready.</p></div>
+      <div class="pitem"><h4>Graph-ready</h4><p>JSON-LD 1.1 enables RDF serialization, graph ingestion, and semantic cross-mission correlation — without forcing it.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="slabel">Tools</div>
+  <h2 class="stitle">IOF Toolchain</h2>
+  <p class="ssub">Lightweight, client-only, one-pager tools built on the IOF framework.</p>
+  <div class="tools-grid">
+
+    <div class="tcard">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="url(#t1)"/>
+        <circle cx="20" cy="14" r="4" fill="white" opacity=".9"/>
+        <circle cx="10" cy="28" r="3" fill="white" opacity=".7"/>
+        <circle cx="30" cy="28" r="3" fill="white" opacity=".7"/>
+        <line x1="20" y1="18" x2="11.5" y2="25.2" stroke="white" stroke-width="1.5" opacity=".6"/>
+        <line x1="20" y1="18" x2="28.5" y2="25.2" stroke="white" stroke-width="1.5" opacity=".6"/>
+        <circle cx="29" cy="29" r="7" fill="none" stroke="white" stroke-width="1.3" opacity=".4"/>
+        <line x1="33.5" y1="33.5" x2="36" y2="36" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+        <defs><linearGradient id="t1" x1="0" y1="0" x2="40" y2="40">
+          <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+        </linearGradient></defs>
+      </svg>
+      <h3>IOF Validator</h3>
+      <p>Validate governance profiles, policies, domains and regions. Structural and semantic checks. Deep URL validation. Mission File export as JSON-LD.</p>
+      <a href="iof-validator.html" class="tlink">Open Validator →</a>
+    </div>
+
+    <div class="tcard soon">
+      <span class="soon-badge">Coming soon</span>
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="url(#t2)"/>
+        <rect x="10" y="11" width="20" height="3" rx="1.5" fill="white" opacity=".9"/>
+        <rect x="10" y="18" width="14" height="3" rx="1.5" fill="white" opacity=".7"/>
+        <rect x="10" y="25" width="17" height="3" rx="1.5" fill="white" opacity=".5"/>
+        <circle cx="30" cy="30" r="6" fill="rgba(255,255,255,.12)"/>
+        <line x1="30" y1="27" x2="30" y2="33" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="27" y1="30" x2="33" y2="30" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <defs><linearGradient id="t2" x1="0" y1="0" x2="40" y2="40">
+          <stop stop-color="#059669"/><stop offset="1" stop-color="#0891b2"/>
+        </linearGradient></defs>
+      </svg>
+      <h3>IOF Creator</h3>
+      <p>Schema-guided editor for governance profiles, policies, domain nodes, and region definitions. Template-based, real-time validation, JSON download.</p>
+      <span style="font-size:13px;color:var(--muted);font-style:italic;">In development</span>
+    </div>
+
+    <div class="tcard">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="10" fill="url(#t3)"/>
+        <rect x="11" y="9" width="18" height="22" rx="2" stroke="white" stroke-width="1.5" fill="none" opacity=".9"/>
+        <line x1="15" y1="15" x2="25" y2="15" stroke="white" stroke-width="1.3" opacity=".8"/>
+        <line x1="15" y1="19" x2="25" y2="19" stroke="white" stroke-width="1.3" opacity=".6"/>
+        <line x1="15" y1="23" x2="21" y2="23" stroke="white" stroke-width="1.3" opacity=".4"/>
+        <defs><linearGradient id="t3" x1="0" y1="0" x2="40" y2="40">
+          <stop stop-color="#374151"/><stop offset="1" stop-color="#111827"/>
+        </linearGradient></defs>
+      </svg>
+      <h3>IOF Specification</h3>
+      <p>The full ontology specification: data model, schema constraints, region conventions, policy format, Mission File structure, and design rationale.</p>
+      <a href="README.md" class="tlink">Read Specification →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<div class="footer-wrap">
+  <footer>
+    <div class="footer-brand">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect width="16" height="16" rx="4" fill="url(#f1)"/>
+        <circle cx="8" cy="5" r="2" fill="white" opacity=".9"/>
+        <circle cx="3.5" cy="12" r="1.5" fill="white" opacity=".7"/>
+        <circle cx="12.5" cy="12" r="1.5" fill="white" opacity=".7"/>
+        <line x1="8" y1="7" x2="4.2" y2="10.7" stroke="white" stroke-width="1" opacity=".6"/>
+        <line x1="8" y1="7" x2="11.8" y2="10.7" stroke="white" stroke-width="1" opacity=".6"/>
+        <defs><linearGradient id="f1" x1="0" y1="0" x2="16" y2="16">
+          <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+        </linearGradient></defs>
+      </svg>
+      IOF — Internet Ontology Framework
+    </div>
+    <span class="footer-note">open-iof/1.0 · specVersion stable</span>
+    <span class="footer-note">
+      <a href="iof-validator.html">Validator</a> ·
+      <a href="README.md">Specification</a>
+    </span>
+  </footer>
+</div>
+
+</body>
+</html>
+
