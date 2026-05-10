@@ -1,7 +1,3 @@
-Hier ist eine **IOF v0.1 Internet Draft Struktur**, bewusst im Stil eines RFC/Internet-Draft-Formats aufgebaut (IETF-ähnlich), aber auf dein Modell angepasst: klar, modular, kommentierbar, implementierungsnah.
-
----
-
 # Internet-Draft
 
 ## Internet Ontology Framework (IOF) v0.1
@@ -267,10 +263,348 @@ Instead, it defines a shared representation space between:
 > IOF does not define another monitoring system.
 > It defines a shared way to describe what monitoring systems observe.
 
----
+## APPENDIX
 
-Wenn du willst, kann ich als nächsten Schritt daraus direkt machen:
+Formal JSON-LD normative specification (IOF Core Context v0.1)
 
-* **RFC 0.1 IETF Submission Format (inkl. boilerplate, ABNF-ähnliche Syntax)**
-* oder eine **„ENISA technical annex version“**
-* oder eine **„formal JSON-LD normative specification (IOF Core Context v0.1)“**
+```json
+{
+  "@context": {
+    "@version": 1.1,
+
+    "iof": "https://iof.example/schema#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+
+    /* =========================
+       CORE TYPES
+       ========================= */
+
+    "Mission": "iof:Mission",
+    "Generator": "iof:Generator",
+    "Scope": "iof:Scope",
+    "Readiness": "iof:Readiness",
+    "Statistics": "iof:Statistics",
+
+    "AnalysisProfile": "iof:AnalysisProfile",
+    "MeasurementProfile": "iof:MeasurementProfile",
+    "Policy": "iof:Policy",
+
+    "ResolvedNode": "iof:ResolvedNode",
+    "SuspectedNode": "iof:SuspectedNode",
+    "Node": "iof:Node",
+
+    "Domain": "iof:Domain",
+    "Region": "iof:Region",
+
+    /* =========================
+       CORE IDENTIFIERS
+       ========================= */
+
+    "id": "@id",
+    "type": "@type",
+
+    "specVersion": {
+      "@id": "iof:specVersion",
+      "@type": "xsd:string"
+    },
+
+    "created": {
+      "@id": "prov:generatedAtTime",
+      "@type": "xsd:dateTime"
+    },
+
+    "updated": {
+      "@id": "iof:updated",
+      "@type": "xsd:dateTime"
+    },
+
+    "rftAt": {
+      "@id": "iof:rftAt",
+      "@type": "xsd:dateTime"
+    },
+
+    "testedAt": {
+      "@id": "iof:testedAt",
+      "@type": "xsd:dateTime"
+    },
+
+    /* =========================
+       STRUCTURAL RELATIONS
+       ========================= */
+
+    "scope": {
+      "@id": "iof:scope",
+      "@type": "@id"
+    },
+
+    "profiles": {
+      "@id": "iof:profiles",
+      "@container": "@set"
+    },
+
+    "analysis": {
+      "@id": "iof:analysis",
+      "@container": "@set",
+      "@type": "@id"
+    },
+
+    "measurement": {
+      "@id": "iof:measurement",
+      "@container": "@set",
+      "@type": "@id"
+    },
+
+    "resolvedNodes": {
+      "@id": "iof:resolvedNodes",
+      "@container": "@set"
+    },
+
+    "suspectedNodes": {
+      "@id": "iof:suspectedNodes",
+      "@container": "@set"
+    },
+
+    /* =========================
+       NODE MODEL
+       ========================= */
+
+    "url": {
+      "@id": "iof:url",
+      "@type": "@id"
+    },
+
+    "domain": {
+      "@id": "iof:domain",
+      "@type": "xsd:string"
+    },
+
+    "countries": {
+      "@id": "iof:countries",
+      "@container": "@set",
+      "@type": "xsd:string"
+    },
+
+    "sourceFile": {
+      "@id": "iof:sourceFile",
+      "@type": "xsd:string"
+    },
+
+    "policy": {
+      "@id": "iof:policy",
+      "@type": "@id"
+    },
+
+    "alsoIn": {
+      "@id": "iof:alsoIn",
+      "@container": "@set"
+    },
+
+    /* =========================
+       GENERATOR METADATA
+       ========================= */
+
+    "generator": {
+      "@id": "prov:wasGeneratedBy",
+      "@type": "@id"
+    },
+
+    "tool": {
+      "@id": "iof:tool",
+      "@type": "xsd:string"
+    },
+
+    "version": {
+      "@id": "iof:version",
+      "@type": "xsd:string"
+    },
+
+    "governance": {
+      "@id": "iof:governance",
+      "@type": "xsd:string"
+    },
+
+    "policies": {
+      "@id": "iof:policies",
+      "@container": "@set",
+      "@type": "@id"
+    },
+
+    /* =========================
+       READINESS MODEL
+       ========================= */
+
+    "readiness": {
+      "@id": "iof:readiness",
+      "@type": "@id"
+    },
+
+    "structural": {
+      "@id": "iof:structural",
+      "@type": "xsd:string"
+    },
+
+    "deep": {
+      "@id": "iof:deep",
+      "@type": "xsd:string"
+    },
+
+    "colourState": {
+      "@id": "iof:colourState",
+      "@type": "xsd:string"
+    },
+
+    /* =========================
+       STATISTICS
+       ========================= */
+
+    "statistics": {
+      "@id": "iof:statistics",
+      "@type": "@id"
+    },
+
+    "resolvedCount": {
+      "@id": "iof:resolvedCount",
+      "@type": "xsd:integer"
+    },
+
+    "suspectedCount": {
+      "@id": "iof:suspectedCount",
+      "@type": "xsd:integer"
+    },
+
+    "suspectedNote": {
+      "@id": "iof:suspectedNote",
+      "@type": "xsd:string"
+    },
+
+    /* =========================
+       SCOPE MODEL
+       ========================= */
+
+    "domains": {
+      "@id": "iof:domains",
+      "@container": "@set"
+    },
+
+    "regions": {
+      "@id": "iof:regions",
+      "@container": "@set"
+    },
+
+    "excludes": {
+      "@id": "iof:excludes",
+      "@container": "@set"
+    },
+
+    /* =========================
+       PROFILE MODELS
+       ========================= */
+
+    "weights": {
+      "@id": "iof:weights",
+      "@type": "@json"
+    },
+
+    "latency": {
+      "@id": "iof:latency",
+      "@type": "@json"
+    },
+
+    "thresholds": {
+      "@id": "iof:thresholds",
+      "@type": "@json"
+    },
+
+    "schedule": {
+      "@id": "iof:schedule",
+      "@type": "@json"
+    },
+
+    "method": {
+      "@id": "iof:method",
+      "@type": "@json"
+    },
+
+    "timeouts": {
+      "@id": "iof:timeouts",
+      "@type": "@json"
+    },
+
+    "metrics": {
+      "@id": "iof:metrics",
+      "@type": "@json"
+    },
+
+    "alerting": {
+      "@id": "iof:alerting",
+      "@type": "@json"
+    },
+
+    "legal": {
+      "@id": "iof:legal",
+      "@type": "@json"
+    },
+
+    "sources": {
+      "@id": "iof:sources",
+      "@type": "@json"
+    },
+
+    /* =========================
+       SUSPECT STATE MODEL
+       ========================= */
+
+    "suspect": {
+      "@id": "iof:suspect",
+      "@type": "@id"
+    },
+
+    "reason": {
+      "@id": "iof:reason",
+      "@type": "xsd:string"
+    },
+
+    "note": {
+      "@id": "iof:note",
+      "@type": "xsd:string"
+    },
+
+    "status": {
+      "@id": "iof:status",
+      "@type": "xsd:string"
+    },
+
+    "includeGlobal": {
+      "@id": "iof:includeGlobal",
+      "@type": "xsd:boolean"
+    },
+
+    "matchLogic": {
+      "@id": "iof:matchLogic",
+      "@type": "xsd:string"
+    },
+
+    "match": {
+      "@id": "iof:match",
+      "@container": "@set"
+    },
+
+    "field": {
+      "@id": "iof:field",
+      "@type": "xsd:string"
+    },
+
+    "op": {
+      "@id": "iof:op",
+      "@type": "xsd:string"
+    },
+
+    "value": {
+      "@id": "iof:value",
+      "@type": "@json"
+    }
+  }
+}
+```
