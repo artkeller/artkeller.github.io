@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IOF Mission Viewer</title>
+<style>
+:root {
+  --bg: #f4f4f4;
+  --panel: #ffffff;
+  --text: #161616;
+  --muted: #525252;
+  --border: #dcdcdc;
+  --primary: #0f62fe;
+  --danger: #da1e28;
+  --warning: #f1c21b;
+  --success: #198038;
+  --info: #0043ce;
+  --shadow: rgba(0,0,0,0.08);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+header {
+  background: linear-gradient(135deg, #161616 0%, #262626 100%);
+  color: white;
+  padding: 4rem 1.5rem 3rem;
+}
+
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-tag {
+  display: inline-block;
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.05;
+  max-width: 900px;
+}
+
+.hero p {
+  max-width: 820px;
+  color: rgba(255,255,255,0.86);
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+}
+
+.upload-panel {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+input[type=file] {
+  background: white;
+  color: black;
+  padding: 1rem;
+  border-radius: 12px;
+  border: none;
+  width: 100%;
+  max-width: 420px;
+}
+
+button {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 1rem 1.4rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover,
+button:focus {
+  background: #0043ce;
+}
+
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 6rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.card h2,
+.card h3 {
+  margin-top: 0;
+  line-height: 1.2;
+}
+
+.metric {
+  font-size: 2.4rem;
+  font-weight: bold;
+  margin-top: 0.4rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-top: 0.6rem;
+}
+
+.badge.grn {
+  background: rgba(25,128,56,0.12);
+  color: var(--success);
+}
+
+.badge.amb {
+  background: rgba(241,194,27,0.16);
+  color: #8e6a00;
+}
+
+.badge.red {
+  background: rgba(218,30,40,0.14);
+  color: var(--danger);
+}
+
+.badge.blu {
+  background: rgba(15,98,254,0.12);
+  color: var(--primary);
+}
+
+.section-title {
+  margin-top: 4rem;
+  margin-bottom: 1rem;
+}
+
+.list {
+  display: grid;
+  gap: 1rem;
+}
+
+.node {
+  border-left: 6px solid var(--primary);
+  padding-left: 1rem;
+}
+
+.node.suspected {
+  border-left-color: var(--danger);
+}
+
+.node-url {
+  font-weight: bold;
+  word-break: break-word;
+}
+
+.small {
+  font-size: 0.9rem;
+}
+
+pre {
+  overflow-x: auto;
+  background: #161616;
+  color: #f4f4f4;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+footer {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--muted);
+}
+
+.highlight {
+  background: rgba(15,98,254,0.08);
+  border-left: 4px solid var(--primary);
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+@media (max-width: 720px) {
+  .metric {
+    font-size: 2rem;
+  }
+
+  header {
+    padding-top: 3rem;
+  }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hero">
+    <div class="hero-tag">IOF Mission Viewer</div>
+    <h1>See what modern society currently depends on.</h1>
+    <p>
+      Load an IOF Mission JSON or JSON-LD file directly from your computer.
+      This viewer transforms infrastructure telemetry into an operational situation picture:
+      governments, carriers, energy, finance, AI infrastructure, media, logistics and digital dependency chains.
+    </p>
+
+    <div class="upload-panel">
+      <input id="fileInput" type="file" accept=".json,.jsonld,application/json" aria-label="Select IOF mission file" />
+      <button id="loadDemoBtn">Load Demo</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="empty" class="empty-state">
+    <h2>No mission loaded</h2>
+    <p>Select an IOF Mission file from your Downloads folder or local disk.</p>
+  </div>
+
+  <div id="viewer" style="display:none;">
+
+    <section class="grid" id="topGrid"></section>
+
+    <section>
+      <h2 class="section-title">Operational Interpretation</h2>
+      <div class="card highlight" id="interpretation"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Mission Scope</h2>
+      <div class="grid" id="scopeGrid"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Policies and Profiles</h2>
+      <div class="grid" id="profilesGrid"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Resolved Infrastructure</h2>
+      <div class="list" id="resolvedList"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Suspected / Degraded Infrastructure</h2>
+      <div class="list" id="suspectedList"></div>
+    </section>
+
+    <section>
+      <h2 class="section-title">Raw Mission JSON</h2>
+      <div class="card">
+        <pre id="rawJson"></pre>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  IOF Mission Viewer · Lightweight Situation Awareness · No external libraries · WCAG-oriented
+</footer>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const loadDemoBtn = document.getElementById('loadDemoBtn');
+
+const empty = document.getElementById('empty');
+const viewer = document.getElementById('viewer');
+
+fileInput.addEventListener('change', async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+
+  try {
+    const json = JSON.parse(text);
+    renderMission(json);
+  } catch (err) {
+    alert('Invalid JSON file');
+    console.error(err);
+  }
+});
+
+loadDemoBtn.addEventListener('click', () => {
+  renderMission(buildDemoMission());
+});
+
+function renderMission(mission) {
+  empty.style.display = 'none';
+  viewer.style.display = 'block';
+
+  document.getElementById('rawJson').textContent = JSON.stringify(mission, null, 2);
+
+  renderTopGrid(mission);
+  renderInterpretation(mission);
+  renderScope(mission);
+  renderProfiles(mission);
+  renderNodes(mission);
+}
+
+function renderTopGrid(mission) {
+  const grid = document.getElementById('topGrid');
+  grid.innerHTML = '';
+
+  const readiness = mission.readiness || {};
+  const stats = mission.statistics || {};
+
+  const colour = readiness.colourState || 'UNKNOWN';
+
+  const cards = [
+    {
+      title: 'Mission State',
+      value: colour,
+      extra: readiness.deep || 'UNKNOWN',
+      badge: colour.toLowerCase()
+    },
+    {
+      title: 'Resolved Nodes',
+      value: stats.resolvedCount || 0,
+      extra: 'Operational endpoints'
+    },
+    {
+      title: 'Suspected Nodes',
+      value: stats.suspectedCount || 0,
+      extra: 'Potential degradation'
+    },
+    {
+      title: 'Governance Profile',
+      value: mission.generator?.governance || 'N/A',
+      extra: mission.specVersion || ''
+    }
+  ];
+
+  cards.forEach(card => {
+    const div = document.createElement('div');
+    div.className = 'card';
+
+    div.innerHTML = `
+      <h2>${escapeHtml(card.title)}</h2>
+      <div class="metric">${escapeHtml(String(card.value))}</div>
+      <div class="muted">${escapeHtml(card.extra)}</div>
+      ${card.badge ? `<div class="badge ${card.badge}">${escapeHtml(String(card.value))}</div>` : ''}
+    `;
+
+    grid.appendChild(div);
+  });
+}
+
+function renderInterpretation(mission) {
+  const el = document.getElementById('interpretation');
+
+  const resolved = mission.statistics?.resolvedCount || 0;
+  const suspected = mission.statistics?.suspectedCount || 0;
+  const domains = (mission.scope?.domains || []).join(', ');
+
+  let statement = '';
+
+  if (suspected === 0) {
+    statement = 'No degraded nodes detected during mission generation. The current mission view indicates stable reachability across the selected dependency domains.';
+  } else {
+    statement = `${suspected} suspected or degraded endpoints detected. This does not automatically imply failure. It may indicate filtering, maintenance, regional instability, rate limiting or deliberate network control.`;
+  }
+
+  el.innerHTML = `
+    <p>
+      This mission represents a lightweight operational situation picture generated from distributed internet dependency observations.
+      It is not limited to cybersecurity. The same graph can reflect disruptions caused by weather, conflict, policy actions,
+      telecom outages, CDN instability, AI infrastructure saturation, logistics breakdowns or regional isolation.
+    </p>
+
+    <p>
+      <strong>Current scope:</strong> ${escapeHtml(domains)}<br>
+      <strong>Operational footprint:</strong> ${resolved} reachable endpoints
+    </p>
+
+    <p>
+      ${escapeHtml(statement)}
+    </p>
+
+    <p>
+      Example: temporary internet restrictions observed during the 8/9 May 2025 commemoration events in Russia demonstrated how regional political or security events can visibly influence end-user connectivity and public internet availability.
+    </p>
+  `;
+}
+
+function renderScope(mission) {
+  const grid = document.getElementById('scopeGrid');
+  grid.innerHTML = '';
+
+  const scope = mission.scope || {};
+
+  const sections = [
+    {
+      title: 'Domains',
+      items: scope.domains || []
+    },
+    {
+      title: 'Countries',
+      items: scope.countries || []
+    }
+  ];
+
+  sections.forEach(section => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <h3>${escapeHtml(section.title)}</h3>
+      <p>${section.items.map(v => `<span class="badge blu">${escapeHtml(v)}</span>`).join(' ') || '<span class="muted">None</span>'}</p>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function renderProfiles(mission) {
+  const grid = document.getElementById('profilesGrid');
+  grid.innerHTML = '';
+
+  const profiles = mission.profiles || [];
+
+  profiles.forEach(profile => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <h3>${escapeHtml(profile.name || profile.id || 'Profile')}</h3>
+      <p class="small muted">${escapeHtml(profile.description || '')}</p>
+      <p><strong>Version:</strong> ${escapeHtml(profile.version || 'n/a')}</p>
+      <p><strong>Standard:</strong> ${escapeHtml(profile.standard || 'n/a')}</p>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function renderNodes(mission) {
+  const resolvedList = document.getElementById('resolvedList');
+  const suspectedList = document.getElementById('suspectedList');
+
+  resolvedList.innerHTML = '';
+  suspectedList.innerHTML = '';
+
+  (mission.resolvedNodes || []).forEach(node => {
+    resolvedList.appendChild(createNode(node, false));
+  });
+
+  (mission.suspectedNodes || []).forEach(node => {
+    suspectedList.appendChild(createNode(node, true));
+  });
+
+  if ((mission.suspectedNodes || []).length === 0) {
+    suspectedList.innerHTML = '<div class="card">No suspected nodes in current mission.</div>';
+  }
+}
+
+function createNode(node, suspected) {
+  const div = document.createElement('div');
+  div.className = 'card node ' + (suspected ? 'suspected' : '');
+
+  const suspectInfo = suspected && node.suspect
+    ? `
+      <p><strong>Reason:</strong> ${escapeHtml(node.suspect.reason || '')}</p>
+      <p class="small muted">${escapeHtml(node.suspect.note || '')}</p>
+    `
+    : '';
+
+  div.innerHTML = `
+    <div class="node-url">${escapeHtml(node.url || '')}</div>
+    <p>
+      <strong>Domain:</strong> ${escapeHtml(node.domain || 'n/a')}<br>
+      <strong>Countries:</strong> ${(node.countries || []).map(c => escapeHtml(c)).join(', ')}
+    </p>
+    <p class="small muted">${escapeHtml(node.sourceFile || '')}</p>
+    ${suspectInfo}
+  `;
+
+  return div;
+}
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function buildDemoMission() {
+  return {
+    specVersion: 'open-iof/1.0',
+    generator: {
+      governance: 'global-neutral'
+    },
+    readiness: {
+      colourState: 'GRN',
+      deep: 'PASS'
+    },
+    statistics: {
+      resolvedCount: 18,
+      suspectedCount: 2
+    },
+    scope: {
+      domains: ['carrier', 'energy', 'government', 'ai'],
+      countries: ['DE', 'FR', 'FI', 'US']
+    },
+    profiles: [
+      {
+        id: 'standard-analysis',
+        name: 'Standard Economic Analysis',
+        version: '1.0',
+        standard: 'IOF-ANALYSIS-v1',
+        description: 'Balanced availability analysis profile.'
+      },
+      {
+        id: 'passive-standard',
+        name: 'Passive Measurement',
+        version: '1.0',
+        standard: 'IOF-MEASURE-v1',
+        description: 'Conservative passive internet observation profile.'
+      }
+    ],
+    resolvedNodes: [
+      {
+        url: 'https://www.telekom.de',
+        domain: 'carrier',
+        countries: ['DE'],
+        sourceFile: './domains/carrier/de.json'
+      },
+      {
+        url: 'https://www.entsoe.eu',
+        domain: 'energy',
+        countries: ['EU'],
+        sourceFile: './domains/energy/eu.json'
+      }
+    ],
+    suspectedNodes: [
+      {
+        url: 'https://www.example.gov',
+        domain: 'government',
+        countries: ['FI'],
+        sourceFile: './domains/government/fi.json',
+        suspect: {
+          reason: 'temporarily unreachable',
+          note: 'Regional instability or maintenance possible.'
+        }
+      }
+    ]
+  };
+}
+</script>
+</body>
+</html>
