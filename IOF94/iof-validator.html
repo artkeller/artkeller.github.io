@@ -1211,44 +1211,51 @@ const IOF_CONTEXT = {
 };
 
 function buildMission(dead){
-  const govId = LAST_GOV.split('/').pop().replace('.json','');
-  const govJ  = CACHE[LAST_GOV] || {};
-  const ts    = new Date().toISOString();
-
-  // Deterministic @id for this mission
+  const govId  = LAST_GOV.split('/').pop().replace('.json','');
+  const govJ   = CACHE[LAST_GOV] || {};
+  const ts     = new Date().toISOString();
   const tsCompact = ts.replace(/[-:.]/g,'').slice(0,15);
   const missionAtId = iofId('mission', `${tsCompact}-${govId}`);
 
-  // ── Profiles: typed, stable @id, ref preserved ───────────────
-  const profileMap = {};       // h → enriched profile object
-  const policyIds  = [];
-  const policyProfileMap = {}; // policyId → {analysis:[], measurement:[]}
+  // ── Profiles: @id (semantic) + ref (runtime) ─────────────────
+  const profileMap = {};
+  const policyRefs = []; // full policy objects with @id + ref
+  const policyProfileMap = {};
 
   for(const pPath of (govJ.policies||[])){
     const pj = CACHE[pPath];
     if(!pj||pj.__error) continue;
     const pid = pj.id || pPath;
-    policyIds.push(pid);
+    // Policy: both layers
+    policyRefs.push({
+      "@id":   iofId('policy', pid),
+      "@type": "Policy",
+      "id":    pid,
+      "ref":   pPath                    // ← runtime resolution path
+    });
     policyProfileMap[pid] = {analysis:[], measurement:[]};
+
     for(const h of (pj.how||[])){
       const hj = CACHE[h];
       if(!hj||hj.__error) continue;
       const isMeasure = h.includes('measurement-profiles');
+      const profId = hj.id || h.split('/').pop().replace('.json','');
+      const profAtId = iofId('profile', profId);
       if(!profileMap[h]){
-        const profileType = isMeasure ? 'MeasurementProfile' : 'AnalysisProfile';
         profileMap[h] = {
-          "@id":   iofId('profile', hj.id || h.split('/').pop().replace('.json','')),
-          "@type": profileType,
-          "ref":   h,
+          "@id":   profAtId,                              // semantic identity
+          "@type": isMeasure ? 'MeasurementProfile' : 'AnalysisProfile',
+          "id":    profId,
+          "ref":   h,                                     // runtime resolution path
           ...hj
         };
       }
-      if(isMeasure) policyProfileMap[pid].measurement.push(profileMap[h]['@id']);
-      else          policyProfileMap[pid].analysis.push(profileMap[h]['@id']);
+      if(isMeasure) policyProfileMap[pid].measurement.push(profAtId);
+      else          policyProfileMap[pid].analysis.push(profAtId);
     }
   }
 
-  // ── Nodes: typed, stable @id, policy attribution ─────────────
+  // ── Nodes: @id (semantic) + ref/sourceFile (runtime) ─────────
   const resolved=[], suspected=[];
   const seenUrls = new Map();
 
@@ -1270,90 +1277,90 @@ function buildMission(dead){
     const pj  = pw?.dataset?.label ? CACHE[pw.dataset.label] : null;
     const pid = pj?.id || null;
     const prf = pid ? policyProfileMap[pid] : {analysis:[],measurement:[]};
+    const domainRef = dw?.dataset?.label || null;   // runtime ref to domain file
 
     if(seenUrls.has(url)){
       const {list, idx} = seenUrls.get(url);
       list[idx].alsoIn = list[idx].alsoIn || [];
       list[idx].alsoIn.push({
-        "@type":     "iof:PolicyReference",
-        "policy":    pid ? iofId('policy', pid) : null,
+        "@type":       "iof:PolicyReference",
+        "@id":         pid ? iofId('policy', pid) : null,  // semantic
+        "ref":         pw?.dataset?.label || null,           // runtime
+        "id":          pid,
         "analysis":    prf.analysis.length    ? prf.analysis    : null,
         "measurement": prf.measurement.length ? prf.measurement : null
       });
       return;
     }
 
-    const nodeType = dead.has(url) ? 'SuspectedNode' : 'ResolvedNode';
     const entry = {
-      "@id":        nodeId(url),
-      "@type":      nodeType,
+      "@id":        nodeId(url),                // semantic: stable graph identity
+      "@type":      dead.has(url) ? 'SuspectedNode' : 'ResolvedNode',
       "url":        url,
       "domain":     dj?.domain    || null,
       "countries":  dj?.countries || null,
-      "sourceFile": dw?.dataset?.label || null,
-      "policy":     pid ? iofId('policy', pid) : null,
+      // Runtime resolution: ref points to the domain file containing this node
+      "ref":        domainRef,                  // runtime: domain file path
+      // Policy attribution: both layers
+      "policy":     pid ? iofId('policy', pid) : null,  // semantic @id
+      "policyRef":  pw?.dataset?.label || null,          // runtime ref
       "analysis":    prf.analysis.length    ? prf.analysis    : null,
       "measurement": prf.measurement.length ? prf.measurement : null
     };
-
-    const targetList = dead.has(url) ? suspected : resolved;
-    const idx = targetList.length;
 
     if(dead.has(url)){
       suspected.push({
         ...entry,
         "suspect": {
-          "@type":  "iof:SuspectedState",
-          "reason": "unreachable at validation time",
-          "note":   "Transient conditions possible: DDoS, rate-limiting, scan-blocking, maintenance. Scanner may re-evaluate independently.",
+          "@type":    "iof:SuspectedState",
+          "reason":   "unreachable at validation time",
+          "note":     "Transient conditions possible: DDoS, rate-limiting, scan-blocking, maintenance. Scanner may re-evaluate independently.",
           "testedAt": ts
         }
       });
+      seenUrls.set(url, {list:suspected, idx:suspected.length-1});
     } else {
       resolved.push(entry);
+      seenUrls.set(url, {list:resolved, idx:resolved.length-1});
     }
-    seenUrls.set(url, {list: dead.has(url)?suspected:resolved, idx});
   });
 
   const domains   = [...new Set(resolved.map(n=>n.domain).filter(Boolean))];
   const countries = [...new Set(resolved.flatMap(n=>n.countries||[]).filter(c=>c!=='*'))].sort();
   const code      = document.getElementById('cbadge').textContent.split(' ')[0]||'GRN';
 
-  // Policy objects with @id and @type
-  const policyObjects = policyIds.map(pid => ({
-    "@id":   iofId('policy', pid),
-    "@type": "Policy",
-    "id":    pid
-  }));
-
   return {
-    // ── JSON-LD header ────────────────────────────────────────
-    "@context": IOF_CONTEXT,
-    "@id":      missionAtId,
-    "@type":    "Mission",
-
-    // ── Operational fields (backwards-compatible) ─────────────
+    // ── JSON-LD identity ──────────────────────────────────────
+    "@context":    IOF_CONTEXT,
+    "@id":         missionAtId,
+    "@type":       "Mission",
     "specVersion": "open-iof/1.0",
     "created":     ts,
 
-    // ── Provenance (PROV-O) ───────────────────────────────────
+    // ── Governance: @id (semantic) + ref (runtime) ────────────
+    "governance": {
+      "@id":   iofId('governance', govId),
+      "@type": "Governance",
+      "id":    govId,
+      "ref":   LAST_GOV                        // runtime: governance file path
+    },
+
+    // ── Generator (PROV-O) ────────────────────────────────────
     "generator": {
-      "@type":          "Generator",
-      "@id":            iofId('generator','iof-validator-9.4'),
-      "tool":           "IOF Validator",
-      "version":        "9.4",
-      "wasGeneratedBy": iofId('generator','iof-validator-9.4'),
-      "governance":     govId,
-      "policies":       policyObjects
+      "@id":   iofId('generator','iof-validator-9.4'),
+      "@type": "Generator",
+      "tool":  "IOF Validator",
+      "version": "9.4",
+      "policies": policyRefs                   // full objects with @id + ref
     },
 
     // ── Readiness ─────────────────────────────────────────────
     "readiness": {
-      "@type":      "Readiness",
-      "structural": "PASS",
-      "deep":       "PASS",
+      "@type":       "Readiness",
+      "structural":  "PASS",
+      "deep":        "PASS",
       "colourState": code,
-      "rftAt":      ts
+      "rftAt":       ts
     },
 
     // ── Scope ─────────────────────────────────────────────────
@@ -1373,7 +1380,8 @@ function buildMission(dead){
         : null
     },
 
-    // ── Embedded profiles (self-contained for scanner) ────────
+    // ── Profiles: embedded, self-contained ────────────────────
+    // Each profile has @id (semantic) + ref (runtime) + full content
     "profiles": Object.values(profileMap),
 
     // ── Nodes ─────────────────────────────────────────────────
