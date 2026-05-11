@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Validator v9.4</title>
+<style>
+:root {
+  --bg:#f0f2f5;--surface:#fff;--border:#d0d7de;--muted:#6e7781;--fg:#1a1d21;
+  --gov:#1a56db;--policy:#7c3aed;--domain:#0d7a4e;--region:#b45309;
+  --analysis:#4b5563;--ok:#16a34a;--warn:#ca8a04;--err:#dc2626;
+  --hover:#eef4ff;--focus:0 0 0 3px rgba(26,86,219,.35);
+  --hh:62px;--r:8px;--fs:15px;--fs-sm:13px;--fs-xs:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--surface:#161b22;--border:#30363d;--muted:#8b949e;--fg:#e6edf3;
+  --gov:#58a6ff;--policy:#c084fc;--domain:#3fb950;--region:#f0883e;
+  --analysis:#9ca3af;--ok:#3fb950;--warn:#d29922;--err:#f85149;--hover:#1c2433;
+}}
+*,*::before,*::after{box-sizing:border-box;}
+html{font-size:var(--fs);}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;font-size:var(--fs);line-height:1.55;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased;}
+button,select{font-family:inherit;font-size:var(--fs-sm);cursor:pointer;border-radius:var(--r);}
+button:focus-visible,select:focus-visible{outline:none;box-shadow:var(--focus);}
+/* HEADER */
+header{position:sticky;top:0;z-index:100;height:var(--hh);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;padding:0 13px;}
+.hbrand{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.logo{width:29px;height:29px;border-radius:7px;background:linear-gradient(135deg,#1a56db,#7c3aed);display:flex;align-items:center;justify-content:center;}
+.hbrand h1{font-size:15px;font-weight:600;letter-spacing:-.02em;margin:0;line-height:1.1;}
+.hbrand .sub{font-size:10px;color:var(--muted);}
+.hsep{width:1px;height:26px;background:var(--border);flex-shrink:0;}
+select#govSel{background:var(--bg);border:1px solid var(--border);color:var(--fg);padding:5px 8px;min-width:175px;max-width:240px;font-size:var(--fs-sm);}
+.btn{border:none;padding:6px 13px;font-weight:600;font-size:var(--fs-sm);border-radius:var(--r);display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;transition:opacity .15s;}
+.btn:disabled{opacity:.4;cursor:default;}
+.bp{background:var(--gov);color:#fff;}.bp:not(:disabled):hover{opacity:.85;}
+.bd{background:#0d7a4e;color:#fff;}.bd:not(:disabled):hover{opacity:.85;}
+.be{background:linear-gradient(135deg,#1a56db,#7c3aed);color:#fff;}.be:not(:disabled):hover{opacity:.9;}
+.bg{background:var(--bg);border:1px solid var(--border);color:var(--fg);}.bg:hover{background:var(--hover);border-color:var(--gov);}
+.sp{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.running .sp{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* COLOUR BADGE */
+.cbadge{display:none;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:var(--fs-xs);font-weight:700;letter-spacing:.04em;border:1px solid transparent;flex-shrink:0;}
+.cbadge.vis{display:flex;}
+.cBLU{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8;}
+.cGRN{background:#f0fdf4;border-color:#86efac;color:#15803d;}
+.cAMB{background:#fefce8;border-color:#fde047;color:#854d0e;}
+.cRED{background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+@media(prefers-color-scheme:dark){
+  .cBLU{background:#0c1a3a;border-color:#1e3a6e;color:#93c5fd;}
+  .cGRN{background:#052e16;border-color:#166534;color:#4ade80;}
+  .cAMB{background:#1c1400;border-color:#854d0e;color:#fde047;}
+  .cRED{background:#2d0f0f;border-color:#991b1b;color:#fca5a5;}
+}
+/* FONT */
+.fctr{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.fctr button{background:var(--bg);border:1px solid var(--border);color:var(--fg);width:25px;height:25px;padding:0;font-size:12px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.fctr button:hover{background:var(--hover);}
+.fctr span{font-size:var(--fs-xs);color:var(--muted);min-width:20px;text-align:center;}
+/* COUNTERS */
+.counters{display:flex;gap:5px;margin-left:auto;flex-shrink:0;}
+.pill{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:var(--fs-xs);font-weight:600;border:1px solid transparent;}
+.pok {background:#f0fdf4;border-color:#86efac;color:#15803d;}
+.pwarn{background:#fefce8;border-color:#fde047;color:#854d0e;}
+.perr {background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+@media(prefers-color-scheme:dark){
+  .pok {background:#052e16;border-color:#166534;color:#4ade80;}
+  .pwarn{background:#1c1400;border-color:#854d0e;color:#fde047;}
+  .perr {background:#2d0f0f;border-color:#991b1b;color:#fca5a5;}
+}
+/* MENU */
+.menu{position:relative;flex-shrink:0;}
+.mpanel{display:none;position:absolute;right:0;top:calc(100% + 5px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(0,0,0,.12);padding:8px;min-width:215px;z-index:200;}
+.menu.open .mpanel{display:block;}
+.msect{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:5px 6px 3px;}
+.macts{display:flex;gap:5px;padding:3px 0;}
+.macts button{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--fg);padding:5px 0;font-size:var(--fs-xs);border-radius:5px;}
+.macts button:hover{background:var(--hover);border-color:var(--gov);}
+.mdiv{height:1px;background:var(--border);margin:6px 0;}
+.ftree{padding:0 2px;}
+.fi{display:flex;align-items:center;gap:6px;padding:4px 5px;border-radius:4px;cursor:pointer;user-select:none;}
+.fi:hover{background:var(--hover);}
+.fi input{width:14px;height:14px;accent-color:var(--gov);cursor:pointer;flex-shrink:0;}
+.fd{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.fi span{font-size:var(--fs-sm);}
+.fc1{margin-left:18px;}.fc2{margin-left:34px;}
+.fi.disabled{opacity:.4;pointer-events:none;}
+/* LAYOUT */
+.container{display:flex;height:calc(100vh - var(--hh));overflow:hidden;}
+.resizer{width:5px;flex-shrink:0;cursor:col-resize;background:var(--border);transition:background .15s;position:relative;z-index:10;}
+.resizer:hover,.resizer.dragging{background:var(--gov);}
+.resizer::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:30px;border-radius:2px;background:var(--muted);opacity:.4;}
+.treep{overflow-y:auto;overflow-x:hidden;padding:13px;min-width:180px;}
+.inspp{background:var(--surface);display:flex;flex-direction:column;overflow:hidden;min-width:160px;}
+.insph{padding:9px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.lbadge{font-size:10px;background:var(--hover);border:1px solid var(--border);padding:1px 7px;border-radius:20px;color:var(--gov);display:none;}
+.lbadge.vis{display:block;}
+.inspb{flex:1;overflow-y:auto;padding:11px 12px;}
+.iempty{color:var(--muted);font-size:var(--fs-sm);font-style:italic;}
+/* TREE NODES */
+.nw{margin:1px 0;}
+.nh{display:flex;align-items:center;padding:3px 5px 3px 1px;border-radius:5px;cursor:default;position:relative;}
+.nh:focus-visible{outline:none;box-shadow:var(--focus);}
+/* delete button — shown on hover */
+.del-btn{width:16px;height:16px;border-radius:3px;background:transparent;border:none;color:var(--muted);font-size:12px;line-height:1;padding:0;display:none;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;margin-left:2px;}
+.nh:hover .del-btn{display:flex;}
+.del-btn:hover{background:#fef2f2;color:var(--err);}
+.chev{width:19px;height:19px;display:flex;align-items:center;justify-content:center;border-radius:3px;flex-shrink:0;cursor:pointer;color:var(--muted);transition:transform .15s;font-size:10px;user-select:none;}
+.chev:hover{background:var(--border);color:var(--fg);}
+.chev.open{transform:rotate(90deg);}
+.chev.leaf{visibility:hidden;cursor:default;}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin:0 5px 0 2px;}
+.dok{background:var(--ok);}.dwarn{background:var(--warn);}.derr{background:var(--err);}.ddead{background:#94a3b8;}
+.chip{font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 5px;border-radius:3px;margin-right:5px;flex-shrink:0;text-transform:uppercase;border:1px solid transparent;}
+.cgov {color:var(--gov);   background:#eef4ff;border-color:#c3d9f9;}
+.cpol {color:var(--policy);background:#f5f0ff;border-color:#d8c4fd;}
+.cdom {color:var(--domain);background:#f0fdf4;border-color:#86efac;}
+.creg {color:var(--region);background:#fffbeb;border-color:#fde68a;}
+.cana {color:var(--analysis);background:#f3f4f6;border-color:#d1d5db;}
+.cmea {color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe;}
+.cai  {color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe;}
+.cai-region {color:#b45309;background:#fffbeb;border-color:#fde68a;}
+.curl {color:#0369a1;      background:#f0f9ff;border-color:#bae6fd;}
+.curl.dead{color:#64748b;background:#f1f5f9;border-color:#cbd5e1;}
+@media(prefers-color-scheme:dark){
+  .cgov{background:#0c1a3a;border-color:#1e3a6e;}.cpol{background:#1c0a3a;border-color:#4c1d95;}
+  .cdom{background:#052e16;border-color:#166534;}.creg{background:#1c1400;border-color:#7c4f0a;}
+  .cana{background:#1a1d21;border-color:#30363d;}.curl{background:#0a1e2e;border-color:#0369a1;}
+  .cmea{background:#1e1040;border-color:#4c1d95;}
+  .cai{background:#1e1040;border-color:#4c1d95;}
+  .cai-region{background:#1c1400;border-color:#7c4f0a;}
+  .curl.dead{background:#1a1d21;border-color:#30363d;}
+}
+/* Duplicate node styling */
+.nw.duplicate > .nh { opacity:0.45; }
+.nw.duplicate > .nh .nlbl { text-decoration: line-through; }
+.nw.duplicate > .nc { display:none; }
+/* Live URL counter */
+.url-counter{font-size:var(--fs-xs);color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+.nlbl{font-size:var(--fs-sm);color:var(--fg);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.nlbl:hover{text-decoration:underline;}
+.ub{font-size:10px;padding:1px 5px;border-radius:10px;margin-left:3px;font-weight:600;flex-shrink:0;border:1px solid transparent;}
+.ubok{color:var(--ok);background:#f0fdf4;border-color:#86efac;}
+.uberr{color:var(--err);background:#fef2f2;border-color:#fca5a5;}
+.ubchk{color:var(--muted);background:var(--bg);border-color:var(--border);}
+.stag{font-size:10px;padding:1px 5px;border-radius:10px;margin-left:3px;font-weight:600;border:1px solid transparent;flex-shrink:0;}
+.sg{color:#0369a1;background:#f0f9ff;border-color:#bae6fd;}
+.sc{color:var(--region);background:#fffbeb;border-color:#fde68a;}
+@media(prefers-color-scheme:dark){.sg{background:#0a1e2e;border-color:#0369a1;}.sc{background:#1c1400;border-color:#7c4f0a;}}
+.sbadge{display:none;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:600;color:var(--ok);background:#f0fdf4;border:1px solid #86efac;border-radius:20px;padding:2px 8px;margin-left:6px;flex-shrink:0;}
+.sbadge.vis{display:flex;}
+@media(prefers-color-scheme:dark){.sbadge{background:#052e16;border-color:#166534;}}
+.nh:hover{background:var(--hover);}
+.nh.locked{background:#eef4ff;}
+@media(prefers-color-scheme:dark){.nh.locked{background:#0c1a3a;}}
+.nc{margin-left:19px;border-left:1px dashed var(--border);padding-left:5px;}
+.nc.col{display:none;}
+.nw.deleted > .nh{opacity:.35;text-decoration:line-through;}
+.nw.deleted > .nc{display:none;}
+/* INSPECTOR */
+pre{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--fs-xs);line-height:1.6;margin:0;white-space:pre-wrap;word-break:break-all;color:var(--fg);}
+.hk{color:var(--policy);}.hs{color:var(--domain);}.hn{color:var(--gov);}.hb{color:var(--analysis);font-style:italic;}.hnl{color:var(--muted);font-style:italic;}
+/* Semantic highlighter classes */
+.h-url{color:#0369a1;text-decoration:underline;cursor:pointer;}
+.h-url:hover{color:var(--gov);}
+.h-cc{color:var(--region);font-weight:600;}          /* country code */
+.h-warn-cc{color:var(--warn);font-weight:600;text-decoration:underline dotted;cursor:help;} /* deprecated code */
+.h-ts{color:var(--muted);font-size:.9em;}             /* ISO timestamp */
+.h-passive{color:var(--ok);font-weight:600;}          /* conflictClass passive */
+.h-active {color:var(--warn);font-weight:600;}        /* conflictClass active */
+.h-stress {color:var(--err);font-weight:600;}         /* conflictClass stress */
+.h-BLU{color:#1d4ed8;font-weight:600;}
+.h-GRN{color:var(--ok);font-weight:600;}
+.h-AMB{color:var(--warn);font-weight:600;}
+.h-RED{color:var(--err);font-weight:600;}
+/* domain value colours matching chips */
+.h-dom-infrastructure{color:#0d7a4e;}
+.h-dom-carrier{color:#0d7a4e;}
+.h-dom-energy{color:#b45309;}
+.h-dom-government{color:#1a56db;}
+.h-dom-finance{color:#7c3aed;}
+.h-dom-media{color:#0891b2;}
+.h-dom-industrial{color:#4b5563;}
+.h-dom-kritis{color:#dc2626;}
+.h-dom-nis2{color:#7c3aed;}
+.h-dom-pubsec{color:#1a56db;}
+.h-dom-ai_systems{color:#6d28d9;font-weight:600;}
+.h-dom-platform{color:#4b5563;}
+.h-dom-travel{color:#0891b2;}
+.h-dom-science{color:#0d7a4e;}
+@media(prefers-color-scheme:dark){
+  .h-url{color:#58a6ff;}
+  .h-cc{color:var(--region);}
+}
+.hf{background:#fff3cd;border-radius:2px;padding:0 2px;font-weight:600;}
+@media(prefers-color-scheme:dark){.hf{background:#3d2e00;}}
+.ilist{margin:0 0 10px;padding:0;list-style:none;}
+.ii{display:flex;gap:6px;padding:4px 7px;border-radius:4px;font-size:var(--fs-sm);margin-bottom:3px;}
+.iwarn{background:#fefce8;border-left:3px solid var(--warn);}
+.ierr {background:#fef2f2;border-left:3px solid var(--err);}
+@media(prefers-color-scheme:dark){.iwarn{background:#1c1400;}.ierr{background:#2d0f0f;}}
+/* PROGRESS */
+.pbar{height:3px;background:var(--border);display:none;}
+.pbar.vis{display:block;}
+.pfill{height:100%;background:var(--gov);transition:width .2s;width:0;}
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);text-align:center;padding:40px;}
+.empty .icon{width:48px;height:48px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.empty p{margin:0;font-size:var(--fs-sm);}
+/* RESTORE BANNER */
+.restore-bar{display:none;background:#fefce8;border-bottom:1px solid #fde047;padding:6px 14px;align-items:center;gap:10px;font-size:var(--fs-sm);color:#854d0e;}
+.restore-bar.vis{display:flex;}
+.restore-bar button{background:#fff;border:1px solid #fde047;color:#854d0e;padding:3px 10px;font-size:var(--fs-xs);font-weight:600;border-radius:5px;}
+.restore-bar button:hover{background:#fefce8;}
+/* ── FOCUS-REVEAL LOADING OVERLAY ─────────────────────────────── */
+.glass-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface);
+  backdrop-filter:blur(var(--blur-amount,20px));
+  -webkit-backdrop-filter:blur(var(--blur-amount,20px));
+  transition:backdrop-filter 0.5s ease,opacity 0.8s ease;
+  will-change:backdrop-filter,opacity;
+}
+.glass-overlay .content-box{
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.glass-overlay .logo-big{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,#1a56db,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 4px;
+}
+.glass-overlay h2{
+  font-size:17px;font-weight:600;letter-spacing:-.02em;
+  margin:0;color:var(--fg);
+}
+#load-status{
+  font-size:var(--fs-sm);color:var(--muted);margin:0;
+  animation:pulse 2s infinite ease-in-out;
+  min-height:1.4em;
+}
+.load-bar-wrap{
+  width:220px;height:2px;
+  background:var(--border);border-radius:2px;overflow:hidden;
+}
+#load-fill{
+  width:0%;height:100%;
+  background:linear-gradient(90deg,var(--gov),var(--policy));
+  transition:width 0.4s cubic-bezier(0.1,0.5,0.5,1);
+  border-radius:2px;
+}
+@keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+.glass-overlay.loaded{opacity:0;pointer-events:none;}
+
+/* ── STALE TREE OVERLAY ─────────────────────────────────────── */
+.stale-overlay{
+  position:absolute;inset:0;z-index:50;
+  background:rgba(0,0,0,0.18);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.stale-overlay.vis{display:flex;}
+.stale-box{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px 24px;text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.18);
+  pointer-events:all;max-width:280px;
+}
+.stale-box p{margin:0 0 4px;font-size:var(--fs-sm);font-weight:600;color:var(--fg);}
+.stale-box span{font-size:var(--fs-xs);color:var(--muted);}
+@media(prefers-color-scheme:dark){.stale-overlay{background:rgba(0,0,0,0.35);}}
+</style>
+</head>
+<body>
+
+<div id="loading-stage" class="glass-overlay" role="status" aria-live="polite" aria-label="Loading IOF Validator">
+  <div class="content-box">
+    <div class="logo-big" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="4" r="2.5" fill="white" opacity=".9"/>
+        <circle cx="3" cy="12" r="2" fill="white" opacity=".7"/>
+        <circle cx="13" cy="12" r="2" fill="white" opacity=".7"/>
+        <line x1="8" y1="6.5" x2="3.8" y2="10.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+        <line x1="8" y1="6.5" x2="12.2" y2="10.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+      </svg>
+    </div>
+    <h2>IOF Validator <span style="font-size:12px;">v9.4</span></h2>
+    <p id="load-status">Loading ontology…</p>
+    <div class="load-bar-wrap">
+      <div id="load-fill"></div>
+    </div>
+  </div>
+</div>
+
+<header role="banner">
+  <div class="hbrand">
+    <div class="logo" aria-hidden="true">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="4" r="2.5" fill="white" opacity=".9"/>
+        <circle cx="3" cy="12" r="2" fill="white" opacity=".7"/>
+        <circle cx="13" cy="12" r="2" fill="white" opacity=".7"/>
+        <line x1="8" y1="6.5" x2="3.8" y2="10.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+        <line x1="8" y1="6.5" x2="12.2" y2="10.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+      </svg>
+    </div>
+    <div><h1>IOF Validator</h1><div class="sub">Internet Ontology Framework</div></div>
+    <span style="font-size:12px; margin-left:6px; color:var(--muted);">v9.4</span>
+  </div>
+  <div class="hsep"></div>
+  <label for="govSel" style="position:absolute;left:-9999px">Governance</label>
+  <select id="govSel" aria-label="Select governance profile"></select>
+  <button id="runBtn" class="btn bp" onclick="startValidate()" disabled><div class="sp"></div><span id="runLbl">Validate</span></button>
+  <button id="deepBtn" class="btn bd" onclick="startDeep()" disabled><div class="sp"></div><span id="deepLbl">Deep Validate</span></button>
+  <button id="cancelBtn" class="btn bg" onclick="cancelDeep()" style="display:none">✕ Cancel</button>
+  <button id="expBtn"  class="btn be" onclick="exportMission()" disabled>⬇ Mission Export</button>
+  <div class="cbadge" id="cbadge" aria-live="polite"></div>
+  <div class="fctr" role="group" aria-label="Text size">
+    <button onclick="adjF(-1)" aria-label="Smaller">A−</button>
+    <span id="fsLbl" aria-live="polite">15</span>
+    <button onclick="adjF(1)"  aria-label="Larger">A+</button>
+  </div>
+  <div class="counters" role="status" aria-live="polite">
+    <div class="pill pok" ><b id="okC">—</b></div>
+    <div class="pill pwarn"><b id="wC">—</b></div>
+    <div class="pill perr" ><b id="eC">—</b></div>
+  </div>
+  <div class="url-counter" id="urlCounter" aria-live="polite" title="Active URLs (non-deleted, non-duplicate)"></div>
+  <div class="menu" id="menu">
+    <button class="btn bg menu-btn" onclick="toggleMenu()" aria-label="Options" aria-expanded="false">⋯</button>
+    <div class="mpanel" id="mpanel" role="menu">
+      <div class="msect">Tree</div>
+      <div class="macts">
+        <button onclick="expandAll()"   role="menuitem">Expand all</button>
+        <button onclick="collapseAll()" role="menuitem">Collapse all</button>
+        <button onclick="focusErrors()" role="menuitem">Focus errors</button>
+      </div>
+      <div class="mdiv"></div>
+      <div class="msect">Filters</div>
+      <div class="ftree" role="group">
+        <!-- Governance tree -->
+        <label class="fi"><input type="checkbox" checked data-f="gov" onchange="hf(this)"><span class="fd" style="background:var(--gov)"></span><span>Governance</span></label>
+        <label class="fi fc1" id="fi-policy"><input type="checkbox" checked data-f="policy" data-p="gov" onchange="hf(this)"><span class="fd" style="background:var(--policy)"></span><span>Policies</span></label>
+        <label class="fi fc2" id="fi-domain"><input type="checkbox" checked data-f="domain" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--domain)"></span><span>Domains</span></label>
+        <label class="fi fc2" id="fi-region"><input type="checkbox" checked data-f="region" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--region)"></span><span>Regions</span></label>
+        <label class="fi fc2" id="fi-analysis"><input type="checkbox" checked data-f="analysis" data-p="policy" onchange="hf(this)"><span class="fd" style="background:var(--analysis)"></span><span>Analysis</span></label>
+        <label class="fi fc2" id="fi-measure"><input type="checkbox" checked data-f="measure" data-p="policy" onchange="hf(this)"><span class="fd" style="background:#7c3aed"></span><span>Measurement</span></label>
+        <!-- AI section divider -->
+        <div class="mdiv" style="margin:6px 0 4px"></div>
+        <div class="msect" style="padding:0 6px 3px;font-size:9px;">AI Systems</div>
+        <label class="fi fc1" id="fi-ai"><input type="checkbox" checked data-f="ai" onchange="hf(this)"><span class="fd" style="background:#6d28d9"></span><span>AI Domains</span></label>
+        <label class="fi fc1" id="fi-ai-region"><input type="checkbox" checked data-f="ai-region" onchange="hf(this)"><span class="fd" style="background:#b45309"></span><span>AI Regions</span></label>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="pbar" id="pbar"><div class="pfill" id="pfill"></div></div>
+
+<div class="restore-bar" id="restoreBar">
+  <span>⚠ Tree has manual deletions.</span>
+  <button onclick="restoreTree()">↺ Restore original</button>
+  <span id="delCount" style="margin-left:auto;opacity:.7;font-size:var(--fs-xs)"></span>
+</div>
+
+<div class="container" id="cont" style="position:relative">
+  <!-- Stale tree overlay — shown when governance changes without re-validate -->
+  <div class="stale-overlay" id="staleOverlay" onclick="dismissStale()" role="alert" aria-label="Tree is stale">
+    <div class="stale-box">
+      <p>⚠ Governance changed</p>
+      <span>Click <strong>Validate</strong> to refresh the tree,<br>or click here to revert selection.</span>
+    </div>
+  </div>
+  <div class="treep" id="treep" role="tree" aria-label="Ontology tree" style="width:55%">
+    <div class="empty" id="emptyState">
+      <div class="icon">🌐</div>
+      <p>Select a governance profile and click <strong>Validate</strong> to inspect the ontology tree.</p>
+    </div>
+  </div>
+  <div class="resizer" id="resizer" role="separator" tabindex="0" aria-label="Resize panels"></div>
+  <aside class="inspp" id="inspp" aria-label="Inspector" style="flex:1">
+    <div class="insph"><span>Inspector</span><span class="lbadge" id="lbadge">Locked</span></div>
+    <div class="inspb" id="insp"><div class="iempty">Hover to inspect · Click to lock</div></div>
+  </aside>
+</div>
+
+<script>
+'use strict';
+
+let FILE_INDEX=[], CACHE={}, LOCKED_EL=null;
+let COUNTS={ok:0,warn:0,err:0};
+let STATE='idle', MISSION=null, curFS=15;
+let DELETED_LABELS=new Set();
+let LAST_GOV=null;
+let DEEP_CANCELLED=false;
+
+function cancelDeep(){
+  DEEP_CANCELLED=true;
+  document.getElementById('cancelBtn').style.display='none';
+  document.getElementById('deepLbl').textContent='Cancelling…';
+}
+
+function adjF(d){curFS=Math.min(22,Math.max(12,curFS+d));['--fs','--fs-sm','--fs-xs'].forEach((v,i)=>document.documentElement.style.setProperty(v,(curFS-i*2)+'px'));document.getElementById('fsLbl').textContent=curFS;}
+
+(function(){
+  const r=document.getElementById('resizer'),t=document.getElementById('treep'),c=document.getElementById('cont');
+  let drag=false,sx=0,sw=0;
+  r.addEventListener('mousedown',e=>{drag=true;sx=e.clientX;sw=t.getBoundingClientRect().width;r.classList.add('dragging');document.body.style.cssText='cursor:col-resize;user-select:none';});
+  document.addEventListener('mousemove',e=>{if(!drag)return;const cw=c.getBoundingClientRect().width;t.style.width=Math.min(cw-160,Math.max(180,sw+(e.clientX-sx)))+'px';});
+  document.addEventListener('mouseup',()=>{if(!drag)return;drag=false;r.classList.remove('dragging');document.body.style.cssText='';});
+  r.addEventListener('keydown',e=>{const cw=c.getBoundingClientRect().width,tw=t.getBoundingClientRect().width;if(e.key==='ArrowLeft')t.style.width=Math.max(180,tw-20)+'px';if(e.key==='ArrowRight')t.style.width=Math.min(cw-160,tw+20)+'px';});
+})();
+
+function gtype(p){
+  if(!p) return '';
+  if(p==='./measure')   return 'measure';
+  if(p==='./analysis')  return 'analysis';
+  if(p.includes('governance')) return 'gov';
+  if(p.includes('policies')) return 'policy';
+  if(p.includes('regions') && !p.includes('ai-regions')) return 'region';
+  if(p.includes('ai-regions')) return 'ai-region';
+  if(p.includes('measurement-profiles')) return 'measure';
+  if(p.includes('analysis')) return 'analysis';
+  if(p.includes('ai-domains')) return 'ai';
+  if(p.includes('domains')) return 'domain';
+  if(p.startsWith('http')) return 'url';
+  return '';
+}
+function tlabel(t){
+  const map={
+    gov:'GOV',
+    policy:'POLICY',
+    domain:'DOMAIN',
+    region:'REGION',
+    analysis:'ANALYSIS',
+    url:'URL',
+    ai:'AI',
+    'ai-region':'AI-REG',
+    measure:'MEASURE',
+    '':''
+  };
+  return map[t]||'';
+}
+function slabel(p){
+  if(!p) return '—';
+  if(p.startsWith('http')){try{return new URL(p).hostname;}catch{return p;}}const pts=p.split('/'),f=pts[pts.length-1].replace('.json',''),par=pts[pts.length-2]||'';if(f==='global'||f==='*')return par+'/'+f;return f;
+}
+async function loadJ(p){
+  if(CACHE[p])return CACHE[p];
+  try{
+    const r=await fetch(p,{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    CACHE[p]=j;
+    return j;
+  }catch(e){
+    return{__error:true,path:p,message:e.message};
+  }
+}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function nst(el){if(el.querySelector('.derr'))return'err';if(el.querySelector('.dwarn'))return'warn';return'ok';}
+function worst(arr){if(arr.some(i=>i.level==='err'))return'err';if(arr.some(i=>i.level==='warn'))return'warn';return'ok';}
+
+function isExcluded(filePath, fileJson, excludeDef) {
+  if (!excludeDef) return false;
+  if (excludeDef.paths) {
+    for (const pat of excludeDef.paths) {
+      const key = pat.replace('*','').replace('./','');
+      if (filePath.replace('./','').startsWith(key)) return true;
+    }
+  }
+  if (excludeDef.match) {
+    const allMatch = excludeDef.match.every(pred => evalP(fileJson, pred, {}));
+    if (allMatch) return true;
+  }
+  return false;
+}
+
+const SREX=/^[\w\^\$\(\)\|\.\*\+\?\[\]\-]{1,80}$/;
+function safeRx(p){if(!SREX.test(p))throw new Error('Unsafe regex: '+p);return new RegExp(p);}
+function rval(v,ctx){if(v==='$regions')return ctx.rcc||[];if(typeof v==='string'&&v.startsWith('$regions.')){const c=v.split('.')[1];return(ctx.rfiles||[]).find(r=>r.region===c)?.countries||[];}return v;}
+
+function evalP(dj,pred,ctx){
+  const fpath=pred.field.split('.');
+  let val=dj;
+  for(const seg of fpath){if(seg.endsWith(']')){const n=seg.slice(0,seg.indexOf('['));const i=parseInt(seg.slice(seg.indexOf('[')+1));val=val?.[n]?.[i];}else{val=val?.[seg];}}
+  const res=rval(pred.value,ctx);
+  switch(pred.op){
+    case'equals':    if(res==='*')return Array.isArray(val)&&val[0]==='*';return val===res;
+    case'in':        return res.includes(val);
+    case'not-in':    return Array.isArray(val)?!val.some(v=>res.includes(v)):!res.includes(val);
+    case'intersects':if(!Array.isArray(val))return false;if(val[0]==='*')return true;return val.some(v=>res.includes(v));
+    case'regex':     try{return safeRx(res).test(String(val||''));}catch{return false;}
+    case'count-gte': return Array.isArray(val)&&val.length>=res;
+    case'count-lte': return Array.isArray(val)&&val.length<=res;
+    default:         return false;
+  }
+}
+
+async function resolveMatchFiles(matchDef, pj, baseDir='domains') {
+  const domainFiles = FILE_INDEX.filter(f=>f.includes(`${baseDir}/`));
+  await Promise.all(domainFiles.map(f=>loadJ(f)));
+  const rcc=[], rfiles=[];
+  for(const rp of (pj.what?.regions||[])){
+    const rj=await loadJ(rp);
+    if(!rj.__error&&rj.countries){rfiles.push(rj);rcc.push(...rj.countries);}
+  }
+  const ctx={rcc:[...new Set(rcc)],rfiles};
+  const preds=matchDef.match||[];
+  const logic=(pj.selection?.matchLogic||'AND').toUpperCase();
+  const results=[];
+  for(const f of domainFiles){
+    const dj=CACHE[f];
+    if(!dj||dj.__error) continue;
+    const pass = logic==='AND'
+      ? preds.every(p=>evalP(dj,p,ctx))
+      : preds.some(p=>evalP(dj,p,ctx));
+    if(pass) results.push(f);
+  }
+  return results;
+}
+
+async function checkUrl(url, timeoutMs=8000){
+  const ctrl=new AbortController();
+  const tid=setTimeout(()=>ctrl.abort(),timeoutMs);
+  try{
+    const r=await fetch(url,{method:'HEAD',mode:'no-cors',cache:'no-store',signal:ctrl.signal});
+    clearTimeout(tid);
+    return r.type==='opaque'||r.ok;
+  }catch(e){
+    clearTimeout(tid);
+    return false;
+  }
+}
+
+function vGov(g){
+  const i=[];
+  if(!g.id)    i.push({level:'warn',msg:'Missing "id"'});
+  if(!g.name)  i.push({level:'warn',msg:'Missing "name"'});
+  if(!g.rational)   i.push({level:'warn',msg:'Missing "rational" — purpose undocumented'});
+  if(!g.controls?.length) i.push({level:'warn',msg:'Missing "controls"'});
+  if(!g.standard)   i.push({level:'warn',msg:'Missing "standard"'});
+  if(!g.requirements?.length) i.push({level:'warn',msg:'Missing "requirements"'});
+  if(!Array.isArray(g.policies)) i.push({level:'err',msg:'"policies" array required'});
+  else if(!g.policies.length)    i.push({level:'warn',msg:'"policies" is empty'});
+  return i;
+}
+
+function vPol(p){
+  const i=[];
+  if(!p.id) i.push({level:'warn',msg:'Missing "id"'});
+  if(!p.what){i.push({level:'err',msg:'"what" required'});return i;}
+  const hd=p.what.domains&&(Array.isArray(p.what.domains)?p.what.domains.length:p.what.domains.match);
+  const hr=p.what.regions?.length;
+  if(!hd && !hr && !p.what.ai_systems) i.push({level:'err',msg:'"what.domains", "what.regions" or "what.ai_systems" must be defined'});
+  if(!p.how?.length) i.push({level:'err',msg:'"how" required'});
+  return i;
+}
+function vDom(d){
+  const i=[];
+  if(!d.domain)    i.push({level:'warn',msg:'Missing "domain"'});
+  if(!d.countries) i.push({level:'warn',msg:'Missing "countries" — excluded from region-views'});
+  else if(d.countries.includes('UK')) i.push({level:'warn',msg:'"UK" is not ISO 3166-1 — use "GB" (United Kingdom)'});
+  if(!d.nodes)             i.push({level:'err', msg:'Missing "nodes" array'});
+  else if(!d.nodes.length) i.push({level:'warn',msg:'"nodes" array is empty'});
+  else d.nodes.forEach(u=>{if(typeof u!=='string')i.push({level:'err',msg:'Node not a string'});else if(!u.startsWith('http'))i.push({level:'warn',msg:`"${u}" — not http(s)`});});
+  return i;
+}
+function vReg(r){const i=[];if(!r.region)i.push({level:'warn',msg:'Missing "region"'});if(!r.name)i.push({level:'warn',msg:'Missing "name"'});if(!r.countries?.length)i.push({level:'warn',msg:'"countries" empty or missing'});return i;}
+function vAna(a){const i=[];if(!a.id)i.push({level:'warn',msg:'Missing "id"'});if(!a.weights)i.push({level:'warn',msg:'Missing "weights"'});if(!a.latency)i.push({level:'warn',msg:'Missing "latency"'});return i;}
+function vMeasure(m){
+  const i=[];
+  if(!m.id) i.push({level:'warn',msg:'Missing "id"'});
+  if(!m.conflictClass) i.push({level:'err',msg:'Missing "conflictClass" — passive/active/stress required'});
+  else if(!['passive','active','stress'].includes(m.conflictClass)) i.push({level:'err',msg:`Unknown conflictClass: "${m.conflictClass}"`});
+  if(!m.schedule?.interval) i.push({level:'warn',msg:'Missing "schedule.interval"'});
+  if(!m.method) i.push({level:'err',msg:'Missing "method"'});
+  if(!m.legal) i.push({level:'warn',msg:'Missing "legal" — no usage policy documented'});
+  return i;
+}
+
+function mkN({label,status,json,issues,children,isRoot,isLeaf,scopeTag,urlSt}){
+  const type=gtype(label);
+  const wrap=document.createElement('div');
+  wrap.className='nw'; wrap.dataset.type=type;
+  if(label)wrap.dataset.label=label;
+  COUNTS[status]++;
+
+  const h=document.createElement('div');
+  h.className='nh'; h.tabIndex=0;
+  h.setAttribute('role','treeitem'); h.setAttribute('aria-expanded','true');
+
+  const chev=document.createElement('span');
+  chev.className='chev'+(isLeaf?' leaf':' open');
+  chev.textContent='▶'; chev.setAttribute('aria-hidden','true');
+
+  const dot=document.createElement('span');
+  dot.className='dot d'+status; dot.setAttribute('aria-label',status);
+
+  const chip=document.createElement('span');
+  chip.className='chip c'+(type||'ana').slice(0,3);
+  if(type==='url'&&urlSt==='dead')chip.classList.add('dead');
+  chip.textContent=tlabel(type);
+  if(!tlabel(type))chip.style.display='none';
+
+  const lbl=document.createElement('span');
+  lbl.className='nlbl'; lbl.textContent=slabel(label); lbl.title=label;
+
+  const delBtn=document.createElement('button');
+  delBtn.className='del-btn'; delBtn.textContent='✕';
+  delBtn.title='Remove node from validation scope';
+  delBtn.setAttribute('aria-label','Delete node');
+
+  h.append(chev,dot,chip,lbl);
+
+  if(scopeTag){const st=document.createElement('span');st.className='stag '+(scopeTag==='★ global'?'sg':'sc');st.textContent=scopeTag;h.appendChild(st);}
+  if(isRoot){const b=document.createElement('span');b.className='sbadge';b.id='sbadge';b.textContent='✓ Structural RFT';h.appendChild(b);}
+
+  h.appendChild(delBtn);
+
+  let SEEN_URLS_IN_TREE = window._SEEN_URLS_IN_TREE || new Set();
+  if(type==='url' && label?.startsWith('http')){
+    if(SEEN_URLS_IN_TREE.has(label)){
+      wrap.classList.add('duplicate');
+      wrap.dataset.dupOf = label;
+    } else {
+      SEEN_URLS_IN_TREE.add(label);
+    }
+  }
+
+  const body=document.createElement('div');
+  body.className='nc'+(status==='ok'&&!isRoot?' col':'');
+  children.forEach(c=>body.appendChild(c));
+  wrap.append(h,body);
+  chev.addEventListener('click',e=>{e.stopPropagation();const c=body.classList.toggle('col');chev.classList.toggle('open',!c);h.setAttribute('aria-expanded',String(!c));});
+  h.addEventListener('click',e=>{if(e.target===chev||e.target===delBtn)return;lockInsp(json,label,issues,h);});
+  h.addEventListener('mouseenter',()=>{if(!LOCKED_EL)showInsp(json,label,issues);});
+  h.addEventListener('keydown',e=>{if(e.key==='Enter')lockInsp(json,label,issues,h);if(e.key===' '){e.preventDefault();chev.click();}});
+
+  delBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    DELETED_LABELS.add(label);
+    wrap.classList.add('deleted');
+    wrap.querySelectorAll('[data-label]').forEach(n=>DELETED_LABELS.add(n.dataset.label));
+    if(type==='url'){
+      document.querySelectorAll('.nw.duplicate').forEach(dup=>{
+        if(dup.dataset.dupOf===label){
+          dup.classList.add('deleted');
+        }
+      });
+    }
+    updateRestoreBar();
+    updateUrlCounter();
+  });
+
+  return wrap;
+}
+
+function updateRestoreBar(){
+  const bar=document.getElementById('restoreBar');
+  const n=DELETED_LABELS.size;
+  if(n>0){bar.classList.add('vis');document.getElementById('delCount').textContent=n+' node'+(n>1?'s':'')+' removed';}
+  else{bar.classList.remove('vis');}
+}
+
+function updateUrlCounter(){
+  const total = document.querySelectorAll('[data-type="url"]').length;
+  const deleted = document.querySelectorAll('[data-type="url"].deleted').length;
+  const dupes = document.querySelectorAll('[data-type="url"].duplicate').length;
+  const active = total - deleted - dupes;
+  const el = document.getElementById('urlCounter');
+  if(el) el.textContent = active > 0 ? `${active} URLs` : '';
+}
+
+function applyAllFilters(){
+  document.querySelectorAll('.ftree input[type="checkbox"]').forEach(cb=>{
+    if(!cb.checked) applyFilter(cb.dataset.f, false);
+  });
+}
+
+function restoreTree(){
+  DELETED_LABELS.clear();
+  updateRestoreBar();
+  updateUrlCounter();
+  if(LAST_GOV) startValidate();
+}
+
+function lockInsp(json,label,issues,el){
+  if(LOCKED_EL)LOCKED_EL.classList.remove('locked');
+  LOCKED_EL=el; el.classList.add('locked');
+  document.getElementById('lbadge').classList.add('vis');
+  showInsp(json,label,issues);
+}
+function showInsp(json,label,issues){
+  const el=document.getElementById('insp');
+  let h='';
+  if(issues?.length){h+='<ul class="ilist">';issues.forEach(i=>h+=`<li class="ii i${i.level}"><span>${i.level==='err'?'✕':'⚠'}</span><span>${escH(i.msg)}</span></li>`);h+='</ul>';}
+  h+='<pre>'+synHL(json,label)+'</pre>';
+  el.innerHTML=h;
+}
+/* ── SEMANTIC HIGHLIGHTER ────────────────────────────────────────
+   Layers:
+   1. JSON structure (keys, primitives)
+   2. Semantic values (URLs, country codes, timestamps, enums)
+   3. Focus term highlight
+──────────────────────────────────────────────────────────────── */
+const ISO_CC = new Set(['AF','AX','AL','DZ','AS','AD','AO','AI','AQ','AG','AR','AM','AW','AU','AT','AZ','BS','BH','BD','BB','BY','BE','BZ','BJ','BM','BT','BO','BQ','BA','BW','BV','BR','IO','BN','BG','BF','BI','CV','KH','CM','CA','KY','CF','TD','CL','CN','CX','CC','CO','KM','CG','CD','CK','CR','CI','HR','CU','CW','CY','CZ','DK','DJ','DM','DO','EC','EG','SV','GQ','ER','EE','SZ','ET','FK','FO','FJ','FI','FR','GF','PF','TF','GA','GM','GE','DE','GH','GI','GR','GL','GD','GP','GU','GT','GG','GN','GW','GY','HT','HM','VA','HN','HK','HU','IS','IN','ID','IR','IQ','IE','IM','IL','IT','JM','JP','JE','JO','KZ','KE','KI','KP','KR','KW','KG','LA','LV','LB','LS','LR','LY','LI','LT','LU','MO','MG','MW','MY','MV','ML','MT','MH','MQ','MR','MU','YT','MX','FM','MD','MC','MN','ME','MS','MA','MZ','MM','NA','NR','NP','NL','NC','NZ','NI','NE','NG','NU','NF','MK','MP','NO','OM','PK','PW','PS','PA','PG','PY','PE','PH','PN','PL','PT','PR','QA','RE','RO','RU','RW','BL','SH','KN','LC','MF','PM','VC','WS','SM','ST','SA','SN','RS','SC','SL','SG','SX','SK','SI','SB','SO','ZA','GS','SS','ES','LK','SD','SR','SJ','SE','CH','SY','TW','TJ','TZ','TH','TL','TG','TK','TO','TT','TN','TR','TM','TC','TV','UG','UA','AE','GB','US','UM','UY','UZ','VU','VE','VN','VG','VI','WF','EH','YE','ZM','ZW']);
+
+const DOMAIN_COLOURS = {
+  infrastructure:'dom-infrastructure', carrier:'dom-carrier', energy:'dom-energy',
+  government:'dom-government', finance:'dom-finance', media:'dom-media',
+  industrial:'dom-industrial', kritis:'dom-kritis', nis2:'dom-nis2',
+  pubsec:'dom-pubsec', ai_systems:'dom-ai_systems', platform:'dom-platform',
+  travel:'dom-travel', science:'dom-science'
+};
+
+function synHL(json, focus){
+  const str = JSON.stringify(json, null, 2);
+  const foc = focus ? focus.split('/').pop().replace('.json','') : null;
+
+  return str.split('\n').map(line => {
+    // ── Semantic analysis on RAW line (before escaping) ──────
+    // We build a token list, then escape each token individually
+
+    // Replace the line with annotated HTML — work on raw string
+    let result = '';
+    let i = 0;
+
+    // Simple state machine: scan char by char
+    // Detect: "key": "value"  |  "key": number  |  "key": bool/null
+    // Also handle array items: "STRING"
+    const raw = line;
+
+    // Fast path: use regex on raw, then escape each piece
+    // Pattern: key-colon-value or standalone quoted string
+    const processed = raw.replace(/"((?:[^"\\]|\\.)*)"/g, (match, inner, offset) => {
+      // Determine context: is this a key or a value?
+      const before = raw.slice(0, offset).trimEnd();
+      const isKey = before.endsWith('{') || before.endsWith(',') || before === '' ||
+                    /^\s*$/.test(before) || before.endsWith('[') ;
+      // Check if followed by colon (it's a key)
+      const after = raw.slice(offset + match.length).trimStart();
+      const isObjKey = after.startsWith(':');
+
+      const escaped = escH(inner);
+
+      if (isObjKey) {
+        return `<span class="hk">"${escaped}"</span>`;
+      }
+
+      // It's a value — semantic classification
+      // URLs
+      if (inner.startsWith('http://') || inner.startsWith('https://')) {
+        const href = escH(inner);
+        return `<span class="hs"><a class="h-url" href="${href}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">"${href}"</a></span>`;
+      }
+      // ISO timestamp
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(inner)) {
+        return `<span class="h-ts">"${escaped}"</span>`;
+      }
+      // conflictClass
+      if (inner === 'passive') return `<span class="h-passive">"passive"</span>`;
+      if (inner === 'active')  return `<span class="h-active">"active"</span>`;
+      if (inner === 'stress')  return `<span class="h-stress">"stress"</span>`;
+      // Colour states
+      if (inner === 'BLU') return `<span class="h-BLU">"BLU"</span>`;
+      if (inner === 'GRN') return `<span class="h-GRN">"GRN"</span>`;
+      if (inner === 'AMB') return `<span class="h-AMB">"AMB"</span>`;
+      if (inner === 'RED') return `<span class="h-RED">"RED"</span>`;
+      // domain values
+      if (DOMAIN_COLOURS[inner]) return `<span class="hs h-${DOMAIN_COLOURS[inner]}">"${escaped}"</span>`;
+      // ISO country codes
+      // ISO country codes — UK gets special warning
+      if (inner === 'UK') return `<span class="h-warn-cc" title="⚠ UK is not ISO 3166-1 — use GB">"UK" ⚠</span>`;
+      if (ISO_CC.has(inner)) return `<span class="h-cc">"${escaped}"</span> ${countryFlag(inner)}`;
+      // Default string
+      return `<span class="hs">"${escaped}"</span>`;
+    });
+
+    // Now escape remaining non-HTML parts (numbers, colons, brackets, etc.)
+    // Replace the processed string's non-span parts
+    let h = processed
+      .replace(/(?<!<[^>]*):\s*(-?\d+\.?\d*)(?=[,\n\r\]]|$)/g,
+        (m, n) => `: <span class="hn">${escH(n)}</span>`)
+      .replace(/(?<!<[^>]*): (true|false)(?=[,\n\r]|$)/g,
+        (m, b) => `: <span class="hb">${b}</span>`)
+      .replace(/(?<!<[^>]*): (null)(?=[,\n\r]|$)/g,
+        ': <span class="hnl">null</span>');
+
+    // Escape any remaining & < > that are not part of HTML tags
+    // (The regex replacements above already handle their own escaping)
+    // Just escape structural characters outside spans
+    h = h.replace(/&(?!amp;|lt;|gt;|quot;)/g, '&amp;');
+
+    // Focus highlight (on already-processed HTML, skip inside tags)
+    if (foc && foc !== '*' && foc.length > 2) {
+      const e = foc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      h = h.replace(new RegExp(`(?![^<]*>)(${e})`, 'gi'),
+        m => `<span class="hf">${m}</span>`);
+    }
+
+    return h;
+  }).join('\n');
+}
+
+// Country code → flag emoji
+function countryFlag(cc) {
+  try {
+    return cc.toUpperCase().split('').map(c =>
+      String.fromCodePoint(0x1F1E6 - 65 + c.charCodeAt(0))
+    ).join('');
+  } catch { return ''; }
+}
+document.body.addEventListener('click',e=>{if(!e.target.closest('.nh')&&!e.target.closest('.inspp')){if(LOCKED_EL)LOCKED_EL.classList.remove('locked');LOCKED_EL=null;document.getElementById('lbadge').classList.remove('vis');}});
+
+function toggleMenu(){const m=document.getElementById('menu');const o=m.classList.toggle('open');m.querySelector('.menu-btn').setAttribute('aria-expanded',String(o));}
+document.addEventListener('click',e=>{if(!e.target.closest('#menu'))document.getElementById('menu').classList.remove('open');});
+function expandAll(){document.querySelectorAll('.nc').forEach(n=>n.classList.remove('col'));document.querySelectorAll('.chev:not(.leaf)').forEach(c=>c.classList.add('open'));}
+function collapseAll(){document.querySelectorAll('.nc').forEach(n=>n.classList.add('col'));document.querySelectorAll('.chev:not(.leaf)').forEach(c=>c.classList.remove('open'));}
+function expPath(el){let cur=el;while(cur){const b=cur.querySelector(':scope > .nc');if(b){b.classList.remove('col');const ch=cur.querySelector(':scope > .nh .chev');if(ch)ch.classList.add('open');}cur=cur.parentElement?.closest('.nw');}}
+function focusErrors(){collapseAll();document.querySelectorAll('.derr,.dwarn').forEach(d=>expPath(d.closest('.nw')));toggleMenu();}
+
+/* ═══ FILTERS ═════════════════════════════════════════════════════ */
+function hf(cb){
+  const t=cb.dataset.f,par=cb.dataset.p;
+  if(par){const pc=document.querySelector(`[data-f="${par}"]`);if(pc&&!pc.checked){cb.checked=false;return;}}
+  applyFilter(t, cb.checked);
+  if(!cb.checked){
+    document.querySelectorAll(`[data-p="${t}"]`).forEach(c=>{c.checked=false;document.getElementById('fi-'+c.dataset.f)?.classList.add('disabled');applyFilter(c.dataset.f,false);});
+  }
+  else{
+    document.querySelectorAll(`[data-p="${t}"]`).forEach(c=>document.getElementById('fi-'+c.dataset.f)?.classList.remove('disabled'));
+  }
+}
+function applyFilter(type, visible){
+  document.querySelectorAll(`[data-type="${type}"]`).forEach(n=>n.style.display=visible?'':'none');
+}
+
+/* ═══ COLOUR STATE ════════════════════════════════════════════════ */
+function setCS(code,label){const b=document.getElementById('cbadge');b.className='cbadge vis c'+code;b.textContent=code+(label?' — '+label:'');}
+
+/* ═══ BUILD TREE ══════════════════════════════════════════════════ */
+async function buildTree(govFile){
+  COUNTS={ok:0,warn:0,err:0};
+  window._SEEN_URLS_IN_TREE = new Set();
+  const gov=await loadJ(govFile);
+  const govI=gov.__error?[{level:'err',msg:'Cannot load: '+(gov.message||govFile)}]:vGov(gov);
+  const pNodes=[];
+
+  for(const pPath of (gov.policies||[])){
+    const pj=await loadJ(pPath);
+    const pI=pj.__error?[{level:'err',msg:'Cannot load: '+(pj.message||pPath)}]:vPol(pj);
+    const gNodes=[];
+    const excl=pj.what?.exclude||null;
+
+    // ── DOMAIN VIEW (classic) ────────────────────────────────────────────
+    if(pj.what?.domains){
+      const dval=pj.what.domains;
+      let files=[];
+
+      if(Array.isArray(dval)){
+        for(const pat of dval){const key=pat.replace('*','').replace('./','');files.push(...FILE_INDEX.filter(f=>f.replace('./','').startsWith(key)));}
+        files=[...new Set(files)];
+      } else if(dval.match){
+        for(const f of FILE_INDEX.filter(f=>f.includes('/domains/')))await loadJ(f);
+        files=await resolveMatchFiles(dval,pj);
+      }
+
+      files=files.filter(f=>{const dj=CACHE[f]||{};return!isExcluded(f,dj,excl);});
+
+      const fileNodes=[];
+      for(const f of files){
+        const dj=await loadJ(f);
+        const dI=dj.__error?[{level:'err',msg:'Cannot load'}]:vDom(dj);
+        const dS=dj.__error?'err':worst(dI);
+        const isG=dj.countries?.[0]==='*';
+        const st=!dj.countries?null:isG?'★ global':dj.countries.join(' · ');
+        const urlNs=(dj.nodes||[]).map(url=>mkN({label:url,status:'ok',json:{url},issues:[],children:[],isLeaf:true}));
+        fileNodes.push(mkN({label:f,status:dS,json:dj,issues:dI,children:urlNs,scopeTag:st}));
+      }
+
+      if(Array.isArray(dval)){
+        const patNs=[];
+        for(const pat of dval){
+          const key=pat.replace('*','').replace('./','');
+          const pf=files.filter(f=>f.replace('./','').startsWith(key));
+          const pfn=fileNodes.filter(n=>pf.includes(n.dataset.label));
+          const pI2=pf.length===0?[{level:'warn',msg:`No files matched "${pat}"`}]:[];
+          patNs.push(mkN({label:pat,status:worst([...pI2,...pfn.map(n=>({level:nst(n)}))]),json:{pattern:pat,matched:pf,excluded:excl},issues:pI2,children:pfn}));
+        }
+        gNodes.push(mkN({label:'./domains',status:worst(patNs.map(n=>({level:nst(n)}))),json:{group:'domains'},issues:[],children:patNs}));
+      } else {
+        const dgs=worst(fileNodes.map(n=>({level:nst(n)})));
+        gNodes.push(mkN({label:'./domains',status:dgs,json:{matchPredicates:dval.match,filesMatched:files.length,excluded:excl},issues:[],children:fileNodes}));
+      }
+    }
+
+    // ── AI SYSTEMS VIEW ────────────────────────────────────────────
+    if(pj.what?.ai_systems){
+      const dval = pj.what.ai_systems;
+      let files = [];
+      if(Array.isArray(dval)){
+        for(const pat of dval){
+          const key = pat.replace('*','').replace('./','');
+          files.push(...FILE_INDEX.filter(f=>f.replace('./','').startsWith(key)));
+        }
+        files = [...new Set(files)];
+      } else if(dval.match){
+        // FIX: tolerate './ai-domains/' path
+        await Promise.all(FILE_INDEX.filter(f=>f.includes('ai-domains/')).map(f=>loadJ(f)));
+        files = await resolveMatchFiles(dval, pj, 'ai-domains');
+      }
+      files = files.filter(f=>{const dj=CACHE[f]||{}; return !isExcluded(f,dj,excl);});
+      const fileNodes = [];
+      for(const f of files){
+        const dj = await loadJ(f);
+        const dI = dj.__error ? [{level:'err',msg:'Cannot load'}] : (()=>{const i=[]; if(!dj.domain) i.push({level:'warn',msg:'Missing "domain"'}); return i;})();
+        const dS = dj.__error ? 'err' : worst(dI);
+        const isG = dj.countries?.[0]==='*';
+        const st = !dj.countries ? null : (isG ? '★ global' : dj.countries.join(' · '));
+        const urlNs = (dj.nodes||[]).map(url=>mkN({label:url,status:'ok',json:{url},issues:[],children:[],isLeaf:true}));
+        fileNodes.push(mkN({label:f,status:dS,json:dj,issues:dI,children:urlNs,scopeTag:st}));
+      }
+      if(Array.isArray(dval)){
+        const patNs=[];
+        for(const pat of dval){
+          const key = pat.replace('*','').replace('./','');
+          const pf = files.filter(f=>f.replace('./','').startsWith(key));
+          const pfn = fileNodes.filter(n=>pf.includes(n.dataset.label));
+          const pI2 = pf.length===0 ? [{level:'warn',msg:`No files matched "${pat}"`}] : [];
+          patNs.push(mkN({label:pat,status:worst([...pI2,...pfn.map(n=>({level:nst(n)}))]),json:{pattern:pat,matched:pf,excluded:excl},issues:pI2,children:pfn}));
+        }
+        gNodes.push(mkN({label:'./ai-domains',status:worst(patNs.map(n=>({level:nst(n)}))),json:{group:'ai-domains'},issues:[],children:patNs}));
+      } else {
+        const dgs = worst(fileNodes.map(n=>({level:nst(n)})));
+        gNodes.push(mkN({label:'./ai-domains',status:dgs,json:{matchPredicates:dval.match,filesMatched:files.length,excluded:excl},issues:[],children:fileNodes}));
+      }
+    }
+
+    // ── REGION VIEW (classic + AI regions) ────────────────────────────
+    if(pj.what?.regions?.length){
+      const rNs=[];
+      const domMatchDef = pj.what?.domains;
+      const hasDomainFilter = domMatchDef && !Array.isArray(domMatchDef) && domMatchDef.match?.length;
+      const includeGlobal = pj.selection?.includeGlobal !== false;
+      const allRegionCCs=[], allRegionFiles=[];
+      for(const rp of pj.what.regions){
+        const rj2=await loadJ(rp);
+        if(!rj2.__error&&rj2.countries){allRegionFiles.push(rj2);allRegionCCs.push(...rj2.countries);}
+      }
+      const domCtx={rcc:[...new Set(allRegionCCs)],rfiles:allRegionFiles};
+
+      for(const rPath of pj.what.regions){
+        const rj=await loadJ(rPath);
+        const rI=rj.__error?[{level:'err',msg:'Cannot load'}]:vReg(rj);
+        const rCCs=rj.countries||[];
+
+        const allDomFiles=FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('ai-domains/'));
+        const matched=[];
+        for(const f of allDomFiles){
+          const dj=await loadJ(f);
+          if(dj.__error)continue;
+          if(isExcluded(f,dj,excl))continue;
+          if(!dj.countries)continue;
+          const isG=dj.countries[0]==='*';
+          if(isG && !includeGlobal)continue;
+          if(!isG && !dj.countries.some(c=>rCCs.includes(c)))continue;
+          if(hasDomainFilter){
+            const logic=(pj.selection?.matchLogic||'AND').toUpperCase();
+            const preds=domMatchDef.match;
+            const nonGeoPreds=preds.filter(p=>p.field!=='countries'||p.op==='not-in');
+            const pass = logic==='AND'
+              ? nonGeoPreds.every(p=>evalP(dj,p,domCtx))
+              : nonGeoPreds.some(p=>evalP(dj,p,domCtx));
+            if(!pass)continue;
+          }
+          const dI=vDom(dj);
+          const st=isG?'★ global':dj.countries.join(' · ');
+          const urlNs=(dj.nodes||[]).map(url=>mkN({label:url,status:'ok',json:{url},issues:[],children:[],isLeaf:true}));
+          matched.push(mkN({label:f,status:worst(dI),json:dj,issues:dI,children:urlNs,scopeTag:st}));
+        }
+        const rSt=rj.__error?'err':worst([...rI,...matched.map(n=>({level:nst(n)}))]);
+        rNs.push(mkN({label:rPath,status:rSt,json:{...rj,_matched:matched.length+' files'},issues:rI,children:matched}));
+      }
+      const rgs=worst(rNs.map(n=>({level:nst(n)})));
+      gNodes.push(mkN({label:'./regions',status:rgs,json:{group:'regions'},issues:[],children:rNs}));
+    }
+
+    // ── ANALYSIS ───────────────────────────────────────────────
+    const analysisEntries = (pj.how||[]).filter(h=>!h.includes('measurement-profiles'));
+    if(analysisEntries.length){
+      const aNs=[];
+      for(const aP of analysisEntries){
+        const aj=await loadJ(aP);
+        const aI=aj.__error?[{level:'err',msg:'Cannot load'}]:vAna(aj);
+        aNs.push(mkN({label:aP,status:aj.__error?'err':worst(aI),json:aj,issues:aI,children:[],isLeaf:true}));
+      }
+      gNodes.push(mkN({label:'./analysis',status:worst(aNs.map(n=>({level:nst(n)}))),json:{group:'analysis'},issues:[],children:aNs}));
+    }
+
+    // ── MEASUREMENT ───────────────────────────────────────────
+    const measureEntries = (pj.how||[]).filter(h=>h.includes('measurement-profiles'));
+    if(measureEntries.length){
+      const mNs=[];
+      for(const mP of measureEntries){
+        const mj=await loadJ(mP);
+        const mI=mj.__error?[{level:'err',msg:'Cannot load'}]:vMeasure(mj);
+        const node=mkN({label:mP,status:mj.__error?'err':worst(mI),json:mj,issues:mI,children:[],isLeaf:true});
+        const chip=node.querySelector('.chip');
+        if(chip){chip.className='chip cmea';chip.textContent='MEASURE';}
+        mNs.push(node);
+      }
+      gNodes.push(mkN({label:'./measure',status:worst(mNs.map(n=>({level:nst(n)}))),json:{group:'measurement'},issues:[],children:mNs}));
+    } else if(!pj.id?.startsWith('test')){
+      gNodes.push(mkN({label:'./measure',status:'warn',
+        json:{group:'measurement',note:'No measurement profile defined'},
+        issues:[{level:'warn',msg:'No measurement profile — scanner has no timing/method config'}],
+        children:[],isLeaf:true}));
+    }
+
+    const pS=pj.__error?'err':worst([...pI,...gNodes.map(n=>({level:nst(n)}))]);
+    pNodes.push(mkN({label:pPath,status:pS,json:pj,issues:pI,children:gNodes}));
+  }
+
+  const gS=gov.__error?'err':worst([...govI,...pNodes.map(n=>({level:nst(n)}))]);
+  return mkN({label:govFile,status:gS,json:gov,issues:govI,children:pNodes,isRoot:true});
+}
+
+/* ═══ STRUCTURAL VALIDATE ════════════════════════════════════════ */
+async function startValidate(){
+  LAST_GOV=document.getElementById('govSel').value;
+  DELETED_LABELS.clear(); updateRestoreBar();
+  resetInspector();
+  document.getElementById('staleOverlay').classList.remove('vis');
+  const btn=document.getElementById('runBtn');
+  const deepBtn=document.getElementById('deepBtn');
+  btn.disabled=true; btn.classList.add('running');
+  document.getElementById('runLbl').textContent='Running…';
+  deepBtn.disabled=true;
+  document.getElementById('expBtn').disabled=true;
+  document.getElementById('cbadge').classList.remove('vis');
+  MISSION=null; STATE='structural';
+
+  const tree=document.getElementById('treep');
+  document.getElementById('emptyState')?.remove();
+  tree.innerHTML='';
+
+  try {
+    const root=await buildTree(LAST_GOV);
+    tree.appendChild(root);
+    applyAllFilters();
+    updateUrlCounter();
+
+    document.getElementById('okC').textContent=COUNTS.ok;
+    document.getElementById('wC').textContent=COUNTS.warn;
+    document.getElementById('eC').textContent=COUNTS.err;
+
+    const structOK=COUNTS.err===0;
+    document.getElementById('sbadge')?.classList.toggle('vis',structOK&&COUNTS.warn===0);
+
+    if(!structOK){
+      collapseAll();
+      document.querySelectorAll('.derr,.dwarn').forEach(d=>expPath(d.closest('.nw')));
+      setCS('RED','Structural errors'); STATE='idle';
+    } else {
+      collapseAll();
+      const rb=root.querySelector(':scope > .nc');
+      if(rb){rb.classList.remove('col');root.querySelector(':scope > .nh .chev')?.classList.add('open');}
+      setCS(COUNTS.warn>0?'AMB':'GRN',COUNTS.warn>0?'Structural OK — warnings':'Structural RFT');
+      deepBtn.disabled=false;
+    }
+  } catch(e) {
+    console.error('Validate error:',e);
+    setCS('RED','Validator error');
+  } finally {
+    btn.disabled=false; btn.classList.remove('running');
+    document.getElementById('runLbl').textContent='Validate';
+  }
+}
+
+/* ═══ DEEP VALIDATE ══════════════════════════════════════════════ */
+async function startDeep(){
+  const btn=document.getElementById('deepBtn');
+  const cancelBtn=document.getElementById('cancelBtn');
+  btn.disabled=true; btn.classList.add('running');
+  cancelBtn.style.display='flex';
+  document.getElementById('deepLbl').textContent='Checking URLs…';
+  document.getElementById('expBtn').disabled=true;
+  STATE='deep'; DEEP_CANCELLED=false;
+
+  const urlWraps=[...document.querySelectorAll('[data-type="url"]')].filter(n=>!n.closest('.nw.deleted'));
+  const total=urlWraps.length;
+  let done=0,fails=0;
+  const dead=new Set();
+
+  const pb=document.getElementById('pbar'),pf=document.getElementById('pfill');
+  pb.classList.add('vis');
+
+  try {
+    for(let i=0;i<urlWraps.length;i+=5){
+      if(DEEP_CANCELLED) break;
+      await Promise.all(urlWraps.slice(i,i+5).map(async wrap=>{
+        if(DEEP_CANCELLED) return;
+        const url=wrap.querySelector('.nlbl')?.title;
+        if(!url||!url.startsWith('http'))return;
+        const alive=await checkUrl(url, 8000);
+        done++; pf.style.width=Math.round(done/total*100)+'%';
+        const dot=wrap.querySelector('.dot');
+        if(!alive){
+          fails++; dead.add(url);
+          if(dot)dot.className='dot dwarn';
+          expPath(wrap);
+        } else {
+          if(dot)dot.className='dot dok';
+        }
+      }));
+    }
+  } catch(e){
+    console.error('Deep validate error:',e);
+  } finally {
+    pb.classList.remove('vis'); pf.style.width='0';
+    cancelBtn.style.display='none';
+    btn.disabled=false; btn.classList.remove('running');
+    document.getElementById('deepLbl').textContent='Deep Validate';
+  }
+
+  if(DEEP_CANCELLED){
+    setCS('AMB','Cancelled — partial results only');
+    return;
+  }
+
+  const pct=done>0?(done-fails)/done:1;
+  let code='GRN',lbl=`${Math.round(pct*100)}% responded`;
+  if(pct===1){code='BLU';lbl='All nodes responded';}
+  else if(pct<0.5){code='RED';lbl=`${Math.round(pct*100)}% responded — NMC`;}
+  else if(pct<0.8){code='AMB';lbl=`${Math.round(pct*100)}% responded — degraded`;}
+  setCS(code,lbl);
+
+  if(pct>=0.5){
+    STATE='rft';
+    MISSION=buildMission(dead);
+    document.getElementById('expBtn').disabled=false;
+  }
+}
+
+/* ═══ MISSION ════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   MISSION GENERATOR — Open-IOF / JSON-LD 1.1
+   Phase 1+2: @context, @id, @type on all major objects.
+   Deterministic IDs (URL-encoded, no random).
+   Backwards-compatible: all operational fields preserved.
+   Anti-patterns avoided: no expanded form, no blank nodes,
+   no verbose RDF, no random IDs, no scanner-breaking renames.
+═══════════════════════════════════════════════════════════════════ */
+
+const IOF_NS       = 'https://iof.example/schema#';
+const IOF_ID_BASE  = 'https://iof.example/id/';
+const IOF_POL_BASE = 'https://iof.example/policy/';
+const IOF_PRF_BASE = 'https://iof.example/profile/';
+
+// Deterministic, URL-safe ID from any string
+function iofId(type, value) {
+  const safe = value.replace(/[^a-zA-Z0-9._~-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g,'');
+  return `${IOF_ID_BASE}${type}/${safe}`;
+}
+
+// Node ID: stable from URL hostname + path (no scheme, no query)
+function nodeId(url) {
+  try {
+    const u = new URL(url);
+    const safe = (u.hostname + u.pathname).replace(/[^a-zA-Z0-9._~-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    return `${IOF_ID_BASE}node/${safe}`;
+  } catch { return `${IOF_ID_BASE}node/${url.replace(/[^a-zA-Z0-9]/g,'-')}`; }
+}
+
+// The JSON-LD @context — compact, version 1.1
+const IOF_CONTEXT = {
+  "@version": 1.1,
+  "iof":  IOF_NS,
+  "xsd":  "http://www.w3.org/2001/XMLSchema#",
+  "prov": "http://www.w3.org/ns/prov#",
+  // Class mappings
+  "Mission":            "iof:Mission",
+  "Generator":          "iof:Generator",
+  "Readiness":          "iof:Readiness",
+  "Scope":              "iof:Scope",
+  "Statistics":         "iof:Statistics",
+  "AnalysisProfile":    "iof:AnalysisProfile",
+  "MeasurementProfile": "iof:MeasurementProfile",
+  "ResolvedNode":       "iof:ResolvedNode",
+  "SuspectedNode":      "iof:SuspectedNode",
+  "Policy":             "iof:Policy",
+  // Typed literals
+  "created":  { "@id": "iof:created",  "@type": "xsd:dateTime" },
+  "rftAt":    { "@id": "iof:rftAt",    "@type": "xsd:dateTime" },
+  "testedAt": { "@id": "iof:testedAt", "@type": "xsd:dateTime" },
+  // Semantic relations
+  "url":            { "@id": "iof:url",            "@type": "@id" },
+  "policy":         { "@id": "iof:policy",         "@type": "@id" },
+  "analysis":       { "@id": "iof:analysis",       "@container": "@set" },
+  "measurement":    { "@id": "iof:measurement",    "@container": "@set" },
+  "resolvedNodes":  { "@id": "iof:resolvedNodes",  "@container": "@set" },
+  "suspectedNodes": { "@id": "iof:suspectedNodes", "@container": "@set" },
+  "profiles":       { "@id": "iof:profiles",       "@container": "@set" },
+  "alsoIn":         { "@id": "iof:alsoIn",         "@container": "@set" },
+  // PROV-O provenance
+  "wasGeneratedBy": { "@id": "prov:wasGeneratedBy", "@type": "@id" }
+};
+
+function buildMission(dead){
+  const govId = LAST_GOV.split('/').pop().replace('.json','');
+  const govJ  = CACHE[LAST_GOV] || {};
+  const ts    = new Date().toISOString();
+
+  // Deterministic @id for this mission
+  const tsCompact = ts.replace(/[-:.]/g,'').slice(0,15);
+  const missionAtId = iofId('mission', `${tsCompact}-${govId}`);
+
+  // ── Profiles: typed, stable @id, ref preserved ───────────────
+  const profileMap = {};       // h → enriched profile object
+  const policyIds  = [];
+  const policyProfileMap = {}; // policyId → {analysis:[], measurement:[]}
+
+  for(const pPath of (govJ.policies||[])){
+    const pj = CACHE[pPath];
+    if(!pj||pj.__error) continue;
+    const pid = pj.id || pPath;
+    policyIds.push(pid);
+    policyProfileMap[pid] = {analysis:[], measurement:[]};
+    for(const h of (pj.how||[])){
+      const hj = CACHE[h];
+      if(!hj||hj.__error) continue;
+      const isMeasure = h.includes('measurement-profiles');
+      if(!profileMap[h]){
+        const profileType = isMeasure ? 'MeasurementProfile' : 'AnalysisProfile';
+        profileMap[h] = {
+          "@id":   iofId('profile', hj.id || h.split('/').pop().replace('.json','')),
+          "@type": profileType,
+          "ref":   h,
+          ...hj
+        };
+      }
+      if(isMeasure) policyProfileMap[pid].measurement.push(profileMap[h]['@id']);
+      else          policyProfileMap[pid].analysis.push(profileMap[h]['@id']);
+    }
+  }
+
+  // ── Nodes: typed, stable @id, policy attribution ─────────────
+  const resolved=[], suspected=[];
+  const seenUrls = new Map();
+
+  const urlWraps = [...document.querySelectorAll('[data-type="url"]')]
+    .filter(n=>!n.closest('.nw.deleted'));
+
+  urlWraps.forEach(w=>{
+    const url = w.querySelector('.nlbl')?.title;
+    if(!url||!url.startsWith('http')) return;
+
+    let cur=w.parentElement?.closest('.nw'), dw=null, pw=null;
+    while(cur){
+      if(!dw&&cur.dataset.type==='domain') dw=cur;
+      if(!pw&&cur.dataset.type==='policy') pw=cur;
+      if(dw&&pw) break;
+      cur=cur.parentElement?.closest('.nw');
+    }
+    const dj  = dw?.dataset?.label ? CACHE[dw.dataset.label] : null;
+    const pj  = pw?.dataset?.label ? CACHE[pw.dataset.label] : null;
+    const pid = pj?.id || null;
+    const prf = pid ? policyProfileMap[pid] : {analysis:[],measurement:[]};
+
+    if(seenUrls.has(url)){
+      const {list, idx} = seenUrls.get(url);
+      list[idx].alsoIn = list[idx].alsoIn || [];
+      list[idx].alsoIn.push({
+        "@type":     "iof:PolicyReference",
+        "policy":    pid ? iofId('policy', pid) : null,
+        "analysis":    prf.analysis.length    ? prf.analysis    : null,
+        "measurement": prf.measurement.length ? prf.measurement : null
+      });
+      return;
+    }
+
+    const nodeType = dead.has(url) ? 'SuspectedNode' : 'ResolvedNode';
+    const entry = {
+      "@id":        nodeId(url),
+      "@type":      nodeType,
+      "url":        url,
+      "domain":     dj?.domain    || null,
+      "countries":  dj?.countries || null,
+      "sourceFile": dw?.dataset?.label || null,
+      "policy":     pid ? iofId('policy', pid) : null,
+      "analysis":    prf.analysis.length    ? prf.analysis    : null,
+      "measurement": prf.measurement.length ? prf.measurement : null
+    };
+
+    const targetList = dead.has(url) ? suspected : resolved;
+    const idx = targetList.length;
+
+    if(dead.has(url)){
+      suspected.push({
+        ...entry,
+        "suspect": {
+          "@type":  "iof:SuspectedState",
+          "reason": "unreachable at validation time",
+          "note":   "Transient conditions possible: DDoS, rate-limiting, scan-blocking, maintenance. Scanner may re-evaluate independently.",
+          "testedAt": ts
+        }
+      });
+    } else {
+      resolved.push(entry);
+    }
+    seenUrls.set(url, {list: dead.has(url)?suspected:resolved, idx});
+  });
+
+  const domains   = [...new Set(resolved.map(n=>n.domain).filter(Boolean))];
+  const countries = [...new Set(resolved.flatMap(n=>n.countries||[]).filter(c=>c!=='*'))].sort();
+  const code      = document.getElementById('cbadge').textContent.split(' ')[0]||'GRN';
+
+  // Policy objects with @id and @type
+  const policyObjects = policyIds.map(pid => ({
+    "@id":   iofId('policy', pid),
+    "@type": "Policy",
+    "id":    pid
+  }));
+
+  return {
+    // ── JSON-LD header ────────────────────────────────────────
+    "@context": IOF_CONTEXT,
+    "@id":      missionAtId,
+    "@type":    "Mission",
+
+    // ── Operational fields (backwards-compatible) ─────────────
+    "specVersion": "open-iof/1.0",
+    "created":     ts,
+
+    // ── Provenance (PROV-O) ───────────────────────────────────
+    "generator": {
+      "@type":          "Generator",
+      "@id":            iofId('generator','iof-validator-9.4'),
+      "tool":           "IOF Validator",
+      "version":        "9.4",
+      "wasGeneratedBy": iofId('generator','iof-validator-9.4'),
+      "governance":     govId,
+      "policies":       policyObjects
+    },
+
+    // ── Readiness ─────────────────────────────────────────────
+    "readiness": {
+      "@type":      "Readiness",
+      "structural": "PASS",
+      "deep":       "PASS",
+      "colourState": code,
+      "rftAt":      ts
+    },
+
+    // ── Scope ─────────────────────────────────────────────────
+    "scope": {
+      "@type":     "Scope",
+      "domains":   domains,
+      "countries": countries
+    },
+
+    // ── Statistics ────────────────────────────────────────────
+    "statistics": {
+      "@type":          "Statistics",
+      "resolvedCount":  resolved.length,
+      "suspectedCount": suspected.length,
+      "suspectedNote":  suspected.length > 0
+        ? `${suspected.length} node(s) unreachable at validation time. See suspectedNodes[]. Scanner may re-evaluate.`
+        : null
+    },
+
+    // ── Embedded profiles (self-contained for scanner) ────────
+    "profiles": Object.values(profileMap),
+
+    // ── Nodes ─────────────────────────────────────────────────
+    "resolvedNodes":  resolved,
+    "suspectedNodes": suspected
+  };
+}
+
+function exportMission(){
+  if(!MISSION) return;
+  const b = new Blob([JSON.stringify(MISSION,null,2)], {type:'application/json'});
+  const u = URL.createObjectURL(b), a = document.createElement('a');
+  // Filename from @id — deterministic, filesystem-safe
+  const fname = (MISSION['@id']||'iof-mission')
+    .replace('https://iof.example/id/','')
+    .replace(/[^a-zA-Z0-9_-]/g,'_') + '.jsonld';
+  a.href=u; a.download=fname;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(u);
+}
+
+/* ═══ INIT WITH FOCUS-REVEAL ══════════════════════════════════════ */
+async function init(){
+  const stage  = document.getElementById('loading-stage');
+  const fill   = document.getElementById('load-fill');
+  const status = document.getElementById('load-status');
+
+  try {
+    status.textContent = 'Loading index…';
+    const idx = await loadJ('./file-index.json');
+    FILE_INDEX = idx.files || [];
+    fill.style.width = '10%';
+    stage.style.setProperty('--blur-amount','16px');
+
+    const domainFiles = FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('ai-domains/'));
+    const total = domainFiles.length;
+    let done = 0;
+    status.textContent = `Loading domains…`;
+
+    for(let i=0;i<domainFiles.length;i+=8){
+      await Promise.all(domainFiles.slice(i,i+8).map(f=>loadJ(f)));
+      done = Math.min(i+8, total);
+      const pct = 10 + Math.round((done/total)*80);
+      fill.style.width = pct+'%';
+      const blur = 16 - Math.round((done/total)*14);
+      stage.style.setProperty('--blur-amount', blur+'px');
+    }
+
+    status.textContent = 'Ready.';
+    fill.style.width = '100%';
+    stage.style.setProperty('--blur-amount','0px');
+
+    const sel = document.getElementById('govSel');
+    sel.addEventListener('change', ()=>{ resetInspector(); showStale(); });
+    // FIX: only real governance profiles (path contains '/governance-profiles/')
+    FILE_INDEX.filter(f=>f.includes('/governance-profiles/')).forEach(g=>{
+      const o=document.createElement('option');
+      o.value=g; o.textContent=g.split('/').pop().replace('.json','');
+      sel.appendChild(o);
+    });
+    document.getElementById('runBtn').disabled = false;
+
+    await new Promise(r=>setTimeout(r,300));
+    stage.classList.add('loaded');
+    stage.addEventListener('transitionend', ()=>stage.remove(), {once:true});
+
+  } catch(e) {
+    status.textContent = 'Load error — reload page';
+    console.error('IOF init error:', e);
+  }
+}
+
+function resetInspector(){
+  if(LOCKED_EL) LOCKED_EL.classList.remove('locked');
+  LOCKED_EL=null;
+  document.getElementById('lbadge').classList.remove('vis');
+  document.getElementById('insp').innerHTML='<div class="iempty">Hover to inspect · Click to lock</div>';
+}
+
+function showStale(){
+  // Only show if a tree has been built
+  if(LAST_GOV) document.getElementById('staleOverlay').classList.add('vis');
+}
+
+function dismissStale(){
+  // Revert governance selector to last validated governance
+  const sel=document.getElementById('govSel');
+  if(LAST_GOV) sel.value=LAST_GOV;
+  document.getElementById('staleOverlay').classList.remove('vis');
+}
+init();
+</script>
+</body>
+</html>
