@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>IOF Mission Viewer</title>
+
+<style>
+
+:root{
+    --bg:#161616;
+    --panel:#262626;
+    --border:#393939;
+    --text:#f4f4f4;
+    --muted:#c6c6c6;
+    --accent:#78a9ff;
+    --success:#42be65;
+    --warning:#f1c21b;
+    --danger:#fa4d56;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,Helvetica,sans-serif;
+    line-height:1.6;
+}
+
+body{
+    padding:32px;
+}
+
+h1,h2,h3{
+    margin-top:0;
+    font-weight:600;
+}
+
+p{
+    color:var(--muted);
+}
+
+.hero{
+    margin-bottom:48px;
+}
+
+.hero h1{
+    font-size:3rem;
+    margin-bottom:12px;
+}
+
+.hero p{
+    max-width:900px;
+    font-size:1.1rem;
+}
+
+input[type=file]{
+    margin-top:24px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:14px;
+    width:100%;
+    max-width:500px;
+}
+
+.section{
+    margin-top:56px;
+}
+
+.section-header{
+    margin-bottom:24px;
+}
+
+.section-header h2{
+    font-size:2rem;
+    margin-bottom:8px;
+}
+
+.card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    padding:24px;
+}
+
+.card-label{
+    color:var(--accent);
+    font-size:0.8rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:12px;
+}
+
+.card h3{
+    margin-bottom:12px;
+    font-size:1.4rem;
+}
+
+.card-text{
+    margin-bottom:20px;
+}
+
+.meta-block{
+    margin-top:20px;
+}
+
+.meta-title{
+    color:var(--muted);
+    font-size:0.8rem;
+    text-transform:uppercase;
+    margin-bottom:8px;
+}
+
+.meta-value{
+    color:var(--text);
+}
+
+.badge-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.badge{
+    border:1px solid var(--border);
+    padding:4px 10px;
+    font-size:0.85rem;
+    color:var(--text);
+}
+
+.badge.muted{
+    color:var(--muted);
+}
+
+.clean-list{
+    padding-left:18px;
+}
+
+.clean-list li{
+    margin-bottom:6px;
+}
+
+.summary{
+    background:var(--panel);
+    border:1px solid var(--border);
+    padding:24px;
+}
+
+.summary ul{
+    margin-top:12px;
+}
+
+.footer{
+    margin-top:72px;
+    border-top:1px solid var(--border);
+    padding-top:24px;
+    color:var(--muted);
+    font-size:0.9rem;
+}
+
+.loading{
+    color:var(--accent);
+}
+
+.error{
+    color:var(--danger);
+}
+
+.success{
+    color:var(--success);
+}
+
+.warning{
+    color:var(--warning);
+}
+
+a{
+    color:var(--accent);
+}
+
+:focus{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+    *{
+        scroll-behavior:auto !important;
+        transition:none !important;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+
+    <h1>IOF Mission Viewer</h1>
+
+    <p>
+        See what modern society currently depends on.
+    </p>
+
+    <p>
+        IOF missions describe operational digital dependencies across infrastructure,
+        government, energy, finance, communication, AI and critical services.
+    </p>
+
+    <input type="file" id="fileInput" accept=".json,.jsonld">
+
+</div>
+
+<div id="content"></div>
+
+<script>
+
+const content = document.getElementById('content');
+const fileInput = document.getElementById('fileInput');
+
+const refCache = new Map();
+
+fileInput.addEventListener('change', async (event)=>{
+
+    const file = event.target.files[0];
+
+    if(!file) return;
+
+    try{
+
+        content.innerHTML = `
+            <div class="summary">
+                <p class="loading">Loading mission...</p>
+            </div>
+        `;
+
+        const text = await file.text();
+        const mission = JSON.parse(text);
+
+        await renderMission(mission);
+
+    }catch(err){
+
+        console.error(err);
+
+        content.innerHTML = `
+            <div class="summary">
+                <p class="error">
+                    Failed loading mission.
+                </p>
+            </div>
+        `;
+    }
+});
+
+function resolveRef(ref){
+
+    if(!ref) return null;
+
+    if(ref.startsWith('http://') || ref.startsWith('https://')){
+        return ref;
+    }
+
+    return new URL(ref, window.location.href).href;
+}
+
+async function loadReferencedJson(ref){
+
+    if(refCache.has(ref)){
+        return refCache.get(ref);
+    }
+
+    const url = resolveRef(ref);
+
+    const response = await fetch(url);
+
+    if(!response.ok){
+        throw new Error(`Failed loading ${url}`);
+    }
+
+    const json = await response.json();
+
+    refCache.set(ref, json);
+
+    return json;
+}
+
+async function renderMission(mission){
+
+    let governance = null;
+    let policies = [];
+
+    try{
+
+        if(mission.governance?.ref){
+            governance = await loadReferencedJson(mission.governance.ref);
+        }
+
+    }catch(err){
+        console.error(err);
+    }
+
+    try{
+
+        for(const p of (mission.policies || [])){
+
+            if(p.ref){
+
+                const policy = await loadReferencedJson(p.ref);
+
+                policies.push(policy);
+            }
+        }
+
+    }catch(err){
+        console.error(err);
+    }
+
+    let html = '';
+
+    html += renderSummary(mission);
+
+    html += renderGovernance(governance, policies);
+
+    html += renderScope(mission);
+
+    html += renderProfiles(mission);
+
+    html += renderOperationalCoverage(mission);
+
+    html += renderRealWorldRelevance();
+
+    html += `
+        <div class="footer">
+            IOF Mission Viewer · Cross-domain digital dependency situation viewer
+        </div>
+    `;
+
+    content.innerHTML = html;
+}
+
+function renderSummary(mission){
+
+    return `
+        <section class="section">
+
+            <div class="summary">
+
+                <h2>Mission Overview</h2>
+
+                <p>
+                    This mission evaluates operational digital reachability across
+                    multiple infrastructure domains.
+                </p>
+
+                <ul>
+                    <li>${mission.statistics?.resolvedCount || 0} reachable entities</li>
+                    <li>${mission.statistics?.suspectedCount || 0} suspected entities</li>
+                    <li>${mission.scope?.domains?.length || 0} domains</li>
+                    <li>${mission.scope?.countries?.length || 0} countries</li>
+                </ul>
+
+            </div>
+
+        </section>
+    `;
+}
+
+function renderGovernance(governance, policies){
+
+    return `
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Governance and Policy Intent</h2>
+
+                <p>
+                    Defines why this mission exists, what is observed and which operational rules apply.
+                </p>
+            </div>
+
+            <div class="card-grid">
+
+                ${
+                    governance
+                    ? `
+                    <article class="card">
+
+                        <div class="card-label">Governance</div>
+
+                        <h3>${governance.name || governance.id}</h3>
+
+                        <p class="card-text">
+                            ${governance.rational || ''}
+                        </p>
+
+                        <div class="meta-block">
+                            <div class="meta-title">Focus</div>
+
+                            <div class="badge-row">
+                                ${(governance.description?.purpose || '')
+                                    .split(' ')
+                                    .slice(0,8)
+                                    .map(x=>`<span class="badge">${x}</span>`)
+                                    .join('')
+                                }
+                            </div>
+                        </div>
+
+                        <div class="meta-block">
+                            <div class="meta-title">Excluded</div>
+
+                            <div class="badge-row">
+                                ${(governance.description?.excludes || [])
+                                    .map(x=>`<span class="badge muted">${x}</span>`)
+                                    .join('')
+                                }
+                            </div>
+                        </div>
+
+                        <div class="meta-block">
+                            <div class="meta-title">Standard</div>
+
+                            <div class="meta-value">
+                                ${governance.standard || ''}
+                            </div>
+                        </div>
+
+                    </article>
+                    `
+                    : ''
+                }
+
+                ${policies.map(policy => `
+
+                    <article class="card">
+
+                        <div class="card-label">Policy</div>
+
+                        <h3>${policy.name || policy.id}</h3>
+
+                        <p class="card-text">
+                            ${(policy.what?.domains?.match || [])
+                                .map(rule => {
+
+                                    if(rule.field === 'domain'){
+                                        return `Selects domains: ${rule.value.join(', ')}`;
+                                    }
+
+                                    if(rule.field === 'countries'){
+                                        return `Applies regional country filtering`;
+                                    }
+
+                                    return '';
+                                })
+                                .join('. ')
+                            }
+                        </p>
+
+                        <div class="meta-block">
+
+                            <div class="meta-title">Selection Rules</div>
+
+                            <ul class="clean-list">
+
+                                ${(policy.what?.domains?.match || [])
+                                    .map(rule => {
+
+                                        if(rule.field === 'domain'){
+                                            return `<li>Domain in ${rule.value.join(', ')}</li>`;
+                                        }
+
+                                        if(rule.field === 'countries' && rule.op === 'intersects'){
+                                            return `<li>Countries intersect configured region</li>`;
+                                        }
+
+                                        if(rule.field === 'countries' && rule.op === 'not-in'){
+                                            return `<li>No wildcard scoped nodes</li>`;
+                                        }
+
+                                        return `<li>${rule.field} ${rule.op}</li>`;
+                                    })
+                                    .join('')
+                                }
+
+                            </ul>
+
+                        </div>
+
+                        <div class="meta-block">
+
+                            <div class="meta-title">Match Logic</div>
+
+                            <div class="meta-value">
+                                ${policy.selection?.matchLogic || 'N/A'}
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                `).join('')}
+
+            </div>
+
+        </section>
+    `;
+}
+
+function renderScope(mission){
+
+    return `
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Mission Scope</h2>
+            </div>
+
+            <div class="card-grid">
+
+                <article class="card">
+
+                    <div class="meta-block">
+
+                        <div class="meta-title">Domains</div>
+
+                        <div class="badge-row">
+
+                            ${(mission.scope?.domains || [])
+                                .map(x=>`<span class="badge">${x}</span>`)
+                                .join('')
+                            }
+
+                        </div>
+
+                    </div>
+
+                    <div class="meta-block">
+
+                        <div class="meta-title">Countries</div>
+
+                        <div class="badge-row">
+
+                            ${(mission.scope?.countries || [])
+                                .map(x=>`<span class="badge">${x}</span>`)
+                                .join('')
+                            }
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+    `;
+}
+
+function renderProfiles(mission){
+
+    return `
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Policies and Profiles</h2>
+            </div>
+
+            <div class="card-grid">
+
+                ${(mission.profiles || []).map(profile => `
+
+                    <article class="card">
+
+                        <div class="card-label">
+                            ${profile['@type'] || 'Profile'}
+                        </div>
+
+                        <h3>${profile.name || profile.id}</h3>
+
+                        <p class="card-text">
+                            ${profile.description || ''}
+                        </p>
+
+                        <div class="meta-block">
+
+                            <div class="meta-title">Version</div>
+
+                            <div class="meta-value">
+                                ${profile.version || ''}
+                            </div>
+
+                        </div>
+
+                        <div class="meta-block">
+
+                            <div class="meta-title">Standard</div>
+
+                            <div class="meta-value">
+                                ${profile.standard || 'N/A'}
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                `).join('')}
+
+            </div>
+
+        </section>
+    `;
+}
+
+function renderOperationalCoverage(mission){
+
+    return `
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Operational Coverage</h2>
+
+                <p>
+                    Operational entities currently evaluated by this mission.
+                </p>
+            </div>
+
+            <div class="card-grid">
+
+                <article class="card">
+
+                    <div class="card-label success">
+                        Resolved Nodes
+                    </div>
+
+                    <h3>${mission.resolvedNodes?.length || 0} Reachable</h3>
+
+                    <p class="card-text">
+                        Operational entities currently reachable during validation.
+                    </p>
+
+                </article>
+
+                <article class="card">
+
+                    <div class="card-label warning">
+                        Suspected Nodes
+                    </div>
+
+                    <h3>${mission.suspectedNodes?.length || 0} Suspected</h3>
+
+                    <p class="card-text">
+                        Entities requiring re-evaluation or follow-up validation.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+    `;
+}
+
+function renderRealWorldRelevance(){
+
+    return `
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Why this matters</h2>
+            </div>
+
+            <div class="card-grid">
+
+                <article class="card">
+
+                    <h3>Cross-domain crises</h3>
+
+                    <p class="card-text">
+                        Modern crises affect multiple digital dependency layers simultaneously:
+                        communication, energy, cloud, public information and logistics.
+                    </p>
+
+                </article>
+
+                <article class="card">
+
+                    <h3>Operational visibility</h3>
+
+                    <p class="card-text">
+                        Temporary internet and mobile restrictions during high-security events
+                        demonstrate how rapidly civilian digital visibility can change.
+                    </p>
+
+                </article>
+
+            </div>
+
+        </section>
+    `;
+}
+
+</script>
+
+</body>
+</html>
