@@ -1,7 +1,7 @@
 {
   "name": "IOF Validator",
   "short_name": "IOF",
-  "start_url": "./index.html",
+  "start_url": "./iof-validator.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0a0a0a",
