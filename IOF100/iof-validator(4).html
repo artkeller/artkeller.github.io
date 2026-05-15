@@ -1255,7 +1255,6 @@ async function init(){
     fill.style.background = 'var(--err)';
     status.textContent = e.message || 'Load error';
     console.error('IOF init error:', e);
-    // Show error in empty state
     const emptyDiv = document.getElementById('emptyState');
     if (emptyDiv) {
       emptyDiv.innerHTML = `
