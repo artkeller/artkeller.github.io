@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Mission Generator v10.1</title>
+<style>
+:root{
+  --bg:#f4f5f7;--surface:#fff;--border:#dde1e7;--muted:#6b7280;--fg:#111827;--fg2:#374151;
+  --accent:#1a56db;--accent2:#7c3aed;--ok:#059669;--warn:#d97706;--err:#dc2626;
+  --r:8px;--fs:15px;--fs-sm:13px;--fs-xs:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--surface:#161b22;--border:#30363d;--muted:#8b949e;--fg:#e6edf3;--fg2:#c9d1d9;
+  --accent:#58a6ff;--accent2:#c084fc;--ok:#3fb950;--warn:#d29922;--err:#f85149;
+}}
+*,*::before,*::after{box-sizing:border-box;}
+html{font-size:var(--fs);}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);line-height:1.55;-webkit-font-smoothing:antialiased;}
+h1,h2,h3{margin:0;letter-spacing:-.02em;}
+button,select,input{font-family:inherit;border-radius:var(--r);}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(26,86,219,.35);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);
+  height:58px;display:flex;align-items:center;gap:8px;padding:0 16px;}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--fg);}
+.brand a{color:inherit;text-decoration:none;}
+.sep{width:1px;height:24px;background:var(--border);flex-shrink:0;}
+.btn{border:none;padding:6px 13px;font-weight:600;font-size:var(--fs-sm);border-radius:var(--r);
+  display:flex;align-items:center;gap:5px;transition:opacity .15s;cursor:pointer;white-space:nowrap;}
+.bp{background:var(--accent);color:#fff;}.bp:not(:disabled):hover{opacity:.85;}
+.bg{background:var(--bg);border:1px solid var(--border);color:var(--fg);}.bg:hover{background:var(--border);}
+.be{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}.be:not(:disabled):hover{opacity:.9;}
+.btn:disabled{opacity:.4;cursor:default;}
+.sp{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.running .sp{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* STATUS BAR */
+.sbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 16px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.spill{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:600;
+  padding:2px 9px;border-radius:20px;border:1px solid transparent;}
+.sp-ok  {background:#f0fdf4;border-color:#86efac;color:#15803d;}
+.sp-warn{background:#fefce8;border-color:#fde047;color:#854d0e;}
+.sp-err {background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+.sp-idle{background:var(--bg);border-color:var(--border);color:var(--muted);}
+@media(prefers-color-scheme:dark){
+  .sp-ok{background:#052e16;border-color:#166534;color:#4ade80;}
+  .sp-warn{background:#1c1400;border-color:#854d0e;color:#fde047;}
+  .sp-err{background:#2d0f0f;border-color:#991b1b;color:#fca5a5;}
+}
+
+/* LAYOUT */
+.container{display:flex;height:calc(100vh - 117px);overflow:hidden;}
+.left{width:360px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);
+  display:flex;flex-direction:column;overflow:hidden;}
+.right{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.phdr{padding:10px 14px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--muted);flex-shrink:0;}
+.pbody{flex:1;overflow-y:auto;padding:14px;}
+.slabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);margin:14px 0 6px;}
+.slabel:first-child{margin-top:0;}
+
+/* DROP ZONE */
+.dropz{border:2px dashed var(--border);border-radius:var(--r);padding:28px 16px;
+  text-align:center;cursor:pointer;transition:border-color .2s,background .2s;color:var(--muted);font-size:var(--fs-sm);}
+.dropz:hover,.dropz.drag-over{border-color:var(--accent);background:#eef4ff;}
+@media(prefers-color-scheme:dark){.dropz:hover,.dropz.drag-over{background:#0c1a3a;}}
+.dropz input{display:none;}
+
+/* INFO ROWS */
+.irow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;
+  border-bottom:1px solid var(--border);font-size:var(--fs-xs);}
+.irow:last-child{border-bottom:none;}
+.ik{color:var(--muted);}
+.iv{font-weight:600;color:var(--fg);text-align:right;max-width:200px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.iv.ok{color:var(--ok);}.iv.warn{color:var(--warn);}.iv.err{color:var(--err);}
+
+/* NAMESPACE PROFILE SELECTOR */
+.ns-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.ns-profile-btn{padding:8px 10px;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg);color:var(--fg);font-size:var(--fs-xs);font-weight:600;
+  cursor:pointer;text-align:left;transition:border-color .15s,background .15s;}
+.ns-profile-btn:hover{border-color:var(--accent);}
+.ns-profile-btn.active{border-color:var(--accent);background:#eef4ff;color:var(--accent);}
+@media(prefers-color-scheme:dark){.ns-profile-btn.active{background:#0c1a3a;}}
+.ns-profile-btn .pb-name{display:block;font-weight:700;margin-bottom:2px;}
+.ns-profile-btn .pb-desc{font-size:10px;color:var(--muted);font-weight:400;line-height:1.3;}
+
+/* NAMESPACE LIST */
+.ns-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.ns-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg);
+  border:1px solid var(--border);border-radius:5px;font-size:var(--fs-xs);}
+.ns-item.active-ns{border-color:var(--accent);background:#eef4ff;}
+@media(prefers-color-scheme:dark){.ns-item.active-ns{background:#0c1a3a;}}
+.ns-item .ns-val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg2);}
+.ns-item button{background:none;border:none;color:var(--muted);cursor:pointer;
+  padding:1px 4px;border-radius:3px;font-size:12px;}
+.ns-item button:hover{color:var(--err);background:#fef2f2;}
+.ns-add-row{display:flex;gap:6px;}
+.ns-add-row input{flex:1;padding:5px 8px;background:var(--bg);border:1px solid var(--border);
+  color:var(--fg);font-size:var(--fs-xs);border-radius:5px;}
+.ns-add-row button{background:var(--accent);color:#fff;border:none;padding:5px 10px;
+  font-size:var(--fs-xs);border-radius:5px;cursor:pointer;}
+
+/* OPTION ROW */
+.orow{display:flex;align-items:center;justify-content:space-between;padding:7px 0;
+  border-bottom:1px solid var(--border);font-size:var(--fs-sm);}
+.orow:last-child{border-bottom:none;}
+.orow label{color:var(--fg2);}
+.orow select,.orow input[type=text]{background:var(--bg);border:1px solid var(--border);
+  color:var(--fg);padding:3px 7px;border-radius:5px;font-size:var(--fs-xs);max-width:150px;}
+
+/* OUTPUT */
+.ohdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;
+  align-items:center;gap:8px;flex-shrink:0;}
+.ohdr span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.obody{flex:1;overflow:auto;padding:14px;}
+pre.out{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--fs-xs);
+  line-height:1.65;margin:0;white-space:pre-wrap;word-break:break-all;color:var(--fg);}
+.jk{color:var(--accent2);}.jv{color:var(--ok);}.jn{color:var(--accent);}
+.jb{color:var(--muted);font-style:italic;}.ju{color:#0369a1;text-decoration:underline;cursor:pointer;}
+.ju:hover{color:var(--accent);}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:12px;color:var(--muted);text-align:center;padding:40px;}
+.empty .icon{width:50px;height:50px;border-radius:12px;background:var(--bg);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.empty p{margin:0;font-size:var(--fs-sm);max-width:280px;line-height:1.6;}
+
+/* GLASS OVERLAY */
+.glass-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;
+  justify-content:center;background:var(--surface);}
+.glass-overlay.loaded{opacity:0;pointer-events:none;transition:opacity .6s;}
+.load-box{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.load-logo{width:44px;height:44px;border-radius:11px;
+  background:linear-gradient(135deg,#1a56db,#7c3aed);display:flex;align-items:center;justify-content:center;}
+.load-bar-wrap{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.load-fill{width:0%;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .3s;border-radius:2px;}
+#load-status{font-size:var(--fs-sm);color:var(--muted);margin:0;}
+.load-title{font-size:15px;font-weight:600;color:var(--fg);margin:0;}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="overlay" class="glass-overlay">
+  <div class="load-box">
+    <div class="load-logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="6" r="2.8" fill="white" opacity=".9"/>
+        <circle cx="4" cy="15" r="2" fill="white" opacity=".7"/>
+        <circle cx="16" cy="15" r="2" fill="white" opacity=".7"/>
+        <line x1="10" y1="8.8" x2="5" y2="13.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+        <line x1="10" y1="8.8" x2="15" y2="13.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+      </svg>
+    </div>
+    <div><p class="load-title">IOF Mission Generator</p><p id="load-status">Initialising…</p></div>
+    <div class="load-bar-wrap"><div class="load-fill" id="load-fill"></div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="brand">
+    <a href="index.html">
+      <svg width="19" height="19" viewBox="0 0 19 19" fill="none">
+        <rect width="19" height="19" rx="5" fill="url(#ng)"/>
+        <circle cx="9.5" cy="5.5" r="2.3" fill="white" opacity=".9"/>
+        <circle cx="3.5" cy="14.5" r="1.8" fill="white" opacity=".7"/>
+        <circle cx="15.5" cy="14.5" r="1.8" fill="white" opacity=".7"/>
+        <line x1="9.5" y1="7.8" x2="4.5" y2="13" stroke="white" stroke-width="1.1" opacity=".6"/>
+        <line x1="9.5" y1="7.8" x2="14.5" y2="13" stroke="white" stroke-width="1.1" opacity=".6"/>
+        <defs><linearGradient id="ng" x1="0" y1="0" x2="19" y2="19">
+          <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+        </linearGradient></defs>
+      </svg>
+    </a>
+    IOF Mission Generator
+    <span style="font-size:11px;color:var(--muted);font-weight:400;">v10.1.0</span>
+  </div>
+  <div class="sep"></div>
+  <span style="font-size:var(--fs-xs);color:var(--muted);">Sovereign Transformer · Sevon Trust Consult</span>
+  <div style="margin-left:auto;display:flex;gap:7px;">
+    <button class="btn bg" onclick="document.getElementById('fi').click()">📂 Load State</button>
+    <input type="file" id="fi" accept=".json" style="display:none" onchange="handleFile(this.files[0])">
+    <button class="btn bp" onclick="generate()" id="genBtn" disabled>
+      <div class="sp"></div><span id="genLbl">Generate</span>
+    </button>
+    <button class="btn be" onclick="doExport()" id="expBtn" disabled>⬇ Export .jsonld</button>
+    <a href="iof-validator.html" class="btn bg" style="text-decoration:none">← Validator</a>
+  </div>
+</nav>
+
+<!-- STATUS BAR -->
+<div class="sbar">
+  <div class="spill sp-idle" id="pLoad">No state loaded</div>
+  <div class="spill sp-idle" id="pVal">Structural: —</div>
+  <div class="spill sp-idle" id="pDeep">Deep: —</div>
+  <div class="spill sp-idle" id="pColour">Colour: —</div>
+  <span style="font-size:var(--fs-xs);color:var(--muted);margin-left:auto;" id="pMeta"></span>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- LEFT PANEL -->
+  <div class="left">
+    <div class="phdr">Configuration</div>
+    <div class="pbody">
+
+      <!-- Drop Zone -->
+      <div class="dropz" id="dropZ"
+           onclick="document.getElementById('fi').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handleDrop(event)">
+        <div style="font-size:20px;margin-bottom:6px;">📋</div>
+        <div style="font-weight:600;color:var(--fg);margin-bottom:3px;">Drop state file here</div>
+        <div style="font-size:var(--fs-xs);">or click · iof-state-*.json</div>
+      </div>
+
+      <div id="infoLabel" class="slabel" style="display:none">State Info</div>
+      <div id="infoPanel"></div>
+
+      <!-- Identity Profile -->
+      <div class="slabel">Identity Profile</div>
+      <div class="ns-profile-grid" id="profileGrid">
+        <!-- populated by JS -->
+      </div>
+      <div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;" id="profileDesc"></div>
+
+      <!-- Namespace Authority -->
+      <div class="slabel">Namespace / Authority</div>
+      <div class="ns-list" id="nsList"></div>
+      <div class="ns-add-row">
+        <input type="text" id="nsInput" placeholder="urn:iof: or https://…" />
+        <button onclick="addNamespace()">Add</button>
+      </div>
+
+      <!-- Options -->
+      <div class="slabel" style="margin-top:14px;">Output Options</div>
+      <div class="orow">
+        <label>Profiles</label>
+        <select id="optProfiles">
+          <option value="embedded">Embedded (full)</option>
+          <option value="ref-only">Ref only</option>
+        </select>
+      </div>
+      <div class="orow">
+        <label>Suspected nodes</label>
+        <select id="optSuspected">
+          <option value="include">Include</option>
+          <option value="exclude">Exclude</option>
+        </select>
+      </div>
+      <div class="orow">
+        <label>Deleted nodes</label>
+        <select id="optDeleted">
+          <option value="exclude">Exclude</option>
+          <option value="audit">Audit trail</option>
+        </select>
+      </div>
+      <div class="orow">
+        <label>Cache snapshot</label>
+        <select id="optCache">
+          <option value="no">No</option>
+          <option value="yes">Yes (debug)</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="right">
+    <div class="ohdr">
+      <span>Mission Output (JSON-LD)</span>
+      <span id="nodeCount" style="font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:8px;"></span>
+      <div style="margin-left:auto;">
+        <button class="btn bg" onclick="copyOut()" id="copyBtn" disabled
+          style="font-size:var(--fs-xs);padding:3px 9px;">Copy</button>
+      </div>
+    </div>
+    <div class="obody" id="outBody">
+      <div class="empty">
+        <div class="icon">⚙️</div>
+        <p>Load a validator state file, choose an identity profile, then click <strong>Generate</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ═══ STATE ════════════════════════════════════════════════════ */
+let STATE   = null;
+let MISSION = null;
+const LS_NS_KEY = 'iof-namespaces';
+
+/* ═══ IDENTITY PROFILES ════════════════════════════════════════ */
+const PROFILES = {
+  preservation: {
+    label: 'Preservation',
+    desc:  'Pure URN — no DNS dependency, maximum longevity',
+    resourceNS:  'urn:iof:',
+    ontologyNS:  'urn:iof:schema:',
+    contextMode: 'embedded',
+    dereferenceable: false
+  },
+  hybrid: {
+    label: 'Hybrid',
+    desc:  'URN IDs + HTTPS ontology — default, recommended',
+    resourceNS:  'urn:iof:',
+    ontologyNS:  'https://open-iof.secon-tc.eu/ns#',
+    contextURL:  'https://open-iof.secon-tc.eu/context.jsonld',
+    contextMode: 'https',
+    dereferenceable: 'partial'
+  },
+  web: {
+    label: 'Web',
+    desc:  'Fully dereferenceable HTTPS linked-data',
+    resourceNS:  'https://open-iof.secon-tc.eu/id/',
+    ontologyNS:  'https://open-iof.secon-tc.eu/ns#',
+    contextURL:  'https://open-iof.secon-tc.eu/context.jsonld',
+    contextMode: 'https',
+    dereferenceable: true
+  },
+  offline: {
+    label: 'Offline',
+    desc:  'Closed local namespace — sovereign/airgapped environments',
+    resourceNS:  'local:iof:',
+    ontologyNS:  'local:iof:schema:',
+    contextMode: 'embedded',
+    dereferenceable: false
+  },
+  federated: {
+    label: 'Federated',
+    desc:  'Mixed authority — distributed namespace ownership',
+    resourceNS:  '',  // user-defined from NS list
+    ontologyNS:  '',
+    contextMode: 'distributed',
+    dereferenceable: 'conditional'
+  }
+};
+
+let activeProfile = 'hybrid';
+
+function renderProfiles(){
+  const grid = document.getElementById('profileGrid');
+  grid.innerHTML = Object.entries(PROFILES).map(([key,p])=>`
+    <button class="ns-profile-btn ${key===activeProfile?'active':''}"
+            onclick="selectProfile('${key}')">
+      <span class="pb-name">${p.label}</span>
+      <span class="pb-desc">${p.desc}</span>
+    </button>
+  `).join('');
+  updateProfileDesc();
+}
+
+function selectProfile(key){
+  activeProfile = key;
+  renderProfiles();
+  // For federated: prefill NS input with first saved namespace if available
+  const saved = getSavedNS();
+  if(key==='federated' && saved.length){
+    highlightNS(saved[0]);
+  }
+}
+
+function updateProfileDesc(){
+  const p = PROFILES[activeProfile];
+  let desc = `<strong>Resource NS:</strong> ${p.resourceNS||'(from list)'} · `;
+  desc += `<strong>Ontology NS:</strong> ${p.ontologyNS||'(from list)'} · `;
+  desc += `Deref: ${p.dereferenceable}`;
+  document.getElementById('profileDesc').innerHTML = desc;
+}
+
+/* ═══ NAMESPACE LIST ════════════════════════════════════════════ */
+function getSavedNS(){ try{ return JSON.parse(localStorage.getItem(LS_NS_KEY)||'[]'); }catch{ return []; } }
+function saveSavedNS(arr){ localStorage.setItem(LS_NS_KEY, JSON.stringify(arr)); }
+
+let activeNS = null;
+
+function renderNSList(){
+  const saved = getSavedNS();
+  const list  = document.getElementById('nsList');
+  if(!saved.length){ list.innerHTML='<div style="font-size:var(--fs-xs);color:var(--muted);">No saved namespaces</div>'; return; }
+  list.innerHTML = saved.map((ns,i)=>`
+    <div class="ns-item ${ns===activeNS?'active-ns':''}">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style="flex-shrink:0">
+        <circle cx="5" cy="5" r="4" stroke="var(--muted)" stroke-width="1.2"/>
+        <circle cx="5" cy="5" r="1.5" fill="var(--muted)"/>
+      </svg>
+      <span class="ns-val" title="${escH(ns)}">${escH(ns)}</span>
+      <button onclick="useNS('${escH(ns)}')" title="Use this namespace" style="color:var(--accent)">✓</button>
+      <button onclick="deleteNS(${i})" title="Delete">✕</button>
+    </div>
+  `).join('');
+}
+
+function addNamespace(){
+  const inp = document.getElementById('nsInput');
+  const val = inp.value.trim();
+  if(!val) return;
+  const saved = getSavedNS();
+  if(!saved.includes(val)){ saved.push(val); saveSavedNS(saved); }
+  inp.value = '';
+  renderNSList();
+}
+
+function deleteNS(i){
+  const saved = getSavedNS();
+  saved.splice(i,1);
+  saveSavedNS(saved);
+  renderNSList();
+}
+
+function useNS(ns){
+  activeNS = ns;
+  renderNSList();
+}
+
+function highlightNS(ns){ activeNS=ns; renderNSList(); }
+
+function getResourceNS(){
+  const p = PROFILES[activeProfile];
+  if(activeProfile==='federated') return activeNS || p.resourceNS || 'urn:iof:';
+  return p.resourceNS;
+}
+
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ═══ INIT ══════════════════════════════════════════════════════ */
+function init(){
+  renderProfiles();
+  renderNSList();
+  const overlay = document.getElementById('overlay');
+  const fill    = document.getElementById('load-fill');
+  const status  = document.getElementById('load-status');
+  fill.style.width = '40%';
+  status.textContent = 'Checking session…';
+  setTimeout(()=>{
+    try{
+      const raw = sessionStorage.getItem('iof-state');
+      if(raw){
+        fill.style.width='80%'; status.textContent='Loading state…';
+        setTimeout(()=>{
+          try{ applyState(JSON.parse(raw)); sessionStorage.removeItem('iof-state'); }
+          catch(e){ console.error(e); }
+          fill.style.width='100%'; status.textContent='Ready.';
+          setTimeout(()=>{ overlay.classList.add('loaded'); overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true}); },300);
+        },200);
+        return;
+      }
+    }catch(e){}
+    fill.style.width='100%'; status.textContent='Ready — load a state file.';
+    setTimeout(()=>{ overlay.classList.add('loaded'); overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true}); },400);
+  },300);
+}
+
+/* ═══ FILE LOADING ══════════════════════════════════════════════ */
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZ').classList.remove('drag-over');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+}
+function handleFile(file){
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = e => { try{ applyState(JSON.parse(e.target.result)); }catch(err){ alert('Invalid file: '+err.message); } };
+  r.readAsText(file);
+}
+
+function pill(id,text,type){ const el=document.getElementById(id); if(el){el.textContent=text;el.className='spill sp-'+type;} }
+
+function applyState(state){
+  if(!state?.specVersion?.startsWith('open-iof-state')){ alert('Not a valid IOF state file'); return; }
+  STATE = state;
+  document.getElementById('genBtn').disabled=false;
+  const v = state.validation||{};
+  const cmap={BLU:'ok',GRN:'ok',AMB:'warn',RED:'err'};
+  pill('pLoad', `Loaded: ${state.governance?.id||'?'}`, 'ok');
+  pill('pVal',  `Structural: ${v.structural||'?'}`, v.structural==='PASS'?'ok':'err');
+  pill('pDeep', `Deep: ${v.deep||'NOT_RUN'}`, v.deep==='PASS'?'ok':v.deep==='NOT_RUN'?'idle':'warn');
+  pill('pColour',`Colour: ${v.colourState||'?'}`, cmap[v.colourState]||'idle');
+  const sn = (state.selectedNodes||[]).length;
+  const dn = (state.deletedNodes||[]).length;
+  document.getElementById('pMeta').textContent =
+    `${state.exportedAt?.slice(0,19)||''} · v${state.validatorVersion||'?'} · ${sn} selected · ${dn} deleted`;
+  document.getElementById('infoLabel').style.display='block';
+  const govJ = (state.cache||{})[state.governance?.ref||'']||{};
+  document.getElementById('infoPanel').innerHTML = `
+    <div class="irow"><span class="ik">Governance</span><span class="iv">${escH(state.governance?.id||'—')}</span></div>
+    <div class="irow"><span class="ik">Policies</span><span class="iv">${(govJ.policies||[]).length}</span></div>
+    <div class="irow"><span class="ik">Selected nodes</span><span class="iv ok">${sn}</span></div>
+    <div class="irow"><span class="ik">Suspected</span><span class="iv ${(v.unreachable||[]).length>0?'warn':''}">${(v.unreachable||[]).length}</span></div>
+    <div class="irow"><span class="ik">Deleted</span><span class="iv">${dn}</span></div>
+    <div class="irow"><span class="ik">Colour</span><span class="iv ${cmap[v.colourState]||''}">${v.colourState||'—'}</span></div>
+  `;
+}
+
+/* ═══ GENERATE ══════════════════════════════════════════════════
+   Sovereign Transformer — uses selectedNodes from validator tree.
+   Does NOT iterate raw cache. The validator already resolved the tree.
+═══════════════════════════════════════════════════════════════ */
+function generate(){
+  if(!STATE) return;
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.classList.add('running');
+  document.getElementById('genLbl').textContent='Generating…';
+  setTimeout(()=>{
+    try{ MISSION=transform(); renderOutput(); }
+    catch(e){ alert('Error: '+e.message); console.error(e); }
+    btn.disabled=false; btn.classList.remove('running');
+    document.getElementById('genLbl').textContent='Generate';
+  },50);
+}
+
+function safeSlug(s){ return String(s).replace(/[^a-zA-Z0-9._~-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''); }
+
+function makeId(type, key){
+  const ns = getResourceNS();
+  // URN scheme
+  if(ns.startsWith('urn:')){
+    return `${ns}${type}:${safeSlug(key)}`;
+  }
+  // HTTPS scheme
+  if(ns.startsWith('http')){
+    return `${ns.replace(/\/$/,'')}/${type}/${safeSlug(key)}`;
+  }
+  // local or other
+  return `${ns}${type}:${safeSlug(key)}`;
+}
+
+function nodeId(url){
+  try{
+    const u=new URL(url);
+    return makeId('node', u.hostname+u.pathname.replace(/\/$/,''));
+  }catch{ return makeId('node',safeSlug(url)); }
+}
+
+function buildContext(profile){
+  const p    = PROFILES[profile];
+  const onto = p.ontologyNS || 'https://open-iof.secon-tc.eu/ns#';
+  // If context is delivered via URL, reference it; otherwise embed
+  if(p.contextURL && p.contextMode==='https'){
+    return p.contextURL;
+  }
+  // Embedded context
+  return {
+    "@version": 1.1,
+    "iof":  onto,
+    "xsd":  "http://www.w3.org/2001/XMLSchema#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "Mission":            "iof:Mission",
+    "Generator":          "iof:Generator",
+    "Governance":         "iof:Governance",
+    "Policy":             "iof:Policy",
+    "Readiness":          "iof:Readiness",
+    "Scope":              "iof:Scope",
+    "Statistics":         "iof:Statistics",
+    "AnalysisProfile":    "iof:AnalysisProfile",
+    "MeasurementProfile": "iof:MeasurementProfile",
+    "ResolvedNode":       "iof:ResolvedNode",
+    "SuspectedNode":      "iof:SuspectedNode",
+    "SuspectedState":     "iof:SuspectedState",
+    "ContextEvidence":    "iof:ContextEvidence",
+    "created":    {"@id":"iof:created",  "@type":"xsd:dateTime"},
+    "rftAt":      {"@id":"iof:rftAt",    "@type":"xsd:dateTime"},
+    "url":        {"@id":"iof:url",      "@type":"@id"},
+    "ref":        {"@id":"iof:ref"},
+    "policy":     {"@id":"iof:policy",   "@type":"@id"},
+    "resolvedNodes":  {"@id":"iof:resolvedNodes",  "@container":"@set"},
+    "suspectedNodes": {"@id":"iof:suspectedNodes", "@container":"@set"},
+    "deletedNodes":   {"@id":"iof:deletedNodes",   "@container":"@set"},
+    "profiles":       {"@id":"iof:profiles",       "@container":"@set"},
+    "policies":       {"@id":"iof:policies",       "@container":"@set"},
+    "governanceLineage": {"@id":"iof:governanceLineage","@container":"@set"}
+  };
+}
+
+function transform(){
+  if(!STATE) throw new Error('No state loaded');
+  const selectedNodes = STATE.selectedNodes || [];
+  if(!selectedNodes.length) throw new Error(
+    'State has no selectedNodes. Re-validate in Validator v10.1+ and export state again.'
+  );
+
+  const ts       = new Date().toISOString();
+  const v        = STATE.validation || {};
+  const govId    = STATE.governance?.id || '';
+  const govRef   = STATE.governance?.ref || '';
+  const cache    = STATE.cache || {};
+  const govJ     = cache[govRef] || {};
+  const ppm      = STATE.policyProfileMap || {};
+  const incSusp  = document.getElementById('optSuspected').value === 'include';
+  const incDel   = document.getElementById('optDeleted').value === 'audit';
+  const incCache = document.getElementById('optCache').value === 'yes';
+  const incProf  = document.getElementById('optProfiles').value;
+  const profile  = activeProfile;
+  const tsSlug   = ts.replace(/[-:.Z]/g,'').slice(0,15);
+
+  // Identity metadata
+  const identityProfile = PROFILES[profile];
+  const authority = {
+    "@type":              "iof:SemanticAuthority",
+    "organisation":       "Sevon Trust Consult",
+    "namespaceAuthority": "open-iof.secon-tc.eu",
+    "governanceModel":    "controlled-semantic-authority",
+    "identityProfile":    profile,
+    "resourceNS":         identityProfile.resourceNS || getResourceNS(),
+    "ontologyNS":         identityProfile.ontologyNS || '',
+    "dereferenceable":    identityProfile.dereferenceable,
+    "offlineCapable":     !identityProfile.dereferenceable || profile==='hybrid',
+    "preservationClass":  profile==='preservation' ? 'LTP-A' : profile==='hybrid' ? 'LTP-B' : 'standard'
+  };
+
+  // Build profile objects from policyProfileMap
+  const profileMap = {};
+  for(const [pid, pm] of Object.entries(ppm)){
+    for(const h of [...(pm.analysis||[]), ...(pm.measurement||[])]){
+      if(profileMap[h]) continue;
+      const hj = cache[h];
+      if(!hj) continue;
+      const isMeasure = h.includes('measurement-profiles');
+      const profId    = hj.id || h.split('/').pop().replace('.json','');
+      profileMap[h] = {
+        "@id":   makeId('profile', profId),
+        "@type": isMeasure ? "MeasurementProfile" : "AnalysisProfile",
+        "id":    profId,
+        "ref":   h,
+        ...(incProf==='embedded' ? hj : {})
+      };
+    }
+  }
+
+  // Build policy objects with ContextEvidence
+  const policyObjects = [];
+  for(const pRef of (govJ.policies||[])){
+    const pj  = cache[pRef];
+    if(!pj) continue;
+    const pid = pj.id || pRef.split('/').pop().replace('.json','');
+    const pm  = ppm[pid] || {};
+    // ContextEvidence: embed match conditions from policy
+    const evidence = [];
+    const dval = pj.what?.domains;
+    if(dval){
+      if(Array.isArray(dval)){
+        evidence.push({"@type":"ContextEvidence","strategy":"path-glob","patterns":dval,
+          "excludePaths":pj.what?.exclude?.paths||[]});
+      } else if(dval.match){
+        evidence.push({"@type":"ContextEvidence","strategy":"predicate-match",
+          "predicates":dval.match,"matchLogic":pj.selection?.matchLogic||"AND",
+          "excludePaths":pj.what?.exclude?.paths||[]});
+      }
+    }
+    policyObjects.push({
+      "@id":   makeId('policy', pid),
+      "@type": "Policy",
+      "id":    pid,
+      "ref":   pRef,
+      "analysis":    (pm.analysis||[]).map(h=>profileMap[h]?.['@id']).filter(Boolean),
+      "measurement": (pm.measurement||[]).map(h=>profileMap[h]?.['@id']).filter(Boolean),
+      "regions":     (pm.regions||[]),
+      "contextEvidence": evidence
+    });
+  }
+
+  // Build governance lineage (reused per node)
+  const govLineage = [{
+    "@id":   makeId('governance', govId),
+    "@type": "Governance",
+    "id":    govId,
+    "ref":   govRef
+  }];
+
+  // ── Transform selectedNodes — THE CORRECT SOURCE ────────────
+  const resolved   = [];
+  const suspected  = [];
+  const deletedOut = [];
+
+  for(const n of selectedNodes){
+    if(n.status==='deleted'){
+      if(incDel){
+        deletedOut.push({
+          "@id":    nodeId(n.url),
+          "@type":  "iof:DeletedNode",
+          "url":    n.url,
+          "domain": n.domain,
+          "ref":    n.sourceFile,
+          "deletedBy": "operator",
+          "governanceLineage": govLineage
+        });
+      }
+      continue;
+    }
+
+    const policyAtId = n.policyId ? makeId('policy', n.policyId) : null;
+
+    // AI-specific metadata pass-through
+    const aiBlock = n.aiMetadata ? {
+      "aiSystems": {
+        "@type":       "iof:AiSystemsNode",
+        "domain":      n.aiMetadata.aiDomain,
+        "category":    n.aiMetadata.aiCategory,
+        "regulation":  n.aiMetadata.aiRegulation,
+        "riskLevel":   n.aiMetadata.aiRiskLevel,
+        "compliance":  n.aiMetadata.aiCompliance,
+        "notes":       n.aiMetadata.aiNotes,
+        "sourceFile":  n.aiMetadata.aiSourceFile
+      }
+    } : {};
+
+    const entry = {
+      "@id":    nodeId(n.url),
+      "@type":  n.status==='suspected' ? "SuspectedNode" : "ResolvedNode",
+      "url":    n.url,
+      "domain": n.domain,
+      "countries": n.countries,
+      "ref":    n.sourceFile,              // runtime resolution path
+      "policy": policyAtId,                // semantic @id
+      "policyRef": n.policyRef,            // runtime ref
+      "analysis":    n.analysis?.length    ? n.analysis.map(h=>profileMap[h]?.['@id']||h)    : null,
+      "measurement": n.measurement?.length ? n.measurement.map(h=>profileMap[h]?.['@id']||h) : null,
+      "governanceLineage": govLineage,
+      ...aiBlock
+    };
+
+    if(n.status==='suspected'){
+      suspected.push({...entry,
+        "suspect":{
+          "@type":    "SuspectedState",
+          "reason":   "unreachable at validation time",
+          "note":     "Transient conditions possible. Scanner may re-evaluate independently.",
+          "testedAt": v.rftAt || ts
+        }
+      });
+    } else {
+      resolved.push(entry);
+    }
+  }
+
+  const domains   = [...new Set(resolved.map(n=>n.domain).filter(Boolean))];
+  const countries = [...new Set(resolved.flatMap(n=>n.countries||[]).filter(c=>c!=='*'))].sort();
+  const cmap      = {BLU:'ok',GRN:'ok',AMB:'warn',RED:'err'};
+
+  const mission = {
+    "@context":    buildContext(profile),
+    "@id":         makeId('mission', `${tsSlug}-${safeSlug(govId)}`),
+    "@type":       "Mission",
+    "specVersion": "open-iof/1.0",
+    "created":     ts,
+
+    "identity": {
+      "profile":   profile,
+      "authority": authority
+    },
+
+    "governance": {
+      "@id":   makeId('governance', govId),
+      "@type": "Governance",
+      "id":    govId,
+      "ref":   govRef
+    },
+
+    "generator": {
+      "@id":           makeId('generator','iof-mission-generator-10.1'),
+      "@type":         "Generator",
+      "tool":          "IOF Mission Generator",
+      "version":       "10.1.0",
+      "generatedFrom": STATE.exportedAt,
+      "stateVersion":  STATE.specVersion
+    },
+
+    "readiness": {
+      "@type":       "Readiness",
+      "structural":  v.structural  || "PASS",
+      "deep":        v.deep        || "NOT_RUN",
+      "colourState": v.colourState || "GRN",
+      "rftAt":       STATE.exportedAt || ts
+    },
+
+    "scope": {
+      "@type":     "Scope",
+      "domains":   domains,
+      "countries": countries
+    },
+
+    "statistics": {
+      "@type":          "Statistics",
+      "resolvedCount":  resolved.length,
+      "suspectedCount": suspected.length,
+      "deletedCount":   selectedNodes.filter(n=>n.status==='deleted').length,
+      "suspectedNote":  suspected.length>0
+        ? `${suspected.length} node(s) unreachable at validation time. See suspectedNodes[].`
+        : null
+    },
+
+    "policies":  policyObjects,
+    "profiles":  Object.values(profileMap),
+    "resolvedNodes":  resolved,
+    ...(incSusp ? {"suspectedNodes": suspected} : {}),
+    ...(incDel  ? {"deletedNodes":   deletedOut} : {}),
+    ...(incCache? {"_stateCache": cache} : {})
+  };
+
+  return mission;
+}
+
+/* ═══ RENDER OUTPUT ═════════════════════════════════════════════ */
+function synHL(str){
+  return str.split('\n').map(line=>{
+    let h=line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    h=h.replace(/"([^"]+)":/g,'<span class="jk">"$1"</span>:');
+    h=h.replace(/: "(https?:\/\/[^"]*)"/g,
+      (_,u)=>`: <span class="jv"><a class="ju" href="${u}" target="_blank" rel="noopener">"${u}"</a></span>`);
+    h=h.replace(/: "(urn:[^"]*)"/g,'<span class="jv"> "$1"</span>');
+    h=h.replace(/: "([^"]*)"/g,': <span class="jv">"$1"</span>');
+    h=h.replace(/: (-?\d+\.?\d*)/g,': <span class="jn">$1</span>');
+    h=h.replace(/: (true|false|null)/g,': <span class="jb">$1</span>');
+    return h;
+  }).join('\n');
+}
+
+function renderOutput(){
+  if(!MISSION) return;
+  const json = JSON.stringify(MISSION,null,2);
+  document.getElementById('outBody').innerHTML=`<pre class="out">${synHL(json)}</pre>`;
+  document.getElementById('expBtn').disabled=false;
+  document.getElementById('copyBtn').disabled=false;
+  const r=MISSION.resolvedNodes?.length||0;
+  const s=MISSION.suspectedNodes?.length||0;
+  document.getElementById('nodeCount').textContent=
+    `${r} resolved · ${s} suspected · ${(json.length/1024).toFixed(1)} KB`;
+}
+
+/* ═══ EXPORT ════════════════════════════════════════════════════ */
+function doExport(){
+  if(!MISSION) return;
+  const json  = JSON.stringify(MISSION,null,2);
+  const blob  = new Blob([json],{type:'application/ld+json'});
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  const govId = STATE?.governance?.id||'mission';
+  const date  = (STATE?.exportedAt||new Date().toISOString()).slice(0,10);
+  a.href=url; a.download=`iof-mission-${govId}-${date}.jsonld`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function copyOut(){
+  if(!MISSION) return;
+  navigator.clipboard.writeText(JSON.stringify(MISSION,null,2))
+    .then(()=>{ const b=document.getElementById('copyBtn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='Copy',2000); });
+}
+
+init();
+</script>
+</body>
+</html>
