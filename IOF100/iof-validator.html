@@ -466,7 +466,10 @@ function slabel(p){
 async function loadJ(p){
   if(CACHE[p])return CACHE[p];
   try{
-    const r=await fetch(p,{cache:'no-store'});
+    const ctrl = new AbortController();
+    const tid  = setTimeout(()=>ctrl.abort(), 10000); // 10s timeout
+    const r=await fetch(p,{cache:'no-store', signal:ctrl.signal});
+    clearTimeout(tid);
     if(!r.ok)throw new Error('HTTP '+r.status);
     const j=await r.json();
     CACHE[p]=j;
@@ -1279,6 +1282,7 @@ async function init(){
   try {
     status.textContent = 'Loading index…';
     const idx = await loadJ('./file-index.json');
+    if(idx.__error) throw new Error('Cannot load file-index.json: '+idx.message+' — serve via HTTP server, not file://');
     FILE_INDEX = idx.files || [];
     fill.style.width = '10%';
     stage.style.setProperty('--blur-amount','16px');
@@ -1286,9 +1290,9 @@ async function init(){
     const domainFiles = FILE_INDEX.filter(f=>f.includes('/domains/') || f.includes('ai-domains/'));
     const total = domainFiles.length;
     let done = 0;
-    status.textContent = `Loading domains…`;
 
     for(let i=0;i<domainFiles.length;i+=8){
+      status.textContent = `Loading domains… ${done}/${total}`;
       await Promise.all(domainFiles.slice(i,i+8).map(f=>loadJ(f)));
       done = Math.min(i+8, total);
       const pct = 10 + Math.round((done/total)*80);
