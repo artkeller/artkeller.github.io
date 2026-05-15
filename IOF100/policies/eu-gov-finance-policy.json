@@ -1,0 +1,47 @@
+{
+  "id": "eu-gov-finance-policy",
+  "name": "Eu Gov Finance Policy",
+  "version": "1.0",
+  "what": {
+    "domains": {
+      "match": [
+        {
+          "field": "domain",
+          "op": "in",
+          "value": [
+            "government",
+            "finance"
+          ]
+        },
+        {
+          "field": "countries",
+          "op": "intersects",
+          "value": "$regions"
+        },
+        {
+          "field": "countries",
+          "op": "not-in",
+          "value": [
+            "*"
+          ]
+        }
+      ]
+    },
+    "regions": [
+      "./regions/eu-27.json"
+    ],
+    "exclude": {
+      "paths": [
+        "./domains/test/*"
+      ]
+    }
+  },
+  "how": [
+    "./analysis-profiles/standard-analysis.json",
+    "./measurement-profiles/passive-standard.json"
+  ],
+  "selection": {
+    "matchLogic": "AND",
+    "includeGlobal": false
+  }
+}

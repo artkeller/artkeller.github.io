@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IOF Mission Generator v10.0</title>
+<style>
+:root{
+  --bg:#f4f5f7;--surface:#fff;--border:#dde1e7;--muted:#6b7280;--fg:#111827;--fg2:#374151;
+  --accent:#1a56db;--accent2:#7c3aed;--ok:#059669;--warn:#d97706;--err:#dc2626;
+  --r:8px;--max:1100px;--fs:15px;--fs-sm:13px;--fs-xs:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--surface:#161b22;--border:#30363d;--muted:#8b949e;--fg:#e6edf3;--fg2:#c9d1d9;
+  --accent:#58a6ff;--accent2:#c084fc;--ok:#3fb950;--warn:#d29922;--err:#f85149;
+}}
+*,*::before,*::after{box-sizing:border-box;}
+html{font-size:var(--fs);}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--fg);line-height:1.55;-webkit-font-smoothing:antialiased;}
+h1,h2,h3{margin:0;letter-spacing:-.02em;}
+button{font-family:inherit;font-size:var(--fs-sm);cursor:pointer;border-radius:var(--r);}
+button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(26,86,219,.35);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--surface);
+  border-bottom:1px solid var(--border);height:58px;
+  display:flex;align-items:center;gap:8px;padding:0 16px;}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--fg);}
+.brand a{color:inherit;text-decoration:none;}
+.sep{width:1px;height:24px;background:var(--border);flex-shrink:0;}
+.nav-title{font-size:var(--fs-sm);color:var(--muted);}
+.btn{border:none;padding:6px 14px;font-weight:600;font-size:var(--fs-sm);
+  border-radius:var(--r);display:flex;align-items:center;gap:5px;
+  transition:opacity .15s;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.bp{background:var(--accent);color:#fff;}.bp:not(:disabled):hover{opacity:.85;}
+.bg{background:var(--bg);border:1px solid var(--border);color:var(--fg);}
+.bg:hover{background:var(--border);}
+.be{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.be:not(:disabled):hover{opacity:.9;}
+.btn:disabled{opacity:.4;cursor:default;}
+.sp{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.running .sp{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* STATUS BAR */
+.status-bar{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.state-pill{display:flex;align-items:center;gap:5px;font-size:var(--fs-xs);
+  font-weight:600;padding:3px 10px;border-radius:20px;border:1px solid transparent;}
+.sp-ok  {background:#f0fdf4;border-color:#86efac;color:#15803d;}
+.sp-warn{background:#fefce8;border-color:#fde047;color:#854d0e;}
+.sp-err {background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+.sp-idle{background:var(--bg);border-color:var(--border);color:var(--muted);}
+@media(prefers-color-scheme:dark){
+  .sp-ok{background:#052e16;border-color:#166534;color:#4ade80;}
+  .sp-warn{background:#1c1400;border-color:#854d0e;color:#fde047;}
+  .sp-err{background:#2d0f0f;border-color:#991b1b;color:#fca5a5;}
+}
+
+/* MAIN LAYOUT */
+.container{display:flex;height:calc(100vh - 116px);overflow:hidden;}
+.left-pane{width:340px;flex-shrink:0;border-right:1px solid var(--border);
+  background:var(--surface);display:flex;flex-direction:column;overflow:hidden;}
+.right-pane{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+/* LEFT: config panel */
+.panel-hdr{padding:12px 14px;border-bottom:1px solid var(--border);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.panel-body{flex:1;overflow-y:auto;padding:14px;}
+
+.section-label{font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);margin-bottom:8px;margin-top:16px;}
+.section-label:first-child{margin-top:0;}
+
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r);
+  padding:32px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;
+  color:var(--muted);font-size:var(--fs-sm);}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--hover,#eef4ff);}
+.drop-zone input{display:none;}
+
+.info-row{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:1px solid var(--border);font-size:var(--fs-xs);}
+.info-row:last-child{border-bottom:none;}
+.info-key{color:var(--muted);}
+.info-val{font-weight:600;color:var(--fg);text-align:right;max-width:200px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.info-val.ok{color:var(--ok);}
+.info-val.warn{color:var(--warn);}
+.info-val.err{color:var(--err);}
+
+.option-row{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--border);font-size:var(--fs-sm);}
+.option-row:last-child{border-bottom:none;}
+.option-row label{color:var(--fg2);}
+.option-row select,.option-row input[type=text]{
+  background:var(--bg);border:1px solid var(--border);color:var(--fg);
+  padding:3px 7px;border-radius:5px;font-size:var(--fs-xs);max-width:160px;}
+
+/* RIGHT: output */
+.output-hdr{padding:10px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.output-hdr span{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--muted);}
+.output-body{flex:1;overflow:auto;padding:14px;}
+pre.output{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;
+  font-size:var(--fs-xs);line-height:1.65;margin:0;white-space:pre-wrap;word-break:break-all;
+  color:var(--fg);}
+
+/* JSON highlight */
+.jk{color:var(--accent2);}
+.jv{color:var(--ok);}
+.jn{color:var(--accent);}
+.jb{color:var(--muted);font-style:italic;}
+.ju{color:#0369a1;text-decoration:underline;cursor:pointer;}
+.ju:hover{color:var(--accent);}
+
+/* EMPTY STATE */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;gap:14px;color:var(--muted);text-align:center;padding:40px;}
+.empty .icon{width:52px;height:52px;border-radius:13px;background:var(--bg);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.empty p{margin:0;font-size:var(--fs-sm);max-width:280px;line-height:1.6;}
+
+/* LOADING OVERLAY */
+.glass-overlay{position:fixed;inset:0;z-index:9999;display:flex;
+  align-items:center;justify-content:center;background:var(--surface);}
+.glass-overlay.loaded{opacity:0;pointer-events:none;transition:opacity .6s;}
+.load-box{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.load-logo{width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,#1a56db,#7c3aed);
+  display:flex;align-items:center;justify-content:center;}
+.load-bar-wrap{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.load-fill{width:0%;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .3s;border-radius:2px;}
+#load-status{font-size:var(--fs-sm);color:var(--muted);margin:0;}
+.load-title{font-size:16px;font-weight:600;color:var(--fg);margin:0;}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="overlay" class="glass-overlay">
+  <div class="load-box">
+    <div class="load-logo">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <circle cx="11" cy="6" r="3" fill="white" opacity=".9"/>
+        <circle cx="4.5" cy="16.5" r="2.2" fill="white" opacity=".75"/>
+        <circle cx="17.5" cy="16.5" r="2.2" fill="white" opacity=".75"/>
+        <line x1="11" y1="9" x2="5.2" y2="14.6" stroke="white" stroke-width="1.3" opacity=".6"/>
+        <line x1="11" y1="9" x2="16.8" y2="14.6" stroke="white" stroke-width="1.3" opacity=".6"/>
+      </svg>
+    </div>
+    <div>
+      <p class="load-title">IOF Mission Generator</p>
+      <p id="load-status">Initialising…</p>
+    </div>
+    <div class="load-bar-wrap"><div class="load-fill" id="load-fill"></div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="brand">
+    <a href="index.html">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect width="20" height="20" rx="5" fill="url(#ng)"/>
+        <circle cx="10" cy="6" r="2.5" fill="white" opacity=".9"/>
+        <circle cx="4" cy="15" r="2" fill="white" opacity=".7"/>
+        <circle cx="16" cy="15" r="2" fill="white" opacity=".7"/>
+        <line x1="10" y1="8.5" x2="5" y2="13.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+        <line x1="10" y1="8.5" x2="15" y2="13.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+        <defs><linearGradient id="ng" x1="0" y1="0" x2="20" y2="20">
+          <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+        </linearGradient></defs>
+      </svg>
+    </a>
+    IOF Mission Generator
+    <span style="font-size:11px;color:var(--muted);font-weight:400;">v10.0.0</span>
+  </div>
+  <div class="sep"></div>
+  <span class="nav-title">Sovereign Transformer</span>
+  <div style="margin-left:auto;display:flex;gap:8px;">
+    <button class="btn bg" onclick="loadFromFile()" id="loadBtn">
+      📂 Load State File
+    </button>
+    <button class="btn bp" onclick="generateMission()" id="genBtn" disabled>
+      <div class="sp"></div><span id="genLbl">Generate Mission</span>
+    </button>
+    <button class="btn be" onclick="exportMission()" id="expBtn" disabled>
+      ⬇ Export .jsonld
+    </button>
+    <a href="iof-validator.html" class="btn bg" style="text-decoration:none">← Validator</a>
+  </div>
+</nav>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="state-pill sp-idle" id="stateLoad">No state loaded</div>
+  <div class="state-pill sp-idle" id="stateVal">Validation: —</div>
+  <div class="state-pill sp-idle" id="stateDeep">Deep: —</div>
+  <div class="state-pill sp-idle" id="stateColour">Colour: —</div>
+  <span style="font-size:var(--fs-xs);color:var(--muted);margin-left:auto;" id="stateMeta"></span>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- LEFT: Config -->
+  <div class="left-pane">
+    <div class="panel-hdr">Configuration</div>
+    <div class="panel-body">
+
+      <div class="section-label">State Source</div>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handleDrop(event)">
+        <input type="file" id="fileInput" accept=".json" onchange="handleFile(this.files[0])">
+        <div style="font-size:22px;margin-bottom:8px;">📋</div>
+        <div style="font-weight:600;margin-bottom:4px;color:var(--fg);">Drop state file here</div>
+        <div style="font-size:var(--fs-xs);">or click to browse · iof-state-*.json</div>
+      </div>
+
+      <div class="section-label" id="infoLabel" style="display:none">State Info</div>
+      <div id="infoPanel"></div>
+
+      <div class="section-label" style="margin-top:20px;">Output Options</div>
+      <div class="option-row">
+        <label>Namespace base</label>
+        <input type="text" id="nsBase" value="https://iof.example/id/" style="width:180px;">
+      </div>
+      <div class="option-row">
+        <label>Include profiles</label>
+        <select id="optProfiles">
+          <option value="embedded">Embedded (full)</option>
+          <option value="ref-only">Ref only</option>
+        </select>
+      </div>
+      <div class="option-row">
+        <label>Include cache</label>
+        <select id="optCache">
+          <option value="no">No</option>
+          <option value="yes">Yes (debug)</option>
+        </select>
+      </div>
+      <div class="option-row">
+        <label>Suspected nodes</label>
+        <select id="optSuspected">
+          <option value="include">Include</option>
+          <option value="exclude">Exclude</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="right-pane">
+    <div class="output-hdr">
+      <span>Mission Output</span>
+      <span id="nodeCount" style="font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:8px;"></span>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <button class="btn bg" onclick="copyOutput()" id="copyBtn" disabled style="font-size:var(--fs-xs);padding:4px 10px;">Copy JSON</button>
+      </div>
+    </div>
+    <div class="output-body" id="outputBody">
+      <div class="empty">
+        <div class="icon">⚙️</div>
+        <p>Load a validator state file, configure options, then click <strong>Generate Mission</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+let STATE = null;      // loaded state-cache
+let MISSION = null;    // generated mission JSON-LD
+
+/* ═══ INIT ══════════════════════════════════════════════════════ */
+function init(){
+  const overlay = document.getElementById('overlay');
+  const fill    = document.getElementById('load-fill');
+  const status  = document.getElementById('load-status');
+
+  status.textContent = 'Checking session state…';
+  fill.style.width = '40%';
+
+  // Try sessionStorage first (direct launch from validator)
+  setTimeout(()=>{
+    try {
+      const raw = sessionStorage.getItem('iof-state');
+      if(raw){
+        fill.style.width = '80%';
+        status.textContent = 'Loading validator state…';
+        setTimeout(()=>{
+          const state = JSON.parse(raw);
+          sessionStorage.removeItem('iof-state');
+          fill.style.width = '100%';
+          status.textContent = 'Ready.';
+          setTimeout(()=>{
+            overlay.classList.add('loaded');
+            overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true});
+            applyState(state);
+          }, 300);
+        }, 200);
+        return;
+      }
+    } catch(e){}
+
+    fill.style.width = '100%';
+    status.textContent = 'Ready — load a state file.';
+    setTimeout(()=>{
+      overlay.classList.add('loaded');
+      overlay.addEventListener('transitionend',()=>overlay.remove(),{once:true});
+    }, 400);
+  }, 300);
+}
+
+/* ═══ FILE LOADING ══════════════════════════════════════════════ */
+function loadFromFile(){
+  document.getElementById('fileInput').click();
+}
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if(file) handleFile(file);
+}
+function handleFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const state = JSON.parse(e.target.result);
+      applyState(state);
+    } catch(err) {
+      alert('Invalid JSON file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function applyState(state){
+  if(!state?.specVersion?.startsWith('open-iof-state')){
+    alert('Not a valid IOF state file (missing specVersion: open-iof-state/*)');
+    return;
+  }
+  STATE = state;
+  document.getElementById('genBtn').disabled = false;
+
+  // Status pills
+  const v = state.validation || {};
+  setPill('stateLoad', `Loaded: ${state.governance?.id||'?'}`, 'ok');
+  setPill('stateVal',  `Structural: ${v.structural||'?'}`, v.structural==='PASS'?'ok':'err');
+  setPill('stateDeep', `Deep: ${v.deep||'NOT_RUN'}`, v.deep==='PASS'?'ok':v.deep==='NOT_RUN'?'idle':'warn');
+  const cmap = {BLU:'ok',GRN:'ok',AMB:'warn',RED:'err'};
+  setPill('stateColour', `Colour: ${v.colourState||'?'}`, cmap[v.colourState]||'idle');
+  document.getElementById('stateMeta').textContent =
+    `${state.exportedAt?.slice(0,19)||''} · v${state.validatorVersion||'?'} · ${state.resolvedFiles?.length||0} files`;
+
+  // Info panel
+  document.getElementById('infoLabel').style.display='block';
+  const cache = state.cache||{};
+  const govJ  = cache[state.governance?.ref||'']||{};
+  const urls  = Object.values(cache).filter(o=>Array.isArray(o?.nodes)).flatMap(o=>o.nodes);
+  const unreachable = (v.unreachable||[]).length;
+  document.getElementById('infoPanel').innerHTML = `
+    <div class="info-row"><span class="info-key">Governance</span><span class="info-val">${escH(state.governance?.id||'—')}</span></div>
+    <div class="info-row"><span class="info-key">Policies</span><span class="info-val">${(govJ.policies||[]).length}</span></div>
+    <div class="info-row"><span class="info-key">Cached files</span><span class="info-val">${Object.keys(cache).length}</span></div>
+    <div class="info-row"><span class="info-key">Total URLs</span><span class="info-val">${urls.length}</span></div>
+    <div class="info-row"><span class="info-key">Unreachable</span><span class="info-val ${unreachable>0?'err':''}">${unreachable}</span></div>
+    <div class="info-row"><span class="info-key">Colour state</span><span class="info-val ${cmap[v.colourState]||''}">${v.colourState||'—'}</span></div>
+  `;
+}
+
+function setPill(id, text, type){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = text;
+  el.className = `state-pill sp-${type}`;
+}
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ═══ MISSION GENERATION — Sovereign Transformer ═══════════════
+   Step 1: Iterate all entities in cache
+   Step 2: Replace local path refs with authoritative @id URNs
+   Step 3: Embed match-conditions as Context-Evidence
+   Step 4: Link each node to its full governance lineage
+═══════════════════════════════════════════════════════════════ */
+const NS = {
+  iof:     'https://iof.example/schema#',
+  id:      'https://iof.example/id/',
+  policy:  'https://iof.example/policy/',
+  profile: 'https://iof.example/profile/',
+  gov:     'https://iof.example/governance/',
+  node:    'https://iof.example/id/node/'
+};
+const CTX = {
+  "@version": 1.1,
+  "iof":  NS.iof,
+  "xsd":  "http://www.w3.org/2001/XMLSchema#",
+  "prov": "http://www.w3.org/ns/prov#",
+  "Mission":            "iof:Mission",
+  "Generator":          "iof:Generator",
+  "Governance":         "iof:Governance",
+  "Policy":             "iof:Policy",
+  "Readiness":          "iof:Readiness",
+  "Scope":              "iof:Scope",
+  "Statistics":         "iof:Statistics",
+  "AnalysisProfile":    "iof:AnalysisProfile",
+  "MeasurementProfile": "iof:MeasurementProfile",
+  "ResolvedNode":       "iof:ResolvedNode",
+  "SuspectedNode":      "iof:SuspectedNode",
+  "SuspectedState":     "iof:SuspectedState",
+  "ContextEvidence":    "iof:ContextEvidence",
+  "created":   {"@id":"iof:created",  "@type":"xsd:dateTime"},
+  "rftAt":     {"@id":"iof:rftAt",    "@type":"xsd:dateTime"},
+  "testedAt":  {"@id":"iof:testedAt", "@type":"xsd:dateTime"},
+  "url":       {"@id":"iof:url",      "@type":"@id"},
+  "ref":       {"@id":"iof:ref"},
+  "policy":    {"@id":"iof:policy",   "@type":"@id"},
+  "resolvedNodes":  {"@id":"iof:resolvedNodes",  "@container":"@set"},
+  "suspectedNodes": {"@id":"iof:suspectedNodes", "@container":"@set"},
+  "profiles":       {"@id":"iof:profiles",       "@container":"@set"},
+  "policies":       {"@id":"iof:policies",        "@container":"@set"},
+  "governanceLineage": {"@id":"iof:governanceLineage", "@container":"@set"}
+};
+
+function safeId(str){
+  return str.replace(/[^a-zA-Z0-9._~-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+}
+function nodeAtId(url){
+  try{
+    const u=new URL(url);
+    return NS.id+'node/'+safeId(u.hostname+u.pathname);
+  }catch{return NS.id+'node/'+safeId(url);}
+}
+
+function generateMission(){
+  if(!STATE) return;
+  const btn = document.getElementById('genBtn');
+  btn.disabled=true; btn.classList.add('running');
+  document.getElementById('genLbl').textContent='Generating…';
+
+  setTimeout(()=>{
+    try { MISSION = transform(); render(); }
+    catch(e){ alert('Generation error: '+e.message); console.error(e); }
+    btn.disabled=false; btn.classList.remove('running');
+    document.getElementById('genLbl').textContent='Generate Mission';
+  }, 50);
+}
+
+function transform(){
+  const nsBase  = document.getElementById('nsBase').value.trim() || NS.id;
+  const cache   = STATE.cache || {};
+  const v       = STATE.validation || {};
+  const govRef  = STATE.governance?.ref || '';
+  const govId   = STATE.governance?.id  || '';
+  const govJ    = cache[govRef] || {};
+  const ts      = new Date().toISOString();
+  const tsSlug  = ts.replace(/[-:.Z]/g,'').slice(0,15);
+  const incSuspected = document.getElementById('optSuspected').value === 'include';
+  const incProfiles  = document.getElementById('optProfiles').value;
+
+  // ── Step 1: Build policy objects with full lineage ───────────
+  const policyObjects = [];
+  const profileMap    = {};  // ref → semantic object
+  const policyMap     = {};  // policyId → {analysis[], measurement[], regions[], matchConditions}
+
+  for(const pRef of (govJ.policies||[])){
+    const pj  = cache[pRef];
+    if(!pj) continue;
+    const pid = pj.id || pRef.split('/').pop().replace('.json','');
+    const pAtId = `${nsBase.replace('/id/','/policy/')}${safeId(pid)}`;
+    policyMap[pid] = { atId: pAtId, ref: pRef, analysis:[], measurement:[], regions:[], matchConditions:[] };
+
+    // Collect how-profiles
+    for(const hRef of (pj.how||[])){
+      const hj = cache[hRef];
+      if(!hj) continue;
+      const isMeasure = hRef.includes('measurement-profiles');
+      const profId = hj.id || hRef.split('/').pop().replace('.json','');
+      const profAtId = `${nsBase.replace('/id/','/profile/')}${safeId(profId)}`;
+      if(!profileMap[hRef]){
+        profileMap[hRef] = {
+          "@id":   profAtId,
+          "@type": isMeasure ? "MeasurementProfile" : "AnalysisProfile",
+          "id":    profId,
+          "ref":   hRef,
+          ...(incProfiles==='embedded' ? hj : {})
+        };
+      }
+      if(isMeasure) policyMap[pid].measurement.push(profAtId);
+      else          policyMap[pid].analysis.push(profAtId);
+    }
+
+    // Collect regions
+    for(const rRef of (pj.what?.regions||[])){
+      const rj = cache[rRef];
+      if(rj) policyMap[pid].regions.push({ref:rRef, region:rj.region, countries:rj.countries});
+    }
+
+    // Step 3: Embed match-conditions as ContextEvidence
+    const dval = pj.what?.domains;
+    if(dval){
+      if(Array.isArray(dval)){
+        policyMap[pid].matchConditions.push({
+          "@type": "ContextEvidence",
+          "strategy": "path-glob",
+          "patterns": dval,
+          "excludePaths": pj.what?.exclude?.paths || []
+        });
+      } else if(dval.match){
+        policyMap[pid].matchConditions.push({
+          "@type": "ContextEvidence",
+          "strategy": "predicate-match",
+          "predicates": dval.match,
+          "matchLogic": pj.selection?.matchLogic || "AND",
+          "excludePaths": pj.what?.exclude?.paths || []
+        });
+      }
+    }
+
+    policyObjects.push({
+      "@id":    pAtId,
+      "@type":  "Policy",
+      "id":     pid,
+      "ref":    pRef,
+      "analysis":    policyMap[pid].analysis,
+      "measurement": policyMap[pid].measurement,
+      "regions":     policyMap[pid].regions,
+      "contextEvidence": policyMap[pid].matchConditions
+    });
+  }
+
+  // ── Step 2+4: Build nodes with full governance lineage ───────
+  const resolved   = [];
+  const suspected  = [];
+  const unreachSet = new Set(v.unreachable||[]);
+  const deletedSet = new Set(v.deleted||[]);
+  const seenUrls   = new Set();
+
+  // Iterate all domain files in cache
+  for(const [fileRef, fileJ] of Object.entries(cache)){
+    if(!fileJ?.nodes || !Array.isArray(fileJ.nodes)) continue;
+    if(!fileRef.includes('domains/') && !fileRef.includes('ai-domains/')) continue;
+
+    // Find which policy selected this file
+    let ownerPolicyId = null;
+    for(const [pid, pm] of Object.entries(policyMap)){
+      // Check if this file's countries intersect any of the policy's region countries
+      const allRegionCCs = pm.regions.flatMap(r=>r.countries||[]);
+      const fileCCs = fileJ.countries || [];
+      const isGlobal = fileCCs[0]==='*';
+      if(isGlobal || fileCCs.some(c=>allRegionCCs.includes(c)) || allRegionCCs.length===0){
+        ownerPolicyId = pid; break;
+      }
+    }
+    const pm = ownerPolicyId ? policyMap[ownerPolicyId] : null;
+
+    for(const url of fileJ.nodes){
+      if(!url?.startsWith('http')) continue;
+      if(deletedSet.has(url)) continue;
+      if(seenUrls.has(url)) continue;
+      seenUrls.add(url);
+
+      const isDead = unreachSet.has(url);
+      if(isDead && !incSuspected) continue;
+
+      // Step 4: Full governance lineage per node
+      const lineage = [{
+        "@type":   "Governance",
+        "@id":     `${nsBase.replace('/id/','/governance/')}${safeId(govId)}`,
+        "id":      govId,
+        "ref":     govRef
+      }];
+      if(pm){
+        lineage.push({
+          "@type": "Policy",
+          "@id":   pm.atId,
+          "id":    ownerPolicyId,
+          "ref":   pm.ref
+        });
+      }
+
+      const entry = {
+        "@id":    nodeAtId(url),
+        "@type":  isDead ? "SuspectedNode" : "ResolvedNode",
+        "url":    url,
+        "domain": fileJ.domain || null,
+        "countries": fileJ.countries || null,
+        "ref":    fileRef,                    // runtime: source domain file
+        "policy": pm?.atId || null,           // semantic @id
+        "policyRef": pm?.ref || null,         // runtime ref
+        "analysis":    pm?.analysis?.length    ? pm.analysis    : null,
+        "measurement": pm?.measurement?.length ? pm.measurement : null,
+        "governanceLineage": lineage
+      };
+
+      if(isDead){
+        suspected.push({...entry,
+          "suspect":{
+            "@type":"SuspectedState",
+            "reason":"unreachable at validation time",
+            "note":"Transient conditions possible. Scanner may re-evaluate.",
+            "testedAt": STATE.validation?.rftAt||ts
+          }
+        });
+      } else {
+        resolved.push(entry);
+      }
+    }
+  }
+
+  const domains   = [...new Set(resolved.map(n=>n.domain).filter(Boolean))];
+  const countries = [...new Set(resolved.flatMap(n=>n.countries||[]).filter(c=>c!=='*'))].sort();
+
+  const mission = {
+    "@context":    CTX,
+    "@id":         `${nsBase}mission/${tsSlug}-${safeId(govId)}`,
+    "@type":       "Mission",
+    "specVersion": "open-iof/1.0",
+    "created":     ts,
+
+    "governance": {
+      "@id":   `${nsBase.replace('/id/','/governance/')}${safeId(govId)}`,
+      "@type": "Governance",
+      "id":    govId,
+      "ref":   govRef
+    },
+
+    "generator": {
+      "@id":     `${nsBase}generator/iof-mission-generator-10`,
+      "@type":   "Generator",
+      "tool":    "IOF Mission Generator",
+      "version": "10.0.0",
+      "generatedFrom": STATE.exportedAt
+    },
+
+    "readiness": {
+      "@type":       "Readiness",
+      "structural":  v.structural  || "PASS",
+      "deep":        v.deep        || "NOT_RUN",
+      "colourState": v.colourState || "GRN",
+      "rftAt":       STATE.exportedAt || ts
+    },
+
+    "scope": {
+      "@type":     "Scope",
+      "domains":   domains,
+      "countries": countries
+    },
+
+    "statistics": {
+      "@type":          "Statistics",
+      "resolvedCount":  resolved.length,
+      "suspectedCount": suspected.length,
+      "deletedCount":   deletedSet.size,
+      "suspectedNote":  suspected.length>0
+        ? `${suspected.length} node(s) unreachable at validation time.`
+        : null
+    },
+
+    "policies":  policyObjects,
+    "profiles":  Object.values(profileMap),
+
+    "resolvedNodes":  resolved,
+    "suspectedNodes": suspected
+  };
+
+  if(document.getElementById('optCache').value==='yes'){
+    mission["_stateCache"] = STATE.cache;
+  }
+
+  return mission;
+}
+
+/* ═══ RENDER ════════════════════════════════════════════════════ */
+function synHL(str){
+  return str.split('\n').map(line=>{
+    let h = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    h = h.replace(/"([^"]+)":/g,'<span class="jk">"$1"</span>:');
+    h = h.replace(/: "((https?:\/\/)[^"]*)"/g,
+      (_,url)=>`: <span class="jv"><a class="ju" href="${url}" target="_blank">"${url}"</a></span>`);
+    h = h.replace(/: "([^"]*)"/g,': <span class="jv">"$1"</span>');
+    h = h.replace(/: (-?\d+\.?\d*)/g,': <span class="jn">$1</span>');
+    h = h.replace(/: (true|false|null)/g,': <span class="jb">$1</span>');
+    return h;
+  }).join('\n');
+}
+
+function render(){
+  if(!MISSION) return;
+  const body = document.getElementById('outputBody');
+  const json = JSON.stringify(MISSION, null, 2);
+  body.innerHTML = `<pre class="output">${synHL(json)}</pre>`;
+  document.getElementById('expBtn').disabled = false;
+  document.getElementById('copyBtn').disabled = false;
+  const rn = MISSION.resolvedNodes?.length||0;
+  const sn = MISSION.suspectedNodes?.length||0;
+  document.getElementById('nodeCount').textContent =
+    `${rn} resolved · ${sn} suspected · ${(json.length/1024).toFixed(1)} KB`;
+}
+
+/* ═══ EXPORT ════════════════════════════════════════════════════ */
+function exportMission(){
+  if(!MISSION) return;
+  const json  = JSON.stringify(MISSION, null, 2);
+  const blob  = new Blob([json],{type:'application/ld+json'});
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  const govId = STATE?.governance?.id || 'mission';
+  const date  = (STATE?.exportedAt||new Date().toISOString()).slice(0,10);
+  a.href=url; a.download=`iof-mission-${govId}-${date}.jsonld`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function copyOutput(){
+  if(!MISSION) return;
+  navigator.clipboard.writeText(JSON.stringify(MISSION,null,2))
+    .then(()=>{ const b=document.getElementById('copyBtn'); b.textContent='✓ Copied'; setTimeout(()=>b.textContent='Copy JSON',2000); });
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{
+  "id": "eu-innovation",
+  "name": "EU Innovation Governance",
+  "version": "1.0",
+  "rational": "European digital infrastructure resilience has become a strategic dependency. This governance validates reachability of economically critical internet nodes within EU political boundaries and immediate neighbours. Scope is deliberately narrow: government, finance, carrier, energy. Media and platform are excluded to maintain operational focus.",
+  "controls": [
+    "All referenced government portals must be reachable from EU observation point",
+    "Financial market infrastructure nodes must respond within acceptable latency",
+    "Carrier and energy operator web presence must be reachable as proxy for operational status",
+    "No wildcard-scoped nodes (countries:[*]) included \u2014 explicit scope only"
+  ],
+  "standard": "IOF-GOVERNANCE-v1 / aligned with ENISA NIS2 Art.21 availability requirements",
+  "requirements": [
+    "REQ-IOF-EU-001: Government portal reachability \u2014 EU-political scope",
+    "REQ-IOF-EU-002: Financial infrastructure availability \u2014 EU-political + CH",
+    "REQ-IOF-EU-003: Carrier presence validation \u2014 DACH focus",
+    "REQ-IOF-EU-004: Energy operator reachability \u2014 DE primary"
+  ],
+  "policies": [
+    "./policies/eu-gov-finance-policy.json",
+    "./policies/dach-carrier-energy-policy.json"
+  ],
+  "description": {
+    "purpose": "Validate reachability of critical EU digital infrastructure \u2014 government, finance, carrier, energy",
+    "scope": "EU-27 member states + DE for KRITIS/carrier/energy",
+    "excludes": [
+      "platform",
+      "x-initiatives",
+      "media",
+      "travel",
+      "wildcard nodes"
+    ],
+    "views": [
+      "domainView",
+      "regionView"
+    ]
+  }
+}

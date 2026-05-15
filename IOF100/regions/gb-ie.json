@@ -1,0 +1,6 @@
+{
+  "region": "gb-ie",
+  "name": "United Kingdom and Ireland",
+  "description": "GB and IE as a practical grouping for services covering both islands. Deliberately avoids the term 'British Isles' which is contested. IE is a sovereign EU member state; GB is post-Brexit non-EU.",
+  "countries": ["GB", "IE"]
+}

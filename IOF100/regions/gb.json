@@ -1,0 +1,6 @@
+{
+  "region": "gb",
+  "name": "United Kingdom (GB)",
+  "description": "United Kingdom of Great Britain and Northern Ireland. ISO 3166-1 alpha-2: GB. Post-Brexit: not part of EU-27 or EU-EEA-CH. Note: IE (Republic of Ireland) is a separate sovereign state and must be added explicitly if needed.",
+  "countries": ["GB"]
+}

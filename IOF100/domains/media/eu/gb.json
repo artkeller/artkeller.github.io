@@ -1,0 +1,8 @@
+{
+  "domain": "media",
+  "countries": ["GB"],
+  "nodes": [
+    "https://www.bbc.co.uk",
+    "https://www.theguardian.com"
+  ]
+}
