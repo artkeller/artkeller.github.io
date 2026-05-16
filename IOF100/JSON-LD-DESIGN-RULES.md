@@ -95,3 +95,102 @@ Kein JSON-LD-Dokument darf Strukturen enthalten, die eine Konvertierung nach dem
 Nur ein vollständig kanonisiertes Dokument lässt sich deterministisch und plattformunabhängig hashen (SHA-256). Jede syntaktische Schachtelung, jede Formatierung (Whitespace, Property-Reihenfolge) wird im Zuge der Kanonisierung eliminiert, um die kryptografische Unveränderlichkeit des Audit-Trails zu sichern.
 
 ---
+
+Mein Fehler – da habe ich den Faden beim Sortieren der Nummern verloren. Natürlich sind die Regeln 8 bis 10 vollkommen valide und extrem wichtig, da sie genau Ihre geforderte logische Brücke schlagen.
+
+Wir sortieren das jetzt mathematisch sauber und fehlerfrei.
+
+Hier ist die lückenlose Fortführung der `JSON-LD-DESIGN-RULES.md`, beginnend ab der exakten Stelle nach **Rule #6**. Die folgenden Regeln (7 bis 10) definieren nun präzise, wie der **Mission-Generator** die hochgradig flexiblen, relationalen Quell-JSONs (`de.json`, `ai-global-llms.json` etc.) unschädlich und strukturerhaltend in den normierten Graphen übersetzt, ohne dass der rein relationale Validator angepasst werden muss.
+
+---
+
+```markdown
+---
+
+## RULE #7: Die kompilierungszeitige Schatten-Ontologie (The Generator Mapping)
+
+### 7.1 Architektonisches Prinzip
+Die quellseitigen JSON-Strukturen für Domains, Regionen, Policies und Governance-Vorgaben werden auf dem Server **strukturell nicht verändert**. Sie behalten ihre flache, relationale Natur (wie `de.json`), um maximale operative Flexibilität für Editoren und automatisierte Scanner zu garantieren. 
+
+Die Transformation in ein LD-konformes Format erfolgt **exklusiv im Mission-Generator** während des Kompilierungsprozesses. Der Validator operiert weiterhin rein relational auf den flachen Strukturen; erst das Endprodukt (das kompilierte `Mission`-File) erfüllt die Kriterien der mathematischen Graphen-Wahrheit und Kanonisierung.
+
+### 7.2 Technische Umsetzung im Mission-Generator
+Der Mission-Generator deklariert für jeden relationalen Dateityp ein korrespondierendes semantisches Mapping-Regelwerk. Bei der Traversierung der Quell-Dateien generiert er die RDF-Kanten deterministisch:
+
+* **Eingabe (Relationale Quelle auf Server):**
+  ```json
+  {
+    "domain": "kritis",
+    "sector": "ernaehrung",
+    "nodes": [ "[https://www.bvl.bund.de](https://www.bvl.bund.de)" ]
+  }
+
+```
+
+* **Ausgabe (Generiertes LD-Äquivalent im Mission-File):**
+```json
+{
+  "@id": "urn:iof:source:kritis:de-ernaehrung",
+  "@type": "ResolvedNode",
+  "iof:domain": "kritis",
+  "iof:sector": "ernaehrung",
+  "iof:hasEntryPoint": "[https://www.bvl.bund.de](https://www.bvl.bund.de)"
+}
+
+```
+
+
+
+---
+
+## RULE #8: Homogenisierung heterogener Quell-Topologien
+
+### 8.1 Die Restriktion
+
+Der Mission-Generator muss unterschiedliche syntaktische Darstellungen derselben semantischen Beziehung in den Quelldateien vor der Ausgabe angleichen. Wildcards (wie `["*"]` in `ai-global-llms.json`) oder objekt-orientierte Schlüssel-Schachtelungen müssen in flache, streng typisierte URI-Kanten expandiert werden.
+
+### 8.2 Technische Begründung
+
+In `de.json` liegen Knoten als flaches String-Array vor (`"nodes": [...]`), während `ai-global-llms.json` die Knoten als JSON-Objekt-Keys deklariert (`"alibaba-qwen": { ... }`). Diese strukturelle Divergenz verhindert die Kanonisierung nach URDNA2015. Der Generator homogenisiert diese Strukturen im Ziel-Dokument zu einheitlichen Graph-Knoten, ohne die Quelldateien zu korrumpieren.
+
+---
+
+## RULE #9: Das Prinzip der unendlichen Dimensionierung (Open-World-Assumption)
+
+### 9.1 Die Restriktion
+
+Der Mission-Generator darf niemals strukturell davon ausgehen, dass die Eigenschaften eines Knotens „vollständig“ oder „abgeschlossen“ sind. Wird eine relationale Quelle um neue, unbekannte Felder erweitert, muss der Generator diese über ein elastisches Catch-All-Mapping unbeschadet in den Ziel-Graphen durchschleifen, sofern ein Basis-Präfix deklariert ist.
+
+### 9.2 Technische Begründung
+
+Im klassischen Web führt ein unbekanntes Feld im JSON-Schema zum Validierungsfehler. Im Semantic Web gilt die *Open-World-Assumption*: Nur weil das System eine neue Eigenschaft im Basis-Monitor noch nicht auswertet, darf sie nicht blockiert werden. JSON-LD hält den Knoten elastisch für zukünftige funktionale Erweiterungen.
+
+---
+
+## RULE #10: Dynamische Kanten-Injektion für Service-Quality-Layer (Die "View"-Entkopplung)
+
+### 10.1 Die Restriktion
+
+Zusatz-Layer – wie der qualitative KI-Fingerprint in `ai-global-llms.json` oder zukünftige Terms-of-Service-Audits (`robots.txt`) – dürfen nicht die Kern-Topologie des Mission-Files verändern. Sie werden vom Generator als **additive Prädikate (Kanten)** an dieselbe Kern-URN angeknüpft.
+
+### 10.2 Technische Umsetzung
+
+Wenn der Mission-Generator die qualitativen Daten der `ai-global-llms.json` verarbeitet, verknüpft er die Verfügbarkeitsdaten (Netzwerk-Ebene) und die Qualitätsdaten (Compliance-Ebene) über identische Subjekt-IDs:
+
+```json
+{
+  "@id": "urn:iof:node:alibaba-qwen",
+  "@type": "SuspectedNode",
+  "iof:url": "[https://tongyi.aliyun.com](https://tongyi.aliyun.com)",
+  "iof:provider": "Alibaba",
+  "iof:jurisdiction": "CN",
+  "iof:legalFramework": "CCP Guidelines"
+}
+
+```
+
+### 10.3 Technische Begründung
+
+Dadurch wird die Versteifung des Gesamtsystems verhindert. Wenn eine neue Metrik (z. B. CO2-Fußabdruck) eingeführt wird, muss die relationale Logik des Validators nicht angepasst werden. Der Generator injiziert lediglich die neuen Kanten in das `mission.jsonld`, wodurch der finale Graph in die Tiefe wächst, ohne die bestehende Prüf-Infrastruktur in der Breite zu brechen.
+
+---
