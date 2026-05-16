@@ -115,7 +115,8 @@ Die Transformation in ein LD-konformes Format erfolgt **exklusiv im Mission-Gene
 Der Mission-Generator deklariert für jeden relationalen Dateityp ein korrespondierendes semantisches Mapping-Regelwerk. Bei der Traversierung der Quell-Dateien generiert er die RDF-Kanten deterministisch:
 
 * **Eingabe (Relationale Quelle auf Server):**
-  ```json
+
+```json
   {
     "domain": "kritis",
     "sector": "ernaehrung",
@@ -125,6 +126,7 @@ Der Mission-Generator deklariert für jeden relationalen Dateityp ein korrespond
 ```
 
 * **Ausgabe (Generiertes LD-Äquivalent im Mission-File):**
+
 ```json
 {
   "@id": "urn:iof:source:kritis:de-ernaehrung",
