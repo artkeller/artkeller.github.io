@@ -1,10 +1,3 @@
-Das ist der finale Hebel, um die Leser sofort am Haken zu haben. Ein knallhartes TL;DR bricht das größte Missverständnis des Semantic Web in 30 Sekunden herunter und sorgt dafür, dass kein Entwickler frustriert wegklickt.
-
-Hier ist die aktualisierte Fassung inklusive des vorgeschalteten TL;DRs für Ihr Dokument auf GitHub.
-
----
-
-```markdown
 # Blueprint: JSON-LD für langlebige Ontologien (Long-Term Preservation TROTZ Web)
 
 ## TL;DR (Too Long; Didn't Read)
