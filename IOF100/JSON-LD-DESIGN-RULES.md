@@ -104,9 +104,6 @@ Hier ist die lückenlose Fortführung der `JSON-LD-DESIGN-RULES.md`, beginnend a
 
 ---
 
-```markdown
----
-
 ## RULE #7: Die kompilierungszeitige Schatten-Ontologie (The Generator Mapping)
 
 ### 7.1 Architektonisches Prinzip
