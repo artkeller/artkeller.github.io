@@ -234,3 +234,39 @@ Wer tief in die neuesten W3C-Entwürfe eintaucht (wie z.B. *JSON-LD Streaming 1.
 Der eigentliche Witz ist: Die Existenz von *JSON-LD Streaming* beweist unsere Erzählung. Man benötigt kein Streaming, um 2 Kilobyte SEO-Daten für Google bereitzustellen. Streaming wird genau dann benötigt, wenn gigantische, unerbittliche Graphenströme aus der Industrie, der Logistik oder der Governance live verarbeitet werden müssen, ohne den Speicher zu sprengen. Das W3C baut die Werkzeuge für die wissenschaftliche Welt, leiht sich aber die Wörter der Marketingwelt für die Schautafeln.
 
 ---
+
+---
+
+## Quellennachweise & Weiterführende Literatur (IEEE-Struktur)
+
+Im Gegensatz zur unpräzisen Strukturierung im kommerziellen Web basiert die Architektur langlebiger Daten auf den formalen, international standardisierten Spezifikationen des World Wide Web Consortiums (W3C) sowie führender datenwissenschaftlicher Konsortien.
+
+### [1] Die normative Syntax (W3C Standard)
+* **Referenz:** P. Champion, G. Kellogg, and D. Longley, *JSON-LD 1.1: A JSON-based Serialization for Linked Data*, W3C Recommendation, Feb. 2020.
+* **Online verfügbar:** [https://www.w3.org/TR/json-ld11/](https://www.w3.org/TR/json-ld11/)
+* **Bedeutung für die Praxis:** Dies ist das unbarmherzige Regelwerk für JSON-LD 1.1. Hier sind Kern-Mechanismen wie `@context`, `@set`-Container sowie die algorithmischen Operationen des *Framing*, *Flattening* und *Compacting* völkerrechtlich (im Sinne des Webs) definiert.
+
+### [2] Das offizielle Entwickler-Portal
+* **Referenz:** JSON-LD Community Group, *JSON-LD - Dawn of the Flexible Data*, W3C Community Portal, 2026.
+* **Online verfügbar:** [https://json-ld.org](https://json-ld.org)
+* **Bedeutung für die Praxis:** Das zentrale Einstiegsportal für die "Welt B". Abseits der rein akademischen Spezifikation bietet diese Seite den *JSON-LD Playground* – ein unverzichtbares Werkzeug, um die Metamorphose von flachem JSON in visuelle RDF-Graphenstrukturen live zu simulieren.
+
+### [3] Fortgeschrittenes API-Design und Best Practices
+* **Referenz:** G. Kellogg, M. Sporny, and D. Longley, *JSON-LD 1.1 Best Practices*, W3C Working Group Note, Mar. 2020.
+* **Online verfügbar:** [https://w3c.github.io/json-ld-bp/](https://w3c.github.io/json-ld-bp/)
+* **Bedeutung für die Praxis:** Das Handbuch für Software-Architekten. Es beschreibt explizit, wie man produktive, hochperformante Web-APIs baut, die im Kern reines JSON ausliefern, aber über entkoppelte `@context`-Injektionen vollständig Semantic-Web-fähig sind.
+
+### [4] Hochvolumige Graphen-Architekturen & Streaming
+* **Referenz:** W3C JSON-LD Working Group, *JSON-LD Streaming 1.1*, W3C Editor's Draft, 2026.
+* **Online verfügbar:** [https://w3c.github.io/json-ld-streaming/](https://w3c.github.io/json-ld-streaming/)
+* **Bedeutung für die Praxis:** Der Gegenbeweis zur SEO-Erzählung. Diese Spezifikation definiert, wie massive semantische Datenströme (z.B. aus der Industrie- oder Netzwerk-Governance) sequenziell verarbeitet und validiert werden, ohne den Arbeitsspeicher moderner Systeme zu sprengen.
+
+### [5] Wissenschaftliche Datenmodellierung (Klasse statt Masse)
+* **Referenz:** LinkML Project Team, *Using JSON-LD within the Linked Data Modeling Language (LinkML)*, Lawrence Berkeley National Laboratory, 2025.
+* **Online verfügbar:** [https://linkml.io/linkml/howtos/using-jsonld.html](https://linkml.io/linkml/howtos/using-jsonld.html)
+* **Bedeutung für die Praxis:** Ein Praxis-Blueprint aus der datenwissenschaftlichen Oberliga (Bioinformatik und semantisches Daten-Engineering). Es zeigt, wie man aus abstrakten Datenmodellen simultan JSON-Schema-Validatoren (für die Struktur) und JSON-LD-Kontexte (für die Semantik) generiert.
+
+### [6] Datenintegrität durch mathematische Kanonisierung
+* **Referenz:** D. Longley and M. Sporny, *RDF Dataset Canonicalization*, W3C Proposed Recommendation, 2024.
+* **Online verfügbar:** [https://www.w3.org/TR/rdf-canon/](https://www.w3.org/TR/rdf-canon/)
+* **Bedeutung für die Praxis:** Das mathematische Fundament für die Langzeitarchivierung (Long-Term Preservation). Der dort definierte Algorithmus (URDNA2015) erlaubt es, ein JSON-LD-Dokument unabhängig von seiner äußeren Formatierung (Leerzeichen, Zeilenumbrüche) in eine deterministische logische Form zu bringen, um daraus einen unbestechlichen kryptografischen Hash (Prüfsumme) für Audits und Herkunftsnachweise (Provenance) zu erzeugen.
