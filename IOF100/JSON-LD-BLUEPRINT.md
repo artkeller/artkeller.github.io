@@ -224,3 +224,13 @@ Wenn dieses Dokument serialisiert wird, löst der Prozessor die Aliase mithilfe 
 Lassen Sie sich nicht von Validatoren belehren, die für das Marketing-Web gebaut wurden. Wenn Ihr Ziel Datenintegrität, semantische Klarheit und Unabhängigkeit über Dekaden hinweg ist, dann ist dieser `@context`-Blueprint der einzig gangbare Weg. Er kombiniert die Leichtigkeit von JSON mit der unbarmherzigen Präzision des Semantic Web.
 
 ---
+
+## Achtung, Falle: Warum selbst das W3C in Beispielen "schema.org" nutzt
+
+Wer tief in die neuesten W3C-Entwürfe eintaucht (wie z.B. *JSON-LD Streaming 1.1*), wird feststellen, dass selbst dort in den offiziellen Validierungs-Beispielen `schema.org` als `@context` hinterlegt ist. 
+
+**Lassen Sie sich davon nicht verwirren!** Das W3C nutzt `schema.org` in Spezifikationen ausschließlich als didaktisches „Hello World“-Vokabular, weil jeder Webentwickler eine Entität wie `Person` oder `Movie` sofort versteht. 
+
+Der eigentliche Witz ist: Die Existenz von *JSON-LD Streaming* beweist unsere Erzählung. Man benötigt kein Streaming, um 2 Kilobyte SEO-Daten für Google bereitzustellen. Streaming wird genau dann benötigt, wenn gigantische, unerbittliche Graphenströme aus der Industrie, der Logistik oder der Governance live verarbeitet werden müssen, ohne den Speicher zu sprengen. Das W3C baut die Werkzeuge für die wissenschaftliche Welt, leiht sich aber die Wörter der Marketingwelt für die Schautafeln.
+
+---
