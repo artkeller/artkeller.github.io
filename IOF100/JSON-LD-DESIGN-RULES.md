@@ -96,14 +96,6 @@ Nur ein vollständig kanonisiertes Dokument lässt sich deterministisch und plat
 
 ---
 
-Mein Fehler – da habe ich den Faden beim Sortieren der Nummern verloren. Natürlich sind die Regeln 8 bis 10 vollkommen valide und extrem wichtig, da sie genau Ihre geforderte logische Brücke schlagen.
-
-Wir sortieren das jetzt mathematisch sauber und fehlerfrei.
-
-Hier ist die lückenlose Fortführung der `JSON-LD-DESIGN-RULES.md`, beginnend ab der exakten Stelle nach **Rule #6**. Die folgenden Regeln (7 bis 10) definieren nun präzise, wie der **Mission-Generator** die hochgradig flexiblen, relationalen Quell-JSONs (`de.json`, `ai-global-llms.json` etc.) unschädlich und strukturerhaltend in den normierten Graphen übersetzt, ohne dass der rein relationale Validator angepasst werden muss.
-
----
-
 ## RULE #7: Die kompilierungszeitige Schatten-Ontologie (The Generator Mapping)
 
 ### 7.1 Architektonisches Prinzip
