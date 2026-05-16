@@ -1,10 +1,10 @@
 # Lehrstunde II: Anatomie eines realen Mission-Files (Datengetriebene Governance in der Praxis)
 
 ## TL;DR (Das Wichtigste in 30 Sekunden)
-* [cite_start]**Was wir hier sehen:** Ein echtes, voll funktionsfähiges `Mission`-Dokument (`open-iof/1.0`) vom 16. Mai 2026 für die DACH-Region[cite: 92, 95].
-* [cite_start]**Der Zweck:** Es überwacht die Erreichbarkeit kritischer digitaler Infrastrukturen (Medien, Energie, Behörden, Carrier)[cite: 98, 99].
-* [cite_start]**Das Ergebnis:** Von 32 geprüften Knoten sind 28 fehlerfrei ("PASS")[cite: 97, 99]. [cite_start]4 Knoten (darunter Großkaliber wie `admin.ch` und `enbw.com`) sind aktuell nicht erreichbar und stehen unter "semantischer Quarantäne" (`SuspectedNodes`)[cite: 99, 177, 180].
-* [cite_start]**Warum das genial ist:** Das Dokument kombiniert die harten Fakten eines Netzwerk-Scans mit den juristischen/organisatorischen Rahmenbedingungen (`Policies`) in einem einzigen, kryptografisch verifizierbaren Graph-Knoten[cite: 92, 95].
+* **Was wir hier sehen:** Ein echtes, voll funktionsfähiges `Mission`-Dokument (`open-iof/1.0`) vom 16. Mai 2026 für die DACH-Region.
+* **Der Zweck:** Es überwacht die Erreichbarkeit kritischer digitaler Infrastrukturen (Medien, Energie, Behörden, Carrier).
+* **Das Ergebnis:** Von 32 geprüften Knoten sind 28 fehlerfrei ("PASS")[cite: 97, 99]. [cite_start]4 Knoten (darunter Großkaliber wie `admin.ch` und `enbw.com`) sind aktuell nicht erreichbar und stehen unter "semantischer Quarantäne" (`SuspectedNodes`).
+* **Warum das genial ist:** Das Dokument kombiniert die harten Fakten eines Netzwerk-Scans mit den juristischen/organisatorischen Rahmenbedingungen (`Policies`) in einem einzigen, kryptografisch verifizierbaren Graph-Knoten.
 
 ---
 
@@ -54,8 +54,7 @@ Gehen wir Schritt für Schritt durch das hochgeladene Dokument, um zu verstehen,
 
 ```
 
-* 
-**Der Ampelstatus:** Das System aggregiert den Zustand des gesamten Scans in einen einzigen Wert: `GRN` (Grün). Trotz vier ausgefallener Knoten befindet sich die Gesamt-Infrastruktur innerhalb der erlaubten Toleranzschwellen.
+* **Der Ampelstatus:** Das System aggregiert den Zustand des gesamten Scans in einen einzigen Wert: `GRN` (Grün). Trotz vier ausgefallener Knoten befindet sich die Gesamt-Infrastruktur innerhalb der erlaubten Toleranzschwellen.
 
 
 * **Mathematische Validierung:** `"structural": "PASS"` bedeutet, dass die JSON-LD-Struktur fehlerfrei ist; `"deep": "PASS"` bestätigt, dass auch die referenzierten Sub-Richtlinien logisch konsistent sind.
@@ -66,12 +65,9 @@ Gehen wir Schritt für Schritt durch das hochgeladene Dokument, um zu verstehen,
 
 Hier schlägt das Herz der Governance. Das File dokumentiert nicht nur *dass* gemessen wurde, sondern *wie* und unter welchen *Grenzwertevorgaben*.
 
-* 
-**Das Analyse-Profil (`standard-analysis`):** Es definiert die mathematische Gewichtung der Ausfälle. Infrastruktur-Knoten wie Backbone-Router wiegen schwerer (Faktor 5) als länderspezifische Endpunkte (Faktor 1). Die Latenz-Grenzwerte sind strikt: Bis 500ms ist alles "gut", ab 4000ms bricht das System ab (`critical`).
+* **Das Analyse-Profil (`standard-analysis`):** Es definiert die mathematische Gewichtung der Ausfälle. Infrastruktur-Knoten wie Backbone-Router wiegen schwerer (Faktor 5) als länderspezifische Endpunkte (Faktor 1). Die Latenz-Grenzwerte sind strikt: Bis 500ms ist alles "gut", ab 4000ms bricht das System ab (`critical`).
 
-
-* 
-**Das Mess-Profil (`passive-standard`):** Das ist der rechtliche Schutzschild des Monitors. Es wird dokumentiert, dass sich der Scanner strikt an die `robots.txt` hält, keine Authentifizierung umgeht (`No authentication bypass`) und maximal 1 Request pro Minute pro URL abfeuert, um nicht als DDoS-Angriff gewertet zu werden.
+* **Das Mess-Profil (`passive-standard`):** Das ist der rechtliche Schutzschild des Monitors. Es wird dokumentiert, dass sich der Scanner strikt an die `robots.txt` hält, keine Authentifizierung umgeht (`No authentication bypass`) und maximal 1 Request pro Minute pro URL abfeuert, um nicht als DDoS-Angriff gewertet zu werden.
 
 
 
