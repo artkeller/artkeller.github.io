@@ -20,7 +20,7 @@ Gehen wir Schritt für Schritt durch das [Dokument](./assets/demo/iof-mission-da
   "profile": "preservation",
   "authority": {
     "@type": "iof:SemanticAuthority",
-    "organisation": "Sevon Trust Consult",
+    "organisation": "secon trust consult",
     "offlineCapable": true,
     "preservationClass": "LTP-A"
   }
