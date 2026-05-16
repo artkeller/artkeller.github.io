@@ -1,0 +1,1138 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "iof": "urn:iof:schema:",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "Mission": "iof:Mission",
+    "Generator": "iof:Generator",
+    "Governance": "iof:Governance",
+    "Policy": "iof:Policy",
+    "Readiness": "iof:Readiness",
+    "Scope": "iof:Scope",
+    "Statistics": "iof:Statistics",
+    "AnalysisProfile": "iof:AnalysisProfile",
+    "MeasurementProfile": "iof:MeasurementProfile",
+    "ResolvedNode": "iof:ResolvedNode",
+    "SuspectedNode": "iof:SuspectedNode",
+    "SuspectedState": "iof:SuspectedState",
+    "ContextEvidence": "iof:ContextEvidence",
+    "created": {
+      "@id": "iof:created",
+      "@type": "xsd:dateTime"
+    },
+    "rftAt": {
+      "@id": "iof:rftAt",
+      "@type": "xsd:dateTime"
+    },
+    "url": {
+      "@id": "iof:url",
+      "@type": "@id"
+    },
+    "ref": {
+      "@id": "iof:ref"
+    },
+    "policy": {
+      "@id": "iof:policy",
+      "@type": "@id"
+    },
+    "resolvedNodes": {
+      "@id": "iof:resolvedNodes",
+      "@container": "@set"
+    },
+    "suspectedNodes": {
+      "@id": "iof:suspectedNodes",
+      "@container": "@set"
+    },
+    "deletedNodes": {
+      "@id": "iof:deletedNodes",
+      "@container": "@set"
+    },
+    "profiles": {
+      "@id": "iof:profiles",
+      "@container": "@set"
+    },
+    "policies": {
+      "@id": "iof:policies",
+      "@container": "@set"
+    },
+    "governanceLineage": {
+      "@id": "iof:governanceLineage",
+      "@container": "@set"
+    }
+  },
+  "@id": "urn:iof:mission:20260516T103351-dach-regional",
+  "@type": "Mission",
+  "specVersion": "open-iof/1.0",
+  "created": "2026-05-16T10:33:51.660Z",
+  "identity": {
+    "profile": "preservation",
+    "authority": {
+      "@type": "iof:SemanticAuthority",
+      "organisation": "Sevon Trust Consult",
+      "namespaceAuthority": "open-iof.secon-tc.eu",
+      "governanceModel": "controlled-semantic-authority",
+      "identityProfile": "preservation",
+      "resourceNS": "urn:iof:",
+      "ontologyNS": "urn:iof:schema:",
+      "dereferenceable": false,
+      "offlineCapable": true,
+      "preservationClass": "LTP-A"
+    }
+  },
+  "governance": {
+    "@id": "urn:iof:governance:dach-regional",
+    "@type": "Governance",
+    "id": "dach-regional",
+    "ref": "./governance-profiles/dach-regional.json"
+  },
+  "generator": {
+    "@id": "urn:iof:generator:iof-mission-generator-10.1",
+    "@type": "Generator",
+    "tool": "IOF Mission Generator",
+    "version": "10.1.0",
+    "generatedFrom": "2026-05-16T10:33:34.036Z",
+    "stateVersion": "open-iof-state/1.1"
+  },
+  "readiness": {
+    "@type": "Readiness",
+    "structural": "PASS",
+    "deep": "PASS",
+    "colourState": "GRN",
+    "rftAt": "2026-05-16T10:33:34.036Z"
+  },
+  "scope": {
+    "@type": "Scope",
+    "domains": [
+      "carrier",
+      "energy",
+      "government",
+      "media"
+    ],
+    "countries": [
+      "AT",
+      "BE",
+      "CH",
+      "DE",
+      "FR",
+      "NL"
+    ]
+  },
+  "statistics": {
+    "@type": "Statistics",
+    "resolvedCount": 28,
+    "suspectedCount": 4,
+    "deletedCount": 0,
+    "suspectedNote": "4 node(s) unreachable at validation time. See suspectedNodes[]."
+  },
+  "policies": [
+    {
+      "@id": "urn:iof:policy:dach-policy",
+      "@type": "Policy",
+      "id": "dach-policy",
+      "ref": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "regions": [
+        "./regions/dach.json"
+      ],
+      "contextEvidence": [
+        {
+          "@type": "ContextEvidence",
+          "strategy": "predicate-match",
+          "predicates": [
+            {
+              "field": "domain",
+              "op": "in",
+              "value": [
+                "media",
+                "government",
+                "carrier",
+                "energy"
+              ]
+            },
+            {
+              "field": "countries",
+              "op": "intersects",
+              "value": "$regions"
+            },
+            {
+              "field": "countries",
+              "op": "not-in",
+              "value": [
+                "*"
+              ]
+            }
+          ],
+          "matchLogic": "AND",
+          "excludePaths": [
+            "./domains/test/*"
+          ]
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "@id": "urn:iof:profile:standard-analysis",
+      "@type": "AnalysisProfile",
+      "id": "standard-analysis",
+      "ref": "./analysis-profiles/standard-analysis.json",
+      "name": "Standard Economic Analysis",
+      "version": "1.0",
+      "description": "General-purpose availability analysis for economic and industrial internet reachability. Applies balanced weights across infrastructure tiers. Suitable for civilian governance profiles without critical infrastructure mandate.",
+      "rational": "Provides a baseline evaluation framework for multi-domain reachability. Latency thresholds reflect typical web service expectations. Colour thresholds follow majority-availability semantics.",
+      "standard": "IOF-ANALYSIS-v1",
+      "weights": {
+        "infrastructure": 5,
+        "continent": 4,
+        "country": 1
+      },
+      "latency": {
+        "good": 500,
+        "acceptable": 1500,
+        "critical": 4000
+      },
+      "thresholds": {
+        "BLU": 1,
+        "GRN": 0.8,
+        "AMB": 0.5,
+        "RED": 0
+      }
+    },
+    {
+      "@id": "urn:iof:profile:passive-standard",
+      "@type": "MeasurementProfile",
+      "id": "passive-standard",
+      "ref": "./measurement-profiles/passive-standard.json",
+      "name": "Passive Standard Measurement",
+      "version": "1.0",
+      "description": "Conservative passive measurement profile for civilian use. Suitable for all public internet endpoints without special authorization. Respects robots.txt, minimal footprint.",
+      "conflictClass": "passive",
+      "schedule": {
+        "interval": 300,
+        "unit": "seconds",
+        "timeWindow": "24x7",
+        "cooldownAfterError": 60,
+        "burstAllowed": false
+      },
+      "method": {
+        "primary": "HEAD",
+        "fallback": "GET",
+        "followRedirects": 3,
+        "tlsValidation": true,
+        "tlsMinVersion": "TLS1.2"
+      },
+      "timeouts": {
+        "connect": 5000,
+        "response": 8000,
+        "total": 10000
+      },
+      "sources": {
+        "type": "single",
+        "distributed": false
+      },
+      "legal": {
+        "robotsTxtRespect": true,
+        "rateLimit": "conservative",
+        "maxRequestsPerMinutePerUrl": 1,
+        "userAgent": "IOF-Monitor/1.0 (passive; +https://iof.example/about)",
+        "notes": "Passive monitoring only. No stress testing. No authentication bypass."
+      },
+      "alerting": {
+        "onDown": "immediate",
+        "onDegraded": "15min",
+        "statrep": "1h",
+        "colourTransitionAlert": true
+      },
+      "metrics": {
+        "record": [
+          "latency_ms",
+          "status_code",
+          "tls_valid",
+          "redirect_count"
+        ],
+        "percentiles": [
+          "p50",
+          "p95",
+          "p99"
+        ],
+        "windowSize": "1h",
+        "retentionDays": 30
+      }
+    }
+  ],
+  "resolvedNodes": [
+    {
+      "@id": "urn:iof:node:www.a1.net",
+      "@type": "ResolvedNode",
+      "url": "https://www.a1.net",
+      "domain": "carrier",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/carrier/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.magenta.at",
+      "@type": "ResolvedNode",
+      "url": "https://www.magenta.at",
+      "domain": "carrier",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/carrier/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.swisscom.ch",
+      "@type": "ResolvedNode",
+      "url": "https://www.swisscom.ch",
+      "domain": "carrier",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/carrier/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.telekom.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.telekom.de",
+      "domain": "carrier",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/carrier/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.vodafone.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.vodafone.de",
+      "domain": "carrier",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/carrier/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.de-cix.net",
+      "@type": "ResolvedNode",
+      "url": "https://www.de-cix.net",
+      "domain": "carrier",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/carrier/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.apg.at",
+      "@type": "ResolvedNode",
+      "url": "https://www.apg.at",
+      "domain": "energy",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/energy/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.verbund.com",
+      "@type": "ResolvedNode",
+      "url": "https://www.verbund.com",
+      "domain": "energy",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/energy/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.swissgrid.ch",
+      "@type": "ResolvedNode",
+      "url": "https://www.swissgrid.ch",
+      "domain": "energy",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/energy/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.bfe.admin.ch",
+      "@type": "ResolvedNode",
+      "url": "https://www.bfe.admin.ch",
+      "domain": "energy",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/energy/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.rwe.com",
+      "@type": "ResolvedNode",
+      "url": "https://www.rwe.com",
+      "domain": "energy",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/energy/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.entsoe.eu",
+      "@type": "ResolvedNode",
+      "url": "https://www.entsoe.eu",
+      "domain": "energy",
+      "countries": [
+        "DE",
+        "FR",
+        "NL",
+        "BE",
+        "AT"
+      ],
+      "ref": "./domains/energy/eu.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.tennet.eu",
+      "@type": "ResolvedNode",
+      "url": "https://www.tennet.eu",
+      "domain": "energy",
+      "countries": [
+        "DE",
+        "FR",
+        "NL",
+        "BE",
+        "AT"
+      ],
+      "ref": "./domains/energy/eu.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.oesterreich.gv.at",
+      "@type": "ResolvedNode",
+      "url": "https://www.oesterreich.gv.at",
+      "domain": "government",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/government/global/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.parlament.gv.at",
+      "@type": "ResolvedNode",
+      "url": "https://www.parlament.gv.at",
+      "domain": "government",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/government/global/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.parlament.ch",
+      "@type": "ResolvedNode",
+      "url": "https://www.parlament.ch",
+      "domain": "government",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/government/global/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.bundesregierung.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.bundesregierung.de",
+      "domain": "government",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/government/global/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.bundestag.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.bundestag.de",
+      "domain": "government",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/government/global/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.bsi.bund.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.bsi.bund.de",
+      "domain": "government",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/government/global/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.arte.tv",
+      "@type": "ResolvedNode",
+      "url": "https://www.arte.tv",
+      "domain": "media",
+      "countries": [
+        "DE",
+        "FR"
+      ],
+      "ref": "./domains/media/eu/arte.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.orf.at",
+      "@type": "ResolvedNode",
+      "url": "https://www.orf.at",
+      "domain": "media",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/media/eu/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.derstandard.at",
+      "@type": "ResolvedNode",
+      "url": "https://www.derstandard.at",
+      "domain": "media",
+      "countries": [
+        "AT"
+      ],
+      "ref": "./domains/media/eu/at.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.srf.ch",
+      "@type": "ResolvedNode",
+      "url": "https://www.srf.ch",
+      "domain": "media",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/media/eu/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.nzz.ch",
+      "@type": "ResolvedNode",
+      "url": "https://www.nzz.ch",
+      "domain": "media",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/media/eu/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.spiegel.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.spiegel.de",
+      "domain": "media",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/media/eu/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.zeit.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.zeit.de",
+      "domain": "media",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/media/eu/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.faz.net",
+      "@type": "ResolvedNode",
+      "url": "https://www.faz.net",
+      "domain": "media",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/media/eu/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    },
+    {
+      "@id": "urn:iof:node:www.tagesschau.de",
+      "@type": "ResolvedNode",
+      "url": "https://www.tagesschau.de",
+      "domain": "media",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/media/eu/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ]
+    }
+  ],
+  "suspectedNodes": [
+    {
+      "@id": "urn:iof:node:www.sunrise.ch",
+      "@type": "SuspectedNode",
+      "url": "https://www.sunrise.ch",
+      "domain": "carrier",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/carrier/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ],
+      "suspect": {
+        "@type": "SuspectedState",
+        "reason": "unreachable at validation time",
+        "note": "Transient conditions possible. Scanner may re-evaluate independently.",
+        "testedAt": "2026-05-16T10:33:34.036Z"
+      }
+    },
+    {
+      "@id": "urn:iof:node:www.bundesnetzagentur.de",
+      "@type": "SuspectedNode",
+      "url": "https://www.bundesnetzagentur.de",
+      "domain": "energy",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/energy/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ],
+      "suspect": {
+        "@type": "SuspectedState",
+        "reason": "unreachable at validation time",
+        "note": "Transient conditions possible. Scanner may re-evaluate independently.",
+        "testedAt": "2026-05-16T10:33:34.036Z"
+      }
+    },
+    {
+      "@id": "urn:iof:node:www.enbw.com",
+      "@type": "SuspectedNode",
+      "url": "https://www.enbw.com",
+      "domain": "energy",
+      "countries": [
+        "DE"
+      ],
+      "ref": "./domains/energy/de.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ],
+      "suspect": {
+        "@type": "SuspectedState",
+        "reason": "unreachable at validation time",
+        "note": "Transient conditions possible. Scanner may re-evaluate independently.",
+        "testedAt": "2026-05-16T10:33:34.036Z"
+      }
+    },
+    {
+      "@id": "urn:iof:node:www.admin.ch",
+      "@type": "SuspectedNode",
+      "url": "https://www.admin.ch",
+      "domain": "government",
+      "countries": [
+        "CH"
+      ],
+      "ref": "./domains/government/global/ch.json",
+      "policy": "urn:iof:policy:dach-policy",
+      "policyRef": "./policies/dach-policy.json",
+      "analysis": [
+        "urn:iof:profile:standard-analysis"
+      ],
+      "measurement": [
+        "urn:iof:profile:passive-standard"
+      ],
+      "governanceLineage": [
+        {
+          "@id": "urn:iof:governance:dach-regional",
+          "@type": "Governance",
+          "id": "dach-regional",
+          "ref": "./governance-profiles/dach-regional.json"
+        }
+      ],
+      "suspect": {
+        "@type": "SuspectedState",
+        "reason": "unreachable at validation time",
+        "note": "Transient conditions possible. Scanner may re-evaluate independently.",
+        "testedAt": "2026-05-16T10:33:34.036Z"
+      }
+    }
+  ]
+}
