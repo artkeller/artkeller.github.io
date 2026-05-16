@@ -270,3 +270,113 @@ Im Gegensatz zur unpräzisen Strukturierung im kommerziellen Web basiert die Arc
 * **Referenz:** D. Longley and M. Sporny, *RDF Dataset Canonicalization*, W3C Proposed Recommendation, 2024.
 * **Online verfügbar:** [https://www.w3.org/TR/rdf-canon/](https://www.w3.org/TR/rdf-canon/)
 * **Bedeutung für die Praxis:** Das mathematische Fundament für die Langzeitarchivierung (Long-Term Preservation). Der dort definierte Algorithmus (URDNA2015) erlaubt es, ein JSON-LD-Dokument unabhängig von seiner äußeren Formatierung (Leerzeichen, Zeilenumbrüche) in eine deterministische logische Form zu bringen, um daraus einen unbestechlichen kryptografischen Hash (Prüfsumme) für Audits und Herkunftsnachweise (Provenance) zu erzeugen.
+
+
+# Blueprint: JSON-LD für langlebige Ontologien (Long-Term Preservation TROTZ Web)
+
+## TL;DR (Too Long; Didn't Read)
+* **Das Problem:** 99 % aller JSON-LD-Tutorials im Netz behandeln ausschließlich `schema.org` für SEO (Suchmaschinen-Marketing). Das ist eine "Homebrew"-Welt mit laxen Datentypen und vollem Vendor Lock-in. Wenn Sie dort eigene, präzise Ontologien validieren wollen, stürzen die Tools ab und Sie werden als „Schema-Rüpel“ beschimpft.
+* **Die Wahrheit:** JSON-LD wurde vom W3C nicht für SEO erfunden, sondern als leichtgewichtige Brücke zu echten, mathematisch präzisen Graphen (RDF).
+* **Die Lösung:** Dieses Dokument zeigt, wie Sie sich über einen maßgeschneiderten `@context` vollständig von der vordefinierten Web-Welt entkoppeln. Sie behalten die flache JSON-Struktur für Ihre APIs, injizieren aber unzerstörbare, langzeitstabile Semantik nach wissenschaftlichen Standards.
+
+---
+
+## Das Problem: Warum das "Standard-Web" Ihre Daten korrumpiert
+Wer Daten für kritische Systeme, Governance oder Langzeitarchivierung (Long-Term Preservation) entwirft, stößt unweigerlich auf JSON-LD. Wer dann nach Tutorials sucht, landet in der SEO-Sackgasse von `schema.org`. 
+
+`schema.org` ist ein utilitaristisches, flüchtiges Vokabular, das für die schnelle Indizierung von Suchmaschinen optimiert ist. Es bricht fast jede Regel der mathematischen Wissensrepräsentation: Es ist lax bei Datentypen, instabil über Jahrzehnte und erzwingt einen Vendor Lock-in an die "Predefined World" der großen Tech-Konzerne.
+
+Wenn Sie versuchen, echte, wissenschaftliche oder unternehmensspezifische Ontologien durch diese Validatoren zu jagen, werden Sie als „Schema-Rüpel“ abgewiesen. 
+
+**Die Lösung:** Wir nutzen JSON-LD nicht als SEO-Schminke, sondern als *Schnittmengen-Konverter*. Wir behalten die flache, entwicklerfreundliche JSON-Struktur für unsere APIs, injizieren aber über einen maßgeschneiderten `@context` die unerbittliche Logik des Semantic Web (RDF). Damit machen wir Daten immun gegen das Altern des Webs.
+
+---
+
+## Die historische Weggabelung: Warum Sie im Wald stehen
+
+Um zu verstehen, warum die gängige Dokumentation im Netz Sie im Stich lässt, muss man die Quellen trennen. Es existieren zwei völlig unterschiedliche Welten, die dasselbe Dateiformat nutzen:
+
+### Welt A: Die Marketing- & SEO-Blase
+* **Die Anlaufstelle:** [schema.org](https://schema.org)
+* **Das Versprechen:** „Strukturiere deine Daten, damit Google deine Event-Termine, Kochrezepte oder Produktpreise mit Sternchen in den Suchergebnissen anzeigt.“
+* **Die Reality:** Diese Welt hat das Vokabular monopolisiert. Weil 95 % aller JSON-LD-Dateien im Netz für Google-Bots geschrieben werden, sind 95 % aller Forenbeiträge (StackOverflow, Blogs) rein auf dieses starre Korsett fixiert. Wer hier nach Individualität sucht, erntet Fehlermeldungen von den Validatoren.
+
+### Welt B: Die offizielle W3C-Spezifikation (Ihre Welt)
+* **Die Anlaufstellen:** [json-ld.org](https://json-ld.org) und die normative [W3C JSON-LD 1.1 Spezifikation](https://www.w3.org/TR/json-ld11/)
+* **Das Versprechen:** „JSON-LD ist eine leichtgewichtige Syntax, um Linked Data in JSON zu serialisieren.“
+* **Die Reality:** Auf *json-ld.org* wird die wahre Mächtigkeit zwar theoretisch erklärt, aber oft so akademisch und abstrakt, dass der pragmatische Software-Entwickler den Wald vor lauter Bäumen nicht sieht. Es fehlt die direkte Brücke, die zeigt, wie man sich von der Tyrannei vordefinierter Vokabulare befreit.
+
+---
+
+## Die Architektur: Der Header, der die Macht verschiebt
+
+Ein JSON-LD-Dokument besteht aus zwei Teilen: Dem **semantischen Betriebssystem (Header)** und den **Nutzdaten (Payload)**. Das folgende Pattern entkoppelt Ihre Daten vollständig von externen Plattformen (siehe dazu die Framework-Praxis unter [[5]](#5-wissenschaftliche-datenmodellierung-klasse-statt-masse)).
+
+```json
+{
+  "@context": {
+    "@version": 1.1,
+    "iof": "local:iof:schema:",
+    "xsd": "[http://www.w3.org/2001/XMLSchema#](http://www.w3.org/2001/XMLSchema#)",
+    "prov": "[http://www.w3.org/ns/prov#](http://www.w3.org/ns/prov#)",
+    
+    "Mission": "iof:Mission",
+    "Generator": "iof:Generator",
+    "Governance": "iof:Governance",
+    "Policy": "iof:Policy",
+    "Readiness": "iof:Readiness",
+    "Scope": "iof:Scope",
+    "Statistics": "iof:Statistics",
+    "AnalysisProfile": "iof:AnalysisProfile",
+    "MeasurementProfile": "iof:MeasurementProfile",
+    "ResolvedNode": "iof:ResolvedNode",
+    "SuspectedNode": "iof:SuspectedNode",
+    "SuspectedState": "iof:SuspectedState",
+    "ContextEvidence": "iof:ContextEvidence",
+    
+    "created": {
+      "@id": "iof:created",
+      "@type": "xsd:dateTime"
+    },
+    "rftAt": {
+      "@id": "iof:rftAt",
+      "@type": "xsd:dateTime"
+    },
+    "url": {
+      "@id": "iof:url",
+      "@type": "@id"
+    },
+    "ref": {
+      "@id": "iof:ref"
+    },
+    "policy": {
+      "@id": "iof:policy",
+      "@type": "@id"
+    },
+    
+    "resolvedNodes": {
+      "@id": "iof:resolvedNodes",
+      "@container": "@set"
+    },
+    "suspectedNodes": {
+      "@id": "iof:suspectedNodes",
+      "@container": "@set"
+    },
+    "deletedNodes": {
+      "@id": "iof:deletedNodes",
+      "@container": "@set"
+    },
+    "profiles": {
+      "@id": "iof:profiles",
+      "@container": "@set"
+    },
+    "policies": {
+      "@id": "iof:policies",
+      "@container": "@set"
+    },
+    "governanceLineage": {
+      "@id": "iof:governanceLineage",
+      "@container": "@set"
+    }
+  }
+}
