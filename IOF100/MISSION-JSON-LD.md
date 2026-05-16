@@ -10,7 +10,7 @@
 
 ## Die Sektionen im Tiefen-Audit
 
-Gehen wir Schritt für Schritt durch das [Dokument](demo/iof-mission-dach-regional-2026-05-16.jsonld), um zu verstehen, wie die Maschine diese Daten interpretiert.
+Gehen wir Schritt für Schritt durch das [Dokument](./assets/demo/iof-mission-dach-regional-2026-05-16.jsonld), um zu verstehen, wie die Maschine diese Daten interpretiert.
 
 ### 1. Die Metadaten & Die Semantische Autorität
 ```json
