@@ -3,7 +3,7 @@
 ## TL;DR (Das Wichtigste in 30 Sekunden)
 * **Was wir hier sehen:** Ein echtes, voll funktionsfähiges `Mission`-Dokument (`open-iof/1.0`) vom 16. Mai 2026 für die DACH-Region.
 * **Der Zweck:** Es überwacht die Erreichbarkeit kritischer digitaler Infrastrukturen (Medien, Energie, Behörden, Carrier).
-* **Das Ergebnis:** Von 32 geprüften Knoten sind 28 fehlerfrei ("PASS")[cite: 97, 99]. [cite_start]4 Knoten (darunter Großkaliber wie `admin.ch` und `enbw.com`) sind aktuell nicht erreichbar und stehen unter "semantischer Quarantäne" (`SuspectedNodes`).
+* **Das Ergebnis:** Von 32 geprüften Knoten sind 28 fehlerfrei ("PASS")[cite: 97, 99]. [cite_start]4 Knoten (darunter Großkaliber wie `admin.ch` und `enbw.com`) sind aktuell nicht gut erreichbar und stehen unter "semantischer Quarantäne" (`SuspectedNodes`).
 * **Warum das genial ist:** Das Dokument kombiniert die harten Fakten eines Netzwerk-Scans mit den juristischen/organisatorischen Rahmenbedingungen (`Policies`) in einem einzigen, kryptografisch verifizierbaren Graph-Knoten.
 
 ---
