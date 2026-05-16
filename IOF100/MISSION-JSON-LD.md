@@ -118,3 +118,21 @@ Vier Knoten haben den Validierungszeitpunkt verpasst, darunter das Schweizer Reg
 Dieses `jsonld`-Dokument ist das perfekte Gegenbeispiel zum flüchtigen SEO-Web. Es liefert eine Momentaufnahme digitaler Souveränität. Weil es vollständig in sich geschlossen ist, kann dieses File in 100 Jahren von einem Archiv-Server geladen werden , und die historische Software wird ohne einen einzigen externen API-Aufruf exakt rekonstruieren können, welche kritische Infrastruktur am 16. Mai 2026 im DACH-Raum verfügbar war – und wer damals dafür die Verantwortung trug.
 
 ---
+
+### Das "Turtle-Geständnis" des W3C (Warum JSON nur die Fassade ist)
+
+Wer die offizielle Spezifikation zur RDF-Dataset-Kanonisierung (*W3C RDF-canon*) studiert, stößt auf einen bemerkenswerten Satz der Autoren:
+
+> *"Code examples are generally given in a Turtle or TriG format for brevity, where each line represents a single triple or quad."*
+
+Das ist das ultimative Eingeständnis der Standardisierer: JSON ist ein fantastisches Transportmedium für Software-Entwickler, aber für die unerbittliche mathematische Beweisführung und die kryptografische Absicherung ist es strukturell zu unpräzise. 
+
+Wenn Sie ein JSON-LD-Dokument (wie unser `Mission`-File) revisionssicher archivieren, passiert im Hintergrund folgendes:
+1. Der `@context` bügelt alle syntaktischen Eigenheiten des JSON glatt.
+2. Das Dokument wird in pure, flache Subjekt-Prädikat-Objekt-Tripel (Turtle) zerlegt.
+3. Jede Zeile repräsentiert eine eigenständige, unumstößliche logische Aussage.
+4. Diese Zeilen werden deterministisch sortiert und gehasht.
+
+Das bedeutet: Ihre Daten überleben das Web, weil sie im Moment der Kanonisierung ihre flüchtige JSON-Hülle abstreifen und zu reiner, zeitloser mathematischer Logik werden.
+
+---
