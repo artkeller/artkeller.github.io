@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>IOF Mission Generator v10.2</title>
+<style>
+:root{
+  --bg:#f4f5f7;--surface:#fff;--border:#dde1e7;--muted:#6b7280;--fg:#111827;--fg2:#374151;
+  --accent:#1a56db;--accent2:#7c3aed;--ok:#059669;--warn:#d97706;--err:#dc2626;
+  --r:8px;--fs:15px;--fs-sm:13px;--fs-xs:12px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--surface:#161b22;--border:#30363d;--muted:#8b949e;--fg:#e6edf3;--fg2:#c9d1d9;
+  --accent:#58a6ff;--accent2:#c084fc;--ok:#3fb950;--warn:#d29922;--err:#f85149;
+}}
+*,*::before,*::after{box-sizing:border-box;}
+html{font-size:var(--fs);}
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);line-height:1.55;-webkit-font-smoothing:antialiased;}
+h1,h2,h3{margin:0;letter-spacing:-.02em;}
+button,select,input{font-family:inherit;border-radius:var(--r);}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(26,86,219,.35);}
+nav{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;gap:8px;padding:0 16px;}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--fg);}
+.brand a{color:inherit;text-decoration:none;}
+.sep{width:1px;height:24px;background:var(--border);flex-shrink:0;}
+.btn{border:none;padding:6px 13px;font-weight:600;font-size:var(--fs-sm);border-radius:var(--r);display:flex;align-items:center;gap:5px;transition:opacity .15s;cursor:pointer;white-space:nowrap;}
+.bp{background:var(--accent);color:#fff;}.bp:not(:disabled):hover{opacity:.85;}
+.bg{background:var(--bg);border:1px solid var(--border);color:var(--fg);}.bg:hover{background:var(--border);}
+.be{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}.be:not(:disabled):hover{opacity:.9;}
+.btn:disabled{opacity:.4;cursor:default;}
+.sp{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.running .sp{display:block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* STATUS */
+.sbar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.spill{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);font-weight:600;padding:2px 9px;border-radius:20px;border:1px solid transparent;}
+.sp-ok{background:#f0fdf4;border-color:#86efac;color:#15803d;}
+.sp-warn{background:#fefce8;border-color:#fde047;color:#854d0e;}
+.sp-err{background:#fef2f2;border-color:#fca5a5;color:#991b1b;}
+.sp-idle{background:var(--bg);border-color:var(--border);color:var(--muted);}
+@media(prefers-color-scheme:dark){.sp-ok{background:#052e16;border-color:#166534;color:#4ade80;}.sp-warn{background:#1c1400;border-color:#854d0e;color:#fde047;}.sp-err{background:#2d0f0f;border-color:#991b1b;color:#fca5a5;}}
+/* LAYOUT */
+.container{display:flex;height:calc(100vh - 117px);overflow:hidden;}
+.left{width:370px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;}
+.right{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.phdr{padding:10px 14px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);flex-shrink:0;}
+.pbody{flex:1;overflow-y:auto;padding:14px;}
+.slabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 0 6px;}
+.slabel:first-child{margin-top:0;}
+/* DROP ZONE */
+.dropz{border:2px dashed var(--border);border-radius:var(--r);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;color:var(--muted);font-size:var(--fs-sm);}
+.dropz:hover,.dropz.drag-over{border-color:var(--accent);background:#eef4ff;}
+@media(prefers-color-scheme:dark){.dropz:hover,.dropz.drag-over{background:#0c1a3a;}}
+/* INFO */
+.irow{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:var(--fs-xs);}
+.irow:last-child{border-bottom:none;}
+.ik{color:var(--muted);}
+.iv{font-weight:600;color:var(--fg);text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.iv.ok{color:var(--ok);}.iv.warn{color:var(--warn);}.iv.err{color:var(--err);}
+/* PROFILE GRID */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;}
+.pbtn{padding:7px 9px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-size:var(--fs-xs);font-weight:600;cursor:pointer;text-align:left;transition:border-color .15s;}
+.pbtn:hover{border-color:var(--accent);}
+.pbtn.active{border-color:var(--accent);background:#eef4ff;color:var(--accent);}
+@media(prefers-color-scheme:dark){.pbtn.active{background:#0c1a3a;}}
+.pbtn .pn{display:block;font-weight:700;margin-bottom:1px;}
+.pbtn .pd{font-size:10px;color:var(--muted);font-weight:400;line-height:1.3;}
+/* NS LIST */
+.nslist{display:flex;flex-direction:column;gap:3px;margin-bottom:7px;}
+.nsitem{display:flex;align-items:center;gap:5px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);border-radius:5px;font-size:var(--fs-xs);}
+.nsitem.active-ns{border-color:var(--accent);background:#eef4ff;}
+@media(prefers-color-scheme:dark){.nsitem.active-ns{background:#0c1a3a;}}
+.nsitem .role{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);min-width:48px;flex-shrink:0;}
+.nsitem .val{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg2);font-family:monospace;font-size:11px;}
+.nsitem button{background:none;border:none;color:var(--muted);cursor:pointer;padding:1px 4px;border-radius:3px;font-size:11px;}
+.nsitem button:hover{color:var(--err);background:#fef2f2;}
+.nsadd{display:flex;flex-direction:column;gap:5px;}
+.nsadd-row{display:flex;gap:5px;align-items:center;}
+.nsadd-row label{font-size:var(--fs-xs);color:var(--muted);min-width:56px;flex-shrink:0;}
+.nsadd-row input{flex:1;padding:4px 7px;background:var(--bg);border:1px solid var(--border);color:var(--fg);font-size:var(--fs-xs);border-radius:5px;}
+.nsadd-row input.invalid{border-color:var(--err);}
+.nsadd-row input.valid{border-color:var(--ok);}
+.nserr{font-size:var(--fs-xs);color:var(--err);display:none;}
+.nsadd-btns{display:flex;gap:5px;}
+.nsadd-btns button{background:var(--accent);color:#fff;border:none;padding:4px 10px;font-size:var(--fs-xs);border-radius:5px;cursor:pointer;flex:1;}
+/* OPTIONS */
+.orow{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:var(--fs-sm);}
+.orow:last-child{border-bottom:none;}
+.orow label{color:var(--fg2);}
+.orow select{background:var(--bg);border:1px solid var(--border);color:var(--fg);padding:3px 7px;border-radius:5px;font-size:var(--fs-xs);max-width:150px;}
+/* OUTPUT */
+.ohdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.ohdr span{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.obody{flex:1;overflow:auto;padding:14px;}
+pre.out{font-family:'SF Mono','Cascadia Code','Fira Code',monospace;font-size:var(--fs-xs);line-height:1.65;margin:0;white-space:pre-wrap;word-break:break-all;color:var(--fg);}
+.jk{color:var(--accent2);}.jv{color:var(--ok);}.jn{color:var(--accent);}.jb{color:var(--muted);font-style:italic;}.ju{color:#0369a1;text-decoration:underline;cursor:pointer;}
+.ju:hover{color:var(--accent);}
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted);text-align:center;padding:40px;}
+.empty .icon{width:50px;height:50px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.empty p{margin:0;font-size:var(--fs-sm);max-width:280px;line-height:1.6;}
+/* GLASS */
+.glass-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--surface);}
+.glass-overlay.loaded{opacity:0;pointer-events:none;transition:opacity .6s;}
+.lb{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.ll{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#1a56db,#7c3aed);display:flex;align-items:center;justify-content:center;}
+.lbw{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.lf{width:0%;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .3s;border-radius:2px;}
+#ls{font-size:var(--fs-sm);color:var(--muted);margin:0;}
+.lt{font-size:15px;font-weight:600;color:var(--fg);margin:0;}
+</style>
+</head>
+<body>
+
+<div id="overlay" class="glass-overlay">
+  <div class="lb">
+    <div class="ll">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="6" r="2.8" fill="white" opacity=".9"/>
+        <circle cx="4" cy="15" r="2" fill="white" opacity=".7"/>
+        <circle cx="16" cy="15" r="2" fill="white" opacity=".7"/>
+        <line x1="10" y1="8.8" x2="5" y2="13.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+        <line x1="10" y1="8.8" x2="15" y2="13.2" stroke="white" stroke-width="1.2" opacity=".6"/>
+      </svg>
+    </div>
+    <div><p class="lt">IOF Mission Generator</p><p id="ls">Initialising…</p></div>
+    <div class="lbw"><div class="lf" id="lf"></div></div>
+  </div>
+</div>
+
+<nav>
+  <div class="brand">
+    <a href="index.html">
+      <svg width="19" height="19" viewBox="0 0 19 19" fill="none">
+        <rect width="19" height="19" rx="5" fill="url(#ng)"/>
+        <circle cx="9.5" cy="5.5" r="2.3" fill="white" opacity=".9"/>
+        <circle cx="3.5" cy="14.5" r="1.8" fill="white" opacity=".7"/>
+        <circle cx="15.5" cy="14.5" r="1.8" fill="white" opacity=".7"/>
+        <line x1="9.5" y1="7.8" x2="4.5" y2="13" stroke="white" stroke-width="1.1" opacity=".6"/>
+        <line x1="9.5" y1="7.8" x2="14.5" y2="13" stroke="white" stroke-width="1.1" opacity=".6"/>
+        <defs><linearGradient id="ng" x1="0" y1="0" x2="19" y2="19">
+          <stop stop-color="#1a56db"/><stop offset="1" stop-color="#7c3aed"/>
+        </linearGradient></defs>
+      </svg>
+    </a>
+    IOF Mission Generator
+    <span style="font-size:11px;color:var(--muted);font-weight:400;">v10.2.0</span>
+  </div>
+  <div class="sep"></div>
+  <span style="font-size:var(--fs-xs);color:var(--muted);" id="authorityLabel">secon trust consult · open-iof.secon-tc.eu</span>
+  <div style="margin-left:auto;display:flex;gap:7px;">
+    <button class="btn bg" onclick="document.getElementById('fi').click()">📂 Load State</button>
+    <input type="file" id="fi" accept=".json" style="display:none" onchange="handleFile(this.files[0])">
+    <button class="btn bp" onclick="generate()" id="genBtn" disabled>
+      <div class="sp"></div><span id="genLbl">Generate</span>
+    </button>
+    <button class="btn be" onclick="doExport()" id="expBtn" disabled>⬇ Export .jsonld</button>
+    <a href="iof-validator.html" class="btn bg" style="text-decoration:none">← Validator</a>
+  </div>
+</nav>
+
+<div class="sbar">
+  <div class="spill sp-idle" id="pLoad">No state loaded</div>
+  <div class="spill sp-idle" id="pVal">Structural: —</div>
+  <div class="spill sp-idle" id="pDeep">Deep: —</div>
+  <div class="spill sp-idle" id="pColour">Colour: —</div>
+  <span style="font-size:var(--fs-xs);color:var(--muted);margin-left:auto;" id="pMeta"></span>
+</div>
+
+<div class="container">
+  <div class="left">
+    <div class="phdr">Configuration</div>
+    <div class="pbody">
+
+      <div class="dropz" id="dropZ"
+           onclick="document.getElementById('fi').click()"
+           ondragover="event.preventDefault();this.classList.add('drag-over')"
+           ondragleave="this.classList.remove('drag-over')"
+           ondrop="handleDrop(event)">
+        <div style="font-size:20px;margin-bottom:6px;">📋</div>
+        <div style="font-weight:600;color:var(--fg);margin-bottom:3px;">Drop state file here</div>
+        <div style="font-size:var(--fs-xs);">or click · iof-state-*.json</div>
+      </div>
+
+      <div id="infoLabel" class="slabel" style="display:none">State Info</div>
+      <div id="infoPanel"></div>
+
+      <div class="slabel">Identity Profile</div>
+      <div class="pgrid" id="pgrid"></div>
+      <div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:10px;" id="pdesc"></div>
+
+      <div class="slabel">Namespaces
+        <span style="font-size:9px;font-weight:400;margin-left:6px;" id="nsHint"></span>
+      </div>
+      <div class="nslist" id="nslist"></div>
+      <div class="nsadd" id="nsadd">
+        <div class="nsadd-row">
+          <label>Resource NS</label>
+          <input type="text" id="nsRes" placeholder="urn:iof: or https://…" oninput="validateNS(this,'res')"/>
+        </div>
+        <div class="nsadd-row">
+          <label>Ontology NS</label>
+          <input type="text" id="nsOnto" placeholder="urn:iof:schema: or https://…" oninput="validateNS(this,'onto')"/>
+        </div>
+        <div class="nserr" id="nsErr">⚠ Invalid namespace — must be urn:X: or https://…</div>
+        <div class="nsadd-btns">
+          <button onclick="saveNS()">Save Namespace Pair</button>
+          <button onclick="clearNS()" style="background:var(--bg);color:var(--fg);border:1px solid var(--border);">Clear</button>
+        </div>
+      </div>
+
+      <div class="slabel" style="margin-top:14px;">Output Options</div>
+      <div class="orow"><label>Profiles</label>
+        <select id="optProfiles"><option value="embedded">Embedded (full)</option><option value="ref-only">Ref only</option></select></div>
+      <div class="orow"><label>Suspected nodes</label>
+        <select id="optSuspected"><option value="include">Include</option><option value="exclude">Exclude</option></select></div>
+      <div class="orow"><label>Deleted nodes</label>
+        <select id="optDeleted"><option value="audit">Audit trail</option><option value="exclude">Exclude</option></select></div>
+      <div class="orow"><label>Cache snapshot</label>
+        <select id="optCache"><option value="no">No</option><option value="yes">Yes (debug)</option></select></div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="ohdr">
+      <span>Mission Output (JSON-LD 1.1)</span>
+      <span id="nodeCount" style="font-size:var(--fs-xs);color:var(--muted);font-weight:400;margin-left:8px;"></span>
+      <div style="margin-left:auto;">
+        <button class="btn bg" onclick="copyOut()" id="copyBtn" disabled style="font-size:var(--fs-xs);padding:3px 9px;">Copy</button>
+      </div>
+    </div>
+    <div class="obody" id="outBody">
+      <div class="empty">
+        <div class="icon">⚙️</div>
+        <p>Load a validator state file (v10.2+), choose identity profile, then click <strong>Generate</strong>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ═══ CONFIG + STATE ═══════════════════════════════════════════ */
+const LS_NS  = 'iof-ns-pairs';
+const LS_CFG = 'iof-gen-config';
+let CFG  = null;   // loaded from iof-generator-config.json
+let STATE = null;
+let MISSION = null;
+let activeProfile = 'hybrid';
+
+/* ═══ DEFAULTS (fallback if config file missing) ══════════════ */
+const DEFAULT_CFG = {
+  authority: { organisation:'secon trust consult', namespaceAuthority:'open-iof.secon-tc.eu' },
+  defaults:  { identityProfile:'hybrid' },
+  profiles: {
+    preservation:{ label:'Preservation', desc:'Pure URN — max longevity, no DNS',
+      resourceNS:'urn:iof:', ontologyNS:'urn:iof:schema:', contextMode:'embedded', dereferenceable:false, preservationClass:'LTP-A'},
+    hybrid:      { label:'Hybrid', desc:'URN IDs + HTTPS ontology — default',
+      resourceNS:'urn:iof:', ontologyNS:'https://open-iof.secon-tc.eu/ns#',
+      contextURL:'https://open-iof.secon-tc.eu/context.jsonld', contextMode:'https', dereferenceable:'partial', preservationClass:'LTP-B'},
+    web:         { label:'Web', desc:'Fully dereferenceable HTTPS',
+      resourceNS:'https://open-iof.secon-tc.eu/id/', ontologyNS:'https://open-iof.secon-tc.eu/ns#',
+      contextURL:'https://open-iof.secon-tc.eu/context.jsonld', contextMode:'https', dereferenceable:true, preservationClass:'standard'},
+    offline:     { label:'Offline', desc:'Closed local — sovereign/airgapped',
+      resourceNS:'local:iof:', ontologyNS:'local:iof:schema:', contextMode:'embedded', dereferenceable:false, preservationClass:'env-dependent'},
+    federated:   { label:'Federated', desc:'Mixed authority — dual user-defined NS',
+      resourceNS:'', ontologyNS:'', contextMode:'distributed', dereferenceable:'conditional', preservationClass:'policy-dependent',
+      federatedRules:{ fallbackProfile:'hybrid',
+        syntaxValidation:{ urnPattern:'^urn:[a-z][a-z0-9\\-]{0,31}:', httpsPattern:'^https?://' }}}
+  },
+  validatorDisclaimer:{ doesNotValidate:['analysis-profiles','measurement-profiles'],
+    message:'Analysis and measurement profiles are NOT semantically validated by this tool version.',
+    humanOversightRequired:true }
+};
+
+/* ═══ NS VALIDATION (Fix 8) ═══════════════════════════════════ */
+const URN_RE   = /^urn:[a-z][a-z0-9\-]{0,31}:/i;
+const HTTPS_RE = /^https?:\/\//i;
+const LOCAL_RE = /^local:/i;
+
+function isValidNS(val){
+  if(!val) return false;
+  return URN_RE.test(val) || HTTPS_RE.test(val) || LOCAL_RE.test(val);
+}
+
+function validateNS(el, _role){
+  if(!el.value){ el.className=el.className.replace(/ ?(valid|invalid)/g,''); return; }
+  const ok = isValidNS(el.value.trim());
+  el.className = el.className.replace(/ ?(valid|invalid)/g,'') + (ok?' valid':' invalid');
+  document.getElementById('nsErr').style.display = ok ? 'none' : 'block';
+}
+
+/* ═══ NS STORAGE ══════════════════════════════════════════════ */
+function getNS(){ try{ return JSON.parse(localStorage.getItem(LS_NS)||'[]'); }catch{ return []; } }
+function setNS(a){ localStorage.setItem(LS_NS,JSON.stringify(a)); }
+
+function saveNS(){
+  const res  = document.getElementById('nsRes').value.trim();
+  const onto = document.getElementById('nsOnto').value.trim();
+  if(!res && !onto){ return; }
+  if((res && !isValidNS(res)) || (onto && !isValidNS(onto))){
+    document.getElementById('nsErr').style.display='block'; return;
+  }
+  const saved = getNS();
+  // Avoid exact duplicates
+  if(!saved.some(p=>p.res===res && p.onto===onto)){
+    saved.push({res, onto, added: new Date().toISOString().slice(0,10)});
+    setNS(saved);
+  }
+  document.getElementById('nsRes').value='';
+  document.getElementById('nsOnto').value='';
+  document.getElementById('nsErr').style.display='none';
+  renderNS();
+}
+
+function clearNS(){
+  document.getElementById('nsRes').value='';
+  document.getElementById('nsOnto').value='';
+  ['nsRes','nsOnto'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.className=el.className.replace(/ ?(valid|invalid)/g,'');
+  });
+  document.getElementById('nsErr').style.display='none';
+}
+
+function deleteNS(i){
+  const a=getNS(); a.splice(i,1); setNS(a); renderNS();
+}
+
+let activeNSIdx = -1;
+
+function useNS(i){
+  activeNSIdx = (activeNSIdx===i) ? -1 : i;
+  renderNS();
+}
+
+function renderNS(){
+  const saved = getNS();
+  const list  = document.getElementById('nslist');
+  const hint  = document.getElementById('nsHint');
+  const prof  = (CFG||DEFAULT_CFG).profiles[activeProfile];
+  const isFed = activeProfile==='federated';
+
+  hint.textContent = isFed
+    ? (saved.length ? '— select pair below' : '— add pair below')
+    : '(auto from profile)';
+
+  if(!saved.length){
+    list.innerHTML='<div style="font-size:var(--fs-xs);color:var(--muted);margin-bottom:4px;">No saved namespace pairs</div>';
+    return;
+  }
+  list.innerHTML = saved.map((p,i)=>`
+    <div class="nsitem ${i===activeNSIdx?'active-ns':''}">
+      <span class="role">RES</span>
+      <span class="val" title="${escH(p.res||'—')}">${escH(p.res||'—')}</span>
+      <button onclick="useNS(${i})" title="${i===activeNSIdx?'Deselect':'Use this pair'}" style="${i===activeNSIdx?'color:var(--accent)':''}">✓</button>
+      <button onclick="deleteNS(${i})" title="Delete">✕</button>
+    </div>
+    <div class="nsitem ${i===activeNSIdx?'active-ns':''}" style="border-top:none;border-radius:0 0 5px 5px;margin-top:-4px;">
+      <span class="role">ONTO</span>
+      <span class="val" title="${escH(p.onto||'—')}">${escH(p.onto||'—')}</span>
+    </div>
+  `).join('');
+}
+
+function getActiveNS(){
+  const prof = (CFG||DEFAULT_CFG).profiles[activeProfile];
+  if(activeProfile==='federated'){
+    const saved = getNS();
+    // Fix 8: federated uses selected pair; fallback to hybrid if none
+    if(activeNSIdx >= 0 && saved[activeNSIdx]){
+      const p = saved[activeNSIdx];
+      return { res: p.res||prof.resourceNS, onto: p.onto||prof.ontologyNS };
+    }
+    // Fallback: hybrid
+    const fb = (CFG||DEFAULT_CFG).profiles['hybrid'];
+    return { res: fb.resourceNS, onto: fb.ontologyNS };
+  }
+  return { res: prof.resourceNS, onto: prof.ontologyNS };
+}
+
+/* ═══ PROFILE RENDER ══════════════════════════════════════════ */
+function renderProfiles(){
+  const profiles = (CFG||DEFAULT_CFG).profiles;
+  document.getElementById('pgrid').innerHTML = Object.entries(profiles).map(([k,p])=>`
+    <button class="pbtn ${k===activeProfile?'active':''}" onclick="selectProfile('${k}')">
+      <span class="pn">${p.label}</span>
+      <span class="pd">${p.desc}</span>
+    </button>`).join('');
+  const ns = getActiveNS();
+  const p  = profiles[activeProfile];
+  document.getElementById('pdesc').innerHTML =
+    `<b>Resource:</b> ${ns.res||'(pair)'} · <b>Ontology:</b> ${ns.onto||'(pair)'} · Deref: ${p.dereferenceable}`;
+  renderNS();
+}
+
+function selectProfile(k){ activeProfile=k; renderProfiles(); }
+
+/* ═══ INIT ════════════════════════════════════════════════════ */
+async function init(){
+  const ov=document.getElementById('overlay'),lf=document.getElementById('lf'),ls=document.getElementById('ls');
+  lf.style.width='20%'; ls.textContent='Loading config…';
+
+  // Fix 6+7: load iof-generator-config.json with ETag caching
+  try{
+    const cached = localStorage.getItem(LS_CFG);
+    const cachedEtag = localStorage.getItem(LS_CFG+'_etag');
+    const headers = cachedEtag ? {'If-None-Match': cachedEtag} : {};
+    const r = await fetch('./iof-generator-config.json', {headers});
+    if(r.status===304 && cached){
+      CFG = JSON.parse(cached);
+    } else if(r.ok){
+      CFG = await r.json();
+      localStorage.setItem(LS_CFG, JSON.stringify(CFG));
+      const etag = r.headers.get('ETag');
+      if(etag) localStorage.setItem(LS_CFG+'_etag', etag);
+    }
+  }catch(e){ /* use DEFAULT_CFG */ }
+
+  const cfg = CFG||DEFAULT_CFG;
+  activeProfile = cfg.defaults?.identityProfile || 'hybrid';
+  const auth = cfg.authority||{};
+  document.getElementById('authorityLabel').textContent =
+    `${auth.organisation||'secon trust consult'} · ${auth.namespaceAuthority||'open-iof.secon-tc.eu'}`;
+
+  lf.style.width='60%'; ls.textContent='Ready.';
+  renderProfiles();
+
+  // Try sessionStorage
+  try{
+    const raw = sessionStorage.getItem('iof-state');
+    if(raw){ applyState(JSON.parse(raw)); sessionStorage.removeItem('iof-state'); }
+  }catch(e){}
+
+  lf.style.width='100%';
+  setTimeout(()=>{ ov.classList.add('loaded'); ov.addEventListener('transitionend',()=>ov.remove(),{once:true}); },300);
+}
+
+/* ═══ LOAD STATE ══════════════════════════════════════════════ */
+function handleDrop(e){ e.preventDefault(); document.getElementById('dropZ').classList.remove('drag-over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); }
+function handleFile(f){ if(!f)return; const r=new FileReader(); r.onload=e=>{try{applyState(JSON.parse(e.target.result));}catch(err){alert('Invalid file: '+err.message);}}; r.readAsText(f); }
+
+function pill(id,txt,t){ const el=document.getElementById(id); if(el){el.textContent=txt;el.className='spill sp-'+t;} }
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function applyState(state){
+  if(!state?.specVersion?.startsWith('open-iof-state')){ alert('Not a valid IOF state file'); return; }
+  STATE=state; document.getElementById('genBtn').disabled=false;
+  const v=state.validation||{};
+  const cmap={BLU:'ok',GRN:'ok',AMB:'warn',RED:'err'};
+  pill('pLoad',`Loaded: ${state.governance?.id||'?'}`,'ok');
+  pill('pVal', `Structural: ${v.structural||'?'}`, v.structural==='PASS'?'ok':'err');
+  pill('pDeep',`Deep: ${v.deep||'NOT_RUN'}`, v.deep==='PASS'?'ok':v.deep==='NOT_RUN'?'idle':'warn');
+  pill('pColour',`Colour: ${v.colourState||'?'}`, cmap[v.colourState]||'idle');
+  const sn=(state.selectedNodes||[]).length, dn=(state.deletedNodes||[]).length;
+  document.getElementById('pMeta').textContent=
+    `${state.exportedAt?.slice(0,19)||''} · v${state.validatorVersion||'?'} · ${sn} nodes · ${dn} deleted`;
+  document.getElementById('infoLabel').style.display='block';
+  const govJ=(state.cache||{})[state.governance?.ref||'']||state.governance?.content||{};
+  document.getElementById('infoPanel').innerHTML=`
+    <div class="irow"><span class="ik">Governance</span><span class="iv">${escH(state.governance?.id||'—')}</span></div>
+    <div class="irow"><span class="ik">Policies</span><span class="iv">${(govJ.policies||[]).length}</span></div>
+    <div class="irow"><span class="ik">Selected</span><span class="iv ok">${sn}</span></div>
+    <div class="irow"><span class="ik">Suspected</span><span class="iv ${(v.unreachable||[]).length?'warn':''}">${(v.unreachable||[]).length}</span></div>
+    <div class="irow"><span class="ik">Deleted</span><span class="iv">${dn}</span></div>
+    <div class="irow"><span class="ik">Colour</span><span class="iv ${cmap[v.colourState]||''}">${v.colourState||'—'}</span></div>
+  `;
+}
+
+/* ═══ GENERATE ════════════════════════════════════════════════ */
+function generate(){
+  if(!STATE) return;
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true; btn.classList.add('running');
+  document.getElementById('genLbl').textContent='Generating…';
+  setTimeout(()=>{ try{MISSION=transform();renderOutput();}catch(e){alert('Error: '+e.message);console.error(e);}
+    btn.disabled=false;btn.classList.remove('running');document.getElementById('genLbl').textContent='Generate'; },50);
+}
+
+/* ── ID helpers ─────────────────────────────────────────────── */
+function slug(s){ return String(s).replace(/[^a-zA-Z0-9._~:-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,''); }
+
+function makeId(type, key){
+  const ns = getActiveNS().res || 'urn:iof:';
+  if(ns.startsWith('urn:'))    return `${ns}${type}:${slug(key)}`;
+  if(ns.startsWith('http'))    return `${ns.replace(/\/$/,'')}/${type}/${slug(key)}`;
+  return `${ns}${type}:${slug(key)}`;
+}
+
+function nodeId(url){
+  try{ const u=new URL(url); return makeId('node', u.hostname+u.pathname.replace(/\/$/,'')); }
+  catch{ return makeId('node', slug(url)); }
+}
+
+/* ── Context builder ─────────────────────────────────────────── */
+function buildCtx(){
+  const p    = (CFG||DEFAULT_CFG).profiles[activeProfile];
+  const onto = getActiveNS().onto || p.ontologyNS || 'https://open-iof.secon-tc.eu/ns#';
+  if(p.contextURL && p.contextMode==='https') return p.contextURL;
+  return {
+    "@version":1.1, "iof":onto,
+    "xsd":"http://www.w3.org/2001/XMLSchema#",
+    "prov":"http://www.w3.org/ns/prov#",
+    "Mission":"iof:Mission","Generator":"iof:Generator",
+    "Governance":"iof:Governance","Policy":"iof:Policy",
+    "Readiness":"iof:Readiness","Scope":"iof:Scope",
+    "Statistics":"iof:Statistics","Authority":"iof:Authority",
+    "AnalysisProfile":"iof:AnalysisProfile",
+    "MeasurementProfile":"iof:MeasurementProfile",
+    "ResolvedNode":"iof:ResolvedNode","SuspectedNode":"iof:SuspectedNode",
+    "SuspectedState":"iof:SuspectedState","ContextEvidence":"iof:ContextEvidence",
+    "AiSystemsNode":"iof:AiSystemsNode","DeletedNode":"iof:DeletedNode",
+    "ProfileDisclaimer":"iof:ProfileDisclaimer",
+    "created":  {"@id":"iof:created",  "@type":"xsd:dateTime"},
+    "rftAt":    {"@id":"iof:rftAt",    "@type":"xsd:dateTime"},
+    "testedAt": {"@id":"iof:testedAt", "@type":"xsd:dateTime"},
+    "url":      {"@id":"iof:url",      "@type":"@id"},
+    "ref":      {"@id":"iof:ref"},
+    "policy":   {"@id":"iof:policy",   "@type":"@id"},
+    "resolvedNodes":     {"@id":"iof:resolvedNodes",     "@container":"@set"},
+    "suspectedNodes":    {"@id":"iof:suspectedNodes",    "@container":"@set"},
+    "deletedNodes":      {"@id":"iof:deletedNodes",      "@container":"@set"},
+    "profiles":          {"@id":"iof:profiles",          "@container":"@set"},
+    "policies":          {"@id":"iof:policies",          "@container":"@set"},
+    "governanceLineage": {"@id":"iof:governanceLineage", "@container":"@set"},
+    "countries":         {"@id":"iof:countries",         "@container":"@set"},
+    "domains":           {"@id":"iof:domains",           "@container":"@set"}
+  };
+}
+
+/* ── Transform ───────────────────────────────────────────────── */
+function transform(){
+  if(!STATE) throw new Error('No state loaded');
+  const sel = STATE.selectedNodes||[];
+  if(!sel.length) throw new Error(
+    'State contains no selectedNodes. Validate and export from IOF Validator v10.2+.');
+
+  const ts      = new Date().toISOString();
+  const v       = STATE.validation||{};
+  const govId   = STATE.governance?.id||'';
+  const govRef  = STATE.governance?.ref||'';
+  const govCont = STATE.governance?.content || (STATE.cache||{})[govRef] || {};
+  const cache   = STATE.cache||{};
+  const ppm     = STATE.policyProfileMap||{};
+  const cfg     = CFG||DEFAULT_CFG;
+  const prof    = cfg.profiles[activeProfile];
+  const ns      = getActiveNS();
+  const tsSlug  = ts.replace(/[-:.Z]/g,'').slice(0,15);
+  const incSusp = document.getElementById('optSuspected').value==='include';
+  const incDel  = document.getElementById('optDeleted').value==='audit';
+  const incCache= document.getElementById('optCache').value==='yes';
+  const incProf = document.getElementById('optProfiles').value;
+
+  // Disclaimer (Fix 4 + 5)
+  const disclaimer = {
+    "@id":   makeId('disclaimer','profile-validation-v10.2'),
+    "@type": "ProfileDisclaimer",
+    "validates":       ["governance","policies","regions","domains","node-reachability"],
+    "doesNotValidate": ["analysis-profiles","measurement-profiles"],
+    "message":         cfg.validatorDisclaimer?.message || DEFAULT_CFG.validatorDisclaimer.message,
+    "humanOversightRequired": true
+  };
+
+  // Authority (Fix 5: @id)
+  const auth = cfg.authority||{};
+  const authority = {
+    "@id":   makeId('authority', auth.organisation||'secon-trust-consult'),
+    "@type": "Authority",
+    "organisation":       auth.organisation||'secon trust consult',
+    "namespaceAuthority": auth.namespaceAuthority||'open-iof.secon-tc.eu',
+    "governanceModel":    "controlled-semantic-authority",
+    "identityProfile":    activeProfile,
+    "resourceNS":         ns.res,
+    "ontologyNS":         ns.onto,
+    "dereferenceable":    prof.dereferenceable,
+    "preservationClass":  prof.preservationClass||'standard'
+  };
+
+  // Profiles from policyProfileMap
+  const profileMap = {};
+  for(const [,pm] of Object.entries(ppm)){
+    for(const h of [...(pm.analysis||[]),(pm.measurement||[])]){
+      if(profileMap[h]) continue;
+      const hj = cache[h]||pm.content;
+      if(!hj) continue;
+      const isMeasure = h.includes('measurement-profiles');
+      const profId    = hj.id||h.split('/').pop().replace('.json','');
+      profileMap[h] = {
+        "@id":   makeId('profile',profId),
+        "@type": isMeasure?'MeasurementProfile':'AnalysisProfile',
+        "id":    profId, "ref": h,
+        "profileDisclaimer": disclaimer['@id'],
+        ...(incProf==='embedded' ? hj : {})
+      };
+    }
+  }
+
+  // Policy objects — Fix 9: full content embedded
+  const policyObjects = [];
+  for(const pRef of (govCont.policies||[])){
+    const pj  = cache[pRef] || ppm[pRef.split('/').pop().replace('.json','')]?.content;
+    if(!pj) continue;
+    const pid = pj.id||pRef.split('/').pop().replace('.json','');
+    const pm  = ppm[pid]||{};
+    const evidence = [];
+    const dval = pj.what?.domains;
+    if(dval){
+      if(Array.isArray(dval)) evidence.push({"@id":makeId('evidence',pid+'-glob'),"@type":"ContextEvidence","strategy":"path-glob","patterns":dval,"excludePaths":pj.what?.exclude?.paths||[]});
+      else if(dval.match)     evidence.push({"@id":makeId('evidence',pid+'-pred'),"@type":"ContextEvidence","strategy":"predicate-match","predicates":dval.match,"matchLogic":pj.selection?.matchLogic||"AND","excludePaths":pj.what?.exclude?.paths||[]});
+    }
+    policyObjects.push({
+      "@id":   makeId('policy',pid),
+      "@type": "Policy",
+      "id": pid, "ref": pRef,
+      "content": incProf==='embedded' ? pj : undefined,
+      "analysis":    (pm.analysis||[]).map(h=>profileMap[h]?.['@id']).filter(Boolean),
+      "measurement": (pm.measurement||[]).map(h=>profileMap[h]?.['@id']).filter(Boolean),
+      "regions":     pm.regions||[],
+      "contextEvidence": evidence
+    });
+  }
+
+  // Governance lineage (Fix 5: @id on all)
+  const govLineage = [{
+    "@id":   makeId('governance',govId),
+    "@type": "Governance",
+    "id":    govId, "ref": govRef,
+    "content": incProf==='embedded' ? govCont : undefined
+  }];
+
+  // Nodes — use selectedNodes ONLY (Fix 1)
+  const resolved=[], suspected=[], deletedOut=[];
+
+  for(const n of sel){
+    if(n.status==='deleted'){
+      if(incDel) deletedOut.push({"@id":nodeId(n.url),"@type":"DeletedNode","url":n.url,"domain":n.domain,"ref":n.sourceFile,"governanceLineage":govLineage});
+      continue;
+    }
+
+    const pAtId = n.policyId ? makeId('policy',n.policyId) : null;
+    const aIds  = (n.analysis||[]).map(h=>profileMap[h]?.['@id']||h);
+    const mIds  = (n.measurement||[]).map(h=>profileMap[h]?.['@id']||h);
+
+    // AI block (Fix 3: per-URL matched system data)
+    const aiBlock = n.aiMetadata ? {
+      "aiSystems": {
+        "@id":        makeId('ai-node', n.aiMetadata.aiSystemKey||n.url),
+        "@type":      "AiSystemsNode",
+        "domain":     n.aiMetadata.aiDomain,
+        "systemKey":  n.aiMetadata.aiSystemKey,
+        "category":   n.aiMetadata.aiCategory,
+        "regulation": n.aiMetadata.aiRegulation,
+        "riskLevel":  n.aiMetadata.aiRiskLevel,
+        "compliance": n.aiMetadata.aiCompliance,
+        "notes":      n.aiMetadata.aiNotes,
+        "systemData": n.aiMetadata.aiSystemData,
+        "sourceFile": n.aiMetadata.aiSourceFile
+      }
+    } : {};
+
+    // Fix 4: profile disclaimer per node
+    const entry = {
+      "@id":    nodeId(n.url),
+      "@type":  n.status==='suspected' ? "SuspectedNode" : "ResolvedNode",
+      "url":    n.url,
+      "domain": n.domain,
+      "countries":     n.countries,
+      "ref":           n.sourceFile,
+      "policy":        pAtId,
+      "policyRef":     n.policyRef,
+      "analysis":      aIds.length ? aIds : null,
+      "measurement":   mIds.length ? mIds : null,
+      "profileDisclaimer": disclaimer['@id'],
+      "governanceLineage": govLineage,
+      ...aiBlock
+    };
+
+    if(n.status==='suspected'){
+      suspected.push({...entry,"suspect":{"@id":makeId('suspect-state',n.url),"@type":"SuspectedState",
+        "reason":"unreachable at validation time","note":"Transient conditions possible. Scanner may re-evaluate.","testedAt":v.rftAt||ts}});
+    } else { resolved.push(entry); }
+  }
+
+  const domains   = [...new Set(resolved.map(n=>n.domain).filter(Boolean))];
+  const countries = [...new Set(resolved.flatMap(n=>n.countries||[]).filter(c=>c!=='*'))].sort();
+  const cmap      = {BLU:'ok',GRN:'ok',AMB:'warn',RED:'err'};
+
+  return {
+    "@context":    buildCtx(),
+    "@id":         makeId('mission',`${tsSlug}-${slug(govId)}`),
+    "@type":       "Mission",
+    "specVersion": "open-iof/1.0",
+    "created":     ts,
+
+    "identity": {
+      "@id":       makeId('identity',govId+'-'+activeProfile),
+      "profile":   activeProfile,
+      "authority": authority
+    },
+
+    "validationDisclaimer": disclaimer,
+
+    "governance": {
+      "@id":   makeId('governance',govId),
+      "@type": "Governance",
+      "id":    govId, "ref": govRef,
+      "content": incProf==='embedded' ? govCont : undefined
+    },
+
+    "generator": {
+      "@id":           makeId('generator','iof-mission-generator-10.2'),
+      "@type":         "Generator",
+      "tool":          "IOF Mission Generator",
+      "version":       "10.2.0",
+      "generatedFrom": STATE.exportedAt,
+      "stateVersion":  STATE.specVersion
+    },
+
+    "readiness": {
+      "@id":         makeId('readiness',tsSlug),
+      "@type":       "Readiness",
+      "structural":  v.structural||"PASS",
+      "deep":        v.deep||"NOT_RUN",
+      "colourState": v.colourState||"GRN",
+      "rftAt":       STATE.exportedAt||ts
+    },
+
+    "scope": {
+      "@id":       makeId('scope',tsSlug),
+      "@type":     "Scope",
+      "domains":   domains,
+      "countries": countries
+    },
+
+    "statistics": {
+      "@id":            makeId('statistics',tsSlug),
+      "@type":          "Statistics",
+      "resolvedCount":  resolved.length,
+      "suspectedCount": suspected.length,
+      "deletedCount":   sel.filter(n=>n.status==='deleted').length,
+      "suspectedNote":  suspected.length
+        ? `${suspected.length} node(s) unreachable at validation time.` : null
+    },
+
+    "policies":  policyObjects,
+    "profiles":  Object.values(profileMap),
+    "resolvedNodes":  resolved,
+    ...(incSusp && suspected.length ? {"suspectedNodes":suspected} : {}),
+    ...(incDel  && deletedOut.length ? {"deletedNodes": deletedOut} : {}),
+    ...(incCache ? {"_stateCache": cache} : {})
+  };
+}
+
+/* ═══ RENDER / EXPORT ═════════════════════════════════════════ */
+function synHL(str){
+  return str.split('\n').map(line=>{
+    let h=line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    h=h.replace(/"([^"]+)":/g,'<span class="jk">"$1"</span>:');
+    h=h.replace(/: "(https?:\/\/[^"]*)"/g,(_,u)=>`: <span class="jv"><a class="ju" href="${u}" target="_blank" rel="noopener">"${u}"</a></span>`);
+    h=h.replace(/: "(urn:[^"]*)"/g,': <span class="jv">"$1"</span>');
+    h=h.replace(/: "([^"]*)"/g,': <span class="jv">"$1"</span>');
+    h=h.replace(/: (-?\d+\.?\d*)/g,': <span class="jn">$1</span>');
+    h=h.replace(/: (true|false|null)/g,': <span class="jb">$1</span>');
+    return h;
+  }).join('\n');
+}
+
+function renderOutput(){
+  if(!MISSION) return;
+  const json=JSON.stringify(MISSION,null,2);
+  document.getElementById('outBody').innerHTML=`<pre class="out">${synHL(json)}</pre>`;
+  document.getElementById('expBtn').disabled=false;
+  document.getElementById('copyBtn').disabled=false;
+  const r=MISSION.resolvedNodes?.length||0,s=MISSION.suspectedNodes?.length||0;
+  document.getElementById('nodeCount').textContent=
+    `${r} resolved · ${s} suspected · ${(json.length/1024).toFixed(1)} KB`;
+}
+
+function doExport(){
+  if(!MISSION) return;
+  const blob=new Blob([JSON.stringify(MISSION,null,2)],{type:'application/ld+json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url; a.download=`iof-mission-${STATE?.governance?.id||'mission'}-${(STATE?.exportedAt||new Date().toISOString()).slice(0,10)}.jsonld`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+}
+
+function copyOut(){
+  if(!MISSION) return;
+  navigator.clipboard.writeText(JSON.stringify(MISSION,null,2))
+    .then(()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Copied';setTimeout(()=>b.textContent='Copy',2000);});
+}
+
+init();
+</script>
+</body>
+</html>
