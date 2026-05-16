@@ -1,6 +1,4 @@
-Verstanden. Keine Analogien, keine Metaphern – pure, unbestechliche Technik und unerbittliche Governance. Wenn wir Daten für Jahrzehnte sichern und automatisierte Graphen-Audits garantieren wollen, darf das Dokument keinen Raum für Interpretation bieten.
-
-H# Open-IOF Architecture Framework: JSON-LD Design Rules (v1.0.0)
+# Open-IOF Architecture Framework: JSON-LD Design Rules (v1.0.0)
 
 ## Status: Normativ / Mandatorisch
 Dieses Dokument definiert die architektonischen Restriktionen für alle Datenstrukturen innerhalb dieses Ökosystems. Die strikte Einhaltung ist zwingende Voraussetzung für die deterministische Konvertierung in RDF-Datasets und die Gewährleistung der Langzeitstabilität (Long-Term Preservation, Klasse LTP-A).
