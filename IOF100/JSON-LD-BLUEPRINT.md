@@ -1,4 +1,18 @@
+Das ist der finale Hebel, um die Leser sofort am Haken zu haben. Ein knallhartes TL;DR bricht das größte Missverständnis des Semantic Web in 30 Sekunden herunter und sorgt dafür, dass kein Entwickler frustriert wegklickt.
+
+Hier ist die aktualisierte Fassung inklusive des vorgeschalteten TL;DRs für Ihr Dokument auf GitHub.
+
+---
+
+```markdown
 # Blueprint: JSON-LD für langlebige Ontologien (Long-Term Preservation TROTZ Web)
+
+## TL;DR (Too Long; Didn't Read)
+* **Das Problem:** 99 % aller JSON-LD-Tutorials im Netz behandeln ausschließlich `schema.org` für SEO (Suchmaschinen-Marketing). Das ist eine "Homebrew"-Welt mit laxen Datentypen und vollem Vendor Lock-in. Wenn Sie dort eigene, präzise Ontologien validieren wollen, stürzen die Tools ab und Sie werden als „Schema-Rüpel“ beschimpft.
+* **Die Wahrheit:** JSON-LD wurde vom W3C nicht für SEO erfunden, sondern als leichtgewichtige Brücke zu echten, mathematisch präzisen Graphen (RDF).
+* **Die Lösung:** Dieses Dokument zeigt, wie Sie sich über einen maßgeschneiderten `@context` vollständig von der vordefinierten Web-Welt entkoppeln. Sie behalten die flache JSON-Struktur für Ihre APIs, injizieren aber unzerstörbare, langzeitstabile Semantik nach wissenschaftlichen Standards.
+
+---
 
 ## Das Problem: Warum das "Standard-Web" Ihre Daten korrumpiert
 Wer Daten für kritische Systeme, Governance oder Langzeitarchivierung (Long-Term Preservation) entwirft, stößt unweigerlich auf JSON-LD. Wer dann nach Tutorials sucht, landet in der SEO-Sackgasse von `schema.org`. 
@@ -18,12 +32,12 @@ Um zu verstehen, warum die gängige Dokumentation im Netz Sie im Stich lässt, m
 ### Welt A: Die Marketing- & SEO-Blase
 * **Die Anlaufstelle:** [schema.org](https://schema.org)
 * **Das Versprechen:** „Strukturiere deine Daten, damit Google deine Event-Termine, Kochrezepte oder Produktpreise mit Sternchen in den Suchergebnissen anzeigt.“
-* **Die Realität:** Diese Welt hat das Vokabular monopolisiert. Weil 95 % aller JSON-LD-Dateien im Netz für Google-Bots geschrieben werden, sind 95 % aller Forenbeiträge (StackOverflow, Blogs) rein auf dieses starre Korsett fixiert. Wer hier nach Individualität sucht, erntet Fehlermeldungen von den Validatoren.
+* **Die Reality:** Diese Welt hat das Vokabular monopolisiert. Weil 95 % aller JSON-LD-Dateien im Netz für Google-Bots geschrieben werden, sind 95 % aller Forenbeiträge (StackOverflow, Blogs) rein auf dieses starre Korsett fixiert. Wer hier nach Individualität sucht, erntet Fehlermeldungen von den Validatoren.
 
 ### Welt B: Die offizielle W3C-Spezifikation (Ihre Welt)
 * **Die Anlaufstellen:** [json-ld.org](https://json-ld.org) und die normative [W3C JSON-LD 1.1 Spezifikation](https://www.w3.org/TR/json-ld11/)
 * **Das Versprechen:** „JSON-LD ist eine leichtgewichtige Syntax, um Linked Data in JSON zu serialisieren.“
-* **Die Realität:** Auf *json-ld.org* wird die wahre Mächtigkeit zwar theoretisch erklärt, aber oft so akademisch und abstrakt, dass der pragmatische Software-Entwickler den Wald vor lauter Bäumen nicht sieht. Es fehlt die direkte Brücke, die zeigt, wie man sich von der Tyrannei vordefinierter Vokabulare befreit.
+* **Die Reality:** Auf *json-ld.org* wird die wahre Mächtigkeit zwar theoretisch erklärt, aber oft so akademisch und abstrakt, dass der pragmatische Software-Entwickler den Wald vor lauter Bäumen nicht sieht. Es fehlt die direkte Brücke, die zeigt, wie man sich von der Tyrannei vordefinierter Vokabulare befreit.
 
 ---
 
