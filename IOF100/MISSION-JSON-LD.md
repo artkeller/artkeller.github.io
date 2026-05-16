@@ -28,12 +28,9 @@ Gehen wir Schritt für Schritt durch das [Dokument](./assets/demo/iof-mission-da
 
 ```
 
-* 
-**Die unerbittliche ID:** Das Dokument hat eine feste URN (`urn:iof:mission:...`). Es ist damit ortsunabhängig und kann auf jedem Server der Welt ohne Adresskonflikte gelagert werden.
+* **Die unerbittliche ID:** Das Dokument hat eine feste URN (`urn:iof:mission:...`). Es ist damit ortsunabhängig und kann auf jedem Server der Welt ohne Adresskonflikte gelagert werden.
 
-
-* 
-**Langzeit-Zertifizierung:** `"preservationClass": "LTP-A"` deklariert dieses File nach höchsten Archivierungsstandards (Long-Term Preservation, Klasse A). Die Eigenschaft `"offlineCapable": true` erzwingt, dass alle zur Verifizierung notwendigen Schemata lokal auflösbar sein müssen. Es gibt keine externen HTTP-Abhängigkeiten.
+* **Langzeit-Zertifizierung:** `"preservationClass": "LTP-A"` deklariert dieses File nach höchsten Archivierungsstandards (Long-Term Preservation, Klasse A). Die Eigenschaft `"offlineCapable": true` erzwingt, dass alle zur Verifizierung notwendigen Schemata lokal auflösbar sein müssen. Es gibt keine externen HTTP-Abhängigkeiten.
 
 
 
