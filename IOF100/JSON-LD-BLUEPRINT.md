@@ -36,7 +36,7 @@ Um zu verstehen, warum die gängige Dokumentation im Netz Sie im Stich lässt, m
 
 ## Die Architektur: Der Header, der die Macht verschiebt
 
-Ein JSON-LD-Dokument besteht aus zwei Teilen: Dem **semantischen Betriebssystem (Header)** und den **Nutzdaten (Payload)**. Das folgende Pattern entkoppelt Ihre Daten vollständig von externen Plattformen. (see [5](_5__wissenschaftliche_datenmodellierung__klasse_statt_masse))
+Ein JSON-LD-Dokument besteht aus zwei Teilen: Dem **semantischen Betriebssystem (Header)** und den **Nutzdaten (Payload)**. Das folgende Pattern entkoppelt Ihre Daten vollständig von externen Plattformen. (see [[5]](_5__wissenschaftliche_datenmodellierung__klasse_statt_masse))
 
 ```json
 {
