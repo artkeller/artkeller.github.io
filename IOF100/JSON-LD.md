@@ -200,10 +200,4 @@ Wenn dieses Dokument serialisiert wird, löst der Prozessor die Aliase mithilfe 
 
 Lassen Sie sich nicht von Validatoren belehren, die für das Marketing-Web gebaut wurden. Wenn Ihr Ziel Datenintegrität, semantische Klarheit und Unabhängigkeit über Dekaden hinweg ist, dann ist dieser `@context`-Blueprint der einzig gangbare Weg. Er kombiniert die Leichtigkeit von JSON mit der unbarmherzigen Präzision des Semantic Web.
 
-```
-
-***
-
-Jetzt ist der Blueprint rund, schlagkräftig und absolut bereit für das GitHub-Repository. Legen Sie es den Suchenden als Kompass hin!
-
-```
+---
