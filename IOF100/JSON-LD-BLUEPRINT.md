@@ -33,6 +33,7 @@ Um zu verstehen, warum die gängige Dokumentation im Netz Sie im Stich lässt, m
 * **Das Versprechen:** „JSON-LD ist eine leichtgewichtige Syntax, um Linked Data in JSON zu serialisieren.“
 * **Die Reality:** Auf *json-ld.org* wird die wahre Mächtigkeit zwar theoretisch erklärt, aber oft so akademisch und abstrakt, dass der pragmatische Software-Entwickler den Wald vor lauter Bäumen nicht sieht. Es fehlt die direkte Brücke, die zeigt, wie man sich von der Tyrannei vordefinierter Vokabulare befreit.
 * **Beispiel:** Die [W3C JSON-LD 1.1 Spezifikation](https://www.w3.org/TR/json-ld11/) hält ein [EXAMPLE4](https://www.w3.org/TR/json-ld11/#example-4-context-for-the-sample-document-in-the-previous-section) mit *"@context: { term := IRI, ... }"* bereit. (A *context* is used to map terms to IRIs).
+* **W3C @context:** siehe weitere durch W3C definierte [@context Profile](https://www.w3.org/2025/credentials/vcdi/vocab/v2/vocabulary.html#context-files).
 
 ---
 
