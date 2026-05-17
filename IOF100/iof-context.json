@@ -1,0 +1,29 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "iof": "https://artkeller.github.io/IOF100/iof.json",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "prov": "http://www.w3.org/ns/prov#",
+    "Mission": "iof:Mission",
+    "Generator": "iof:Generator",
+    "Governance": "iof:Governance",
+    "Policy": "iof:Policy",
+    "Readiness": "iof:Readiness",
+    "Scope": "iof:Scope",
+    "Statistics": "iof:Statistics",
+    "Authority": "iof:Authority",
+    "AnalysisProfile": "iof:AnalysisProfile",
+    "MeasurementProfile": "iof:MeasurementProfile",
+    "ResolvedNode": "iof:ResolvedNode",
+    "SuspectedNode": "iof:SuspectedNode",
+    "SuspectedState": "iof:SuspectedState",
+    "ContextEvidence": "iof:ContextEvidence",
+    "AiSystemsNode": "iof:AiSystemsNode",
+    "DeletedNode": "iof:DeletedNode",
+    "ProfileDisclaimer": "iof:ProfileDisclaimer",
+    "created": {
+      "@id": "iof:created",
+      "@type": "xsd:dateTime"
+    }
+  }
+}
