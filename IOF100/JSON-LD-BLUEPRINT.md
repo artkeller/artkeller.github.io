@@ -118,7 +118,7 @@ Ein JSON-LD-Dokument besteht aus zwei Teilen: Dem **semantischen Betriebssystem 
 ### 1. Das Fundament (Namensräume & Protokolle)
 
 * `"@version": 1.1`: Schaltet die erweiterten Features von JSON-LD 1.1 frei (u.a. fortgeschrittenes Scoping und Verschachtelung). Unverzichtbar für komplexe Architekturen.
-* `"iof": "local:iof:schema:"`: **Der Unabhängigkeitserklärung-Schritt.** Statt auf eine HTTP-URL zu verweisen, die in 10 Jahren einen 404-Fehler liefert, definieren wir einen *lokalen oder URN-artigen Identifikator*. Ihre Daten sind autark. Sie hängen nicht am Tropf eines aktiven Webservers.
+* `"iof": "local:iof:schema:"`: **Der Unabhängigkeitserklärung-Schritt.** Statt auf eine "vordefinierte" HTTP-URL (z. B. *"https://schema.org"*) zu verweisen, die vielleicht in vielen Jahren einen 404-Fehler liefert, definieren wir unseren eigenen *lokalen oder URN-artigen Identifikator*. Ihre Daten sind autark. Sie hängen nicht am Tropf eines aktiven Webservers.
 * `"xsd": "http://www.w3.org/2001/XMLSchema#"`: Die mathematische Definition von Datentypen (Zahlen, Datumsformate, Booleans). Standardisiert seit Jahrzehnten, unveränderlich.
 * `"prov": "http://www.w3.org/ns/prov#"`: Das W3C-Standard-Vokabular für Provenance (Herkunftsnachweis). Damit dokumentieren Sie maschinenlesbar, *wer* Daten wann erzeugt, verändert oder validiert hat (unverzichtbar für Audit-Trails und Governance).
 
