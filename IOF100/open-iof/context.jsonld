@@ -1,7 +1,7 @@
 {
   "@context": {
     "@version": 1.1,
-    "iof": "https://artkeller.github.io/IOF100/iof.json",
+    "iof": "https://artkeller.github.io/IOF100/iof.jsonld",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
     "prov": "http://www.w3.org/ns/prov#",
     "Mission": "iof:Mission",
