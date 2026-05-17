@@ -32,7 +32,6 @@ Um zu verstehen, warum die gängige Dokumentation im Netz Sie im Stich lässt, m
 * **Die Anlaufstellen:** [json-ld.org](https://json-ld.org) und die normative [W3C JSON-LD 1.1 Spezifikation](https://www.w3.org/TR/json-ld11/)
 * **Das Versprechen:** „JSON-LD ist eine leichtgewichtige Syntax, um Linked Data in JSON zu serialisieren.“
 * **Die Reality:** Auf *json-ld.org* wird die wahre Mächtigkeit zwar theoretisch erklärt, aber oft so akademisch und abstrakt, dass der pragmatische Software-Entwickler den Wald vor lauter Bäumen nicht sieht. Es fehlt die direkte Brücke, die zeigt, wie man sich von der Tyrannei vordefinierter Vokabulare befreit.
-* **Hinweis:** Auch der Validator auf https:/schema.org/ ist nicht unproblematisch. Er meldet im Fall eines externen @context folgendes: *"jsonld.InvalidUrl: Dereferencing a URL did not result in a valid JSON-LD object. Possible causes are an inaccessible URL perhaps due to a same-origin policy (ensure the server uses CORS if you are using client-side JavaScript), too many redirects, a non-JSON response, or more than one HTTP Link Header was provided for a remote context. URL: 'https://artkeller.github.io/IOF100/open-iof/context.jsonld'."*
 
 ---
 
