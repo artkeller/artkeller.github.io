@@ -1,0 +1,1054 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "iof": "urn:iof:schema:",
+    "iof-registry": "urn:iof:registry:",
+    "detected_aliases": {
+      "@id": "urn:iof:schema:internal#aliasList",
+      "@container": "@set"
+    },
+    "mappedTo": {
+      "@id": "urn:iof:schema:internal#targetMapping",
+      "@type": "@id"
+    },
+    "records": {
+      "@id": "urn:iof:schema:internal#records",
+      "@container": "@set"
+    }
+  },
+  "@id": "urn:iof:registry:global-harvest-master-database",
+  "@type": "urn:iof:schema:internal#HarvestResult",
+  "urn:iof:schema:time#created": "2026-05-17T23:15:00Z",
+  "records": [
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://hl7.org/fhir",
+      "urn:iof:schema:internal#originContext": "domains[health] / countries[*]",
+      "urn:iof:schema:internal#rawField": "fhir:Organization.name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.openactive.io/ns",
+      "urn:iof:schema:internal#originContext": "domains[sports,events] / regions[*]",
+      "urn:iof:schema:internal#rawField": "oa:Organiser",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/ns/prov",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "wasAttributedTo",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "Organization",
+        "provider",
+        "issuer",
+        "Agent",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/ns/ssn/",
+      "urn:iof:schema:internal#originContext": "domains[IoT,sensor] / regions[*]",
+      "urn:iof:schema:internal#rawField": "ssn:deployedSystem",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://xmlns.com/foaf/0.1/",
+      "urn:iof:schema:internal#originContext": "countries[*] / regions[G7]",
+      "urn:iof:schema:internal#rawField": "name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "Organization",
+        "legalName",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://cidoc-crm.org/",
+      "urn:iof:schema:internal#originContext": "domains[museums,heritage] / regions[*]",
+      "urn:iof:schema:internal#rawField": "crm:P1_is_identified_by",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://json-ld.org",
+      "urn:iof:schema:internal#originContext": "countries[*] / domains[semantic-web]",
+      "urn:iof:schema:internal#rawField": "id",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "owner",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://registry.identifiers.org/registry/gleif",
+      "urn:iof:schema:internal#originContext": "domains[finance] / countries[*]",
+      "urn:iof:schema:internal#rawField": "gleif:LegalName",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "countries[*] / regions[G7] | domains[commerce]/nodes[schema:Organization] | countries[*] / regions[G7] / domains[*] | countries[*] / regions[G7,EU] | countries[*] / regions[*] | domains[legal, corporate] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "legalName",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "Organization",
+        "corporate_entity",
+        "issuer",
+        "owner",
+        "provider"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "domains[legal, corporate] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "owner",
+      "mappedTo": "urn:iof:schema:identity"
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "domains[legal, corporate] / nodes[*] | domains[legal] / regions[EU]",
+      "urn:iof:schema:internal#rawField": "provider",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "Organization",
+        "corporate_entity",
+        "issuer",
+        "legalName",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://spec.openapis.org/oas/v3.1",
+      "urn:iof:schema:internal#originContext": "domains[API] / countries[*]",
+      "urn:iof:schema:internal#rawField": "openapi:info.title",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.dataprotection.gov.cy",
+      "urn:iof:schema:internal#originContext": "regions[EU] / domains[data-protection]",
+      "urn:iof:schema:internal#rawField": "supervisoryAuthority",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "issuer",
+        "provider"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.gaia-x.eu/",
+      "urn:iof:schema:internal#originContext": "domains[cloud,sovereignty] / regions[EU]",
+      "urn:iof:schema:internal#rawField": "gaiax:participant.name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.goodrelations.org/",
+      "urn:iof:schema:internal#originContext": "domains[commerce] / regions[*]",
+      "urn:iof:schema:internal#rawField": "gr:hasEAN_UCC-13",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.goodrelations.org/",
+      "urn:iof:schema:internal#originContext": "domains[commerce] / countries[*]",
+      "urn:iof:schema:internal#rawField": "gr:legalName",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.iata.org/",
+      "urn:iof:schema:internal#originContext": "domains[aviation] / regions[*]",
+      "urn:iof:schema:internal#rawField": "iata:Airline.name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.legalxml.gov/namespaces/legaldocml",
+      "urn:iof:schema:internal#originContext": "domains[legal,government] / countries[*]",
+      "urn:iof:schema:internal#rawField": "legal:Authority.name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.loc.gov/bibframe",
+      "urn:iof:schema:internal#originContext": "domains[libraries,archives] / regions[*]",
+      "urn:iof:schema:internal#rawField": "bib:Agent.name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.nist.gov",
+      "urn:iof:schema:internal#originContext": "countries[US] / domains[critical-infrastructure]",
+      "urn:iof:schema:internal#rawField": "systemOwner",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "owner",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.unece.org/cefact",
+      "urn:iof:schema:internal#originContext": "domains[trade,logistics] / regions[*]",
+      "urn:iof:schema:internal#rawField": "cefact:TradeParty.name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/2004/02/skos/core",
+      "urn:iof:schema:internal#originContext": "domains[taxonomies,knowledge] / regions[*]",
+      "urn:iof:schema:internal#rawField": "skos:prefLabel",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "name",
+        "Organization",
+        "provider"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/TR/vcard-rdf",
+      "urn:iof:schema:internal#originContext": "regions[EU]/nodes[vCard:org]",
+      "urn:iof:schema:internal#rawField": "organization-name",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/oa",
+      "urn:iof:schema:internal#originContext": "domains[annotation,web] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "oa:motivatedBy",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/odrl",
+      "urn:iof:schema:internal#originContext": "regions[EU] / domains[legal-frameworks]",
+      "urn:iof:schema:internal#rawField": "assigner",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "issuer",
+        "provider",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/odrl",
+      "urn:iof:schema:internal#originContext": "domains[legal] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "issuer",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "provider",
+        "owner",
+        "corporate_entity"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/org",
+      "urn:iof:schema:internal#originContext": "domains[organization] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "legalName",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "Organization",
+        "provider",
+        "issuer"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/prov",
+      "urn:iof:schema:internal#originContext": "domains[legal] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "agent",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "provider",
+        "issuer",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/prov",
+      "urn:iof:schema:internal#originContext": "domains[provenance]/nodes[prov:Agent]",
+      "urn:iof:schema:internal#rawField": "prov:wasAttributedTo",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "owner",
+        "issuer"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/solid/terms",
+      "urn:iof:schema:internal#originContext": "regions[DACH] / domains[identity]",
+      "urn:iof:schema:internal#rawField": "oidcIssuer",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "issuer",
+        "provider"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "urn:iso:std:iso:20022:tech:xsd",
+      "urn:iof:schema:internal#originContext": "domains[finance] / countries[*]",
+      "urn:iof:schema:internal#rawField": "iso20022:PtyId.Nm",
+      "mappedTo": "urn:iof:schema:identity",
+      "detected_aliases": [
+        "legalName",
+        "Organization",
+        "provider",
+        "issuer",
+        "corporate_entity",
+        "owner"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://hl7.org/fhir",
+      "urn:iof:schema:internal#originContext": "domains[health] / regions[*]",
+      "urn:iof:schema:internal#rawField": "fhir:Organization.address.country",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://purl.org/dc/terms/",
+      "urn:iof:schema:internal#originContext": "domains[legal]/nodes[dct:jurisdiction]",
+      "urn:iof:schema:internal#rawField": "dct:coverage",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/2003/01/geo/wgs84_pos",
+      "urn:iof:schema:internal#originContext": "regions[DACH]/nodes[geo:lat/long]",
+      "urn:iof:schema:internal#rawField": "spatial",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "target_region",
+        "jurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://registry.identifiers.org/registry/gleif",
+      "urn:iof:schema:internal#originContext": "domains[finance] / regions[*]",
+      "urn:iof:schema:internal#rawField": "gleif:RegistrationAuthority.country",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[*] | domains[legal] / countries[US]",
+      "urn:iof:schema:internal#rawField": "jurisdiction",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "legalJurisdiction",
+        "spatialCoverage",
+        "target_region",
+        "territory"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "countries[*] / regions[G7] | countries[US]/domains[ecommerce] | countries[*] / regions[G7] / domains[*] | countries[*] / regions[G7,EU] | countries[*] / regions[*] | countries[*] / regions[EU]",
+      "urn:iof:schema:internal#rawField": "spatialCoverage",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "jurisdiction",
+        "legalJurisdiction",
+        "target_region",
+        "territory"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.gaia-x.eu/",
+      "urn:iof:schema:internal#originContext": "domains[cloud] / regions[EU]",
+      "urn:iof:schema:internal#rawField": "gaiax:participant.location.country",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.iata.org/",
+      "urn:iof:schema:internal#originContext": "domains[aviation] / countries[*]",
+      "urn:iof:schema:internal#rawField": "iata:Airport.location.country",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.iso.org/standard/76518.html",
+      "urn:iof:schema:internal#originContext": "countries[*] / domains[industrial-digital-twin]",
+      "urn:iof:schema:internal#rawField": "administrativeArea",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "territory",
+        "legalJurisdiction",
+        "target_region"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.legalxml.gov/namespaces/legaldocml",
+      "urn:iof:schema:internal#originContext": "domains[legal] / regions[*]",
+      "urn:iof:schema:internal#rawField": "legal:Jurisdiction.country",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.unece.org/cefact",
+      "urn:iof:schema:internal#originContext": "domains[trade] / countries[*]",
+      "urn:iof:schema:internal#rawField": "cefact:TradeParty.postalAddress.countryCode",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/2004/02/skos/core",
+      "urn:iof:schema:internal#originContext": "domains[taxonomies] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "skos:inScheme",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/TR/vocab-dcat/",
+      "urn:iof:schema:internal#originContext": "countries[*] / domains[data-governance]",
+      "urn:iof:schema:internal#rawField": "jurisdiction",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "legalJurisdiction",
+        "territory"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/dcat",
+      "urn:iof:schema:internal#originContext": "regions[EU] / domains[data-space]",
+      "urn:iof:schema:internal#rawField": "spatial",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "territory",
+        "jurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/odrl",
+      "urn:iof:schema:internal#originContext": "domains[legal] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "jurisdiction",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/org",
+      "urn:iof:schema:internal#originContext": "domains[organization] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "hasRegisteredAddress",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "urn:iso:std:iso:20022:tech:xsd",
+      "urn:iof:schema:internal#originContext": "domains[finance] / regions[*]",
+      "urn:iof:schema:internal#rawField": "iso20022:PtyPostalAdr.Ctry",
+      "mappedTo": "urn:iof:schema:jurisdiction",
+      "detected_aliases": [
+        "country",
+        "spatialCoverage",
+        "territory",
+        "legalJurisdiction"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://hl7.org/fhir",
+      "urn:iof:schema:internal#originContext": "domains[health] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "fhir:Organization.endpoint",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://xmlns.com/foaf/0.1/",
+      "urn:iof:schema:internal#originContext": "countries[*] / regions[G7]",
+      "urn:iof:schema:internal#rawField": "homepage",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "domains[apis] / nodes[serviceEndpoints] | domains[API]/nodes[schema:EntryPoint] | countries[*] / regions[*] / domains[AI-platforms] / nodes[*] | domains[*] / nodes[API] | domains[infrastructure] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "url",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "apiUrl",
+        "endpoint",
+        "entryPoint",
+        "targetProduct"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[api]",
+      "urn:iof:schema:internal#rawField": "urlTemplate",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "target",
+        "endpoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://spec.openapis.org/oas/latest.html",
+      "urn:iof:schema:internal#originContext": "domains[api-management] / nodes[rest-gateways]",
+      "urn:iof:schema:internal#rawField": "servers.url",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://spec.openapis.org/oas/v3.1",
+      "urn:iof:schema:internal#originContext": "domains[API,platforms] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "openapi:servers.url",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.gaia-x.eu/",
+      "urn:iof:schema:internal#originContext": "domains[cloud] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "gaiax:service.endpoint",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.goodrelations.org/",
+      "urn:iof:schema:internal#originContext": "domains[commerce] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "gr:hasPriceSpecification",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.ietf.org/rfc/rfc8288",
+      "urn:iof:schema:internal#originContext": "domains[web,API] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "Link: rel",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.legalxml.gov/namespaces/legaldocml",
+      "urn:iof:schema:internal#originContext": "domains[legal] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "legal:Fragment.src",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.loc.gov/bibframe",
+      "urn:iof:schema:internal#originContext": "domains[archives] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "bib:Instance.identifiedBy",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/TR/hydra/",
+      "urn:iof:schema:internal#originContext": "domains[hypermedia]/nodes[hydra:Operation]",
+      "urn:iof:schema:internal#rawField": "hydra:target",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "targetProduct",
+        "entryPoint"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/TR/ldp/",
+      "urn:iof:schema:internal#originContext": "nodes[LDP-RS]",
+      "urn:iof:schema:internal#rawField": "ldp:hasMemberRelation",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "endpoint",
+        "apiUrl",
+        "entryPoint"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/activitystreams",
+      "urn:iof:schema:internal#originContext": "domains[social] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "url",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "endpoint",
+        "targetProduct"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/dcat",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "endpointURL",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "apiUrl",
+        "entryPoint"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/oa",
+      "urn:iof:schema:internal#originContext": "domains[annotation] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "oa:hasTarget",
+      "mappedTo": "urn:iof:schema:network#entryPoint",
+      "detected_aliases": [
+        "url",
+        "endpoint",
+        "entryPoint",
+        "apiUrl"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://purl.org/dc/terms/",
+      "urn:iof:schema:internal#originContext": "regions[G7]/domains[publishing]",
+      "urn:iof:schema:internal#rawField": "dct:issued",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "datePublished"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.openactive.io/ns",
+      "urn:iof:schema:internal#originContext": "domains[sports] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "oa:activityStatus",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "datePublished",
+        "timestamp"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/2006/time",
+      "urn:iof:schema:internal#originContext": "domains[temporal] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "time:hasBeginning",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "datePublished"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/2006/time",
+      "urn:iof:schema:internal#originContext": "domains[*] / regions[*]",
+      "urn:iof:schema:internal#rawField": "time:inXSDDateTime",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "datePublished",
+        "timestamp"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/ns/prov",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "generatedAtTime",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "startedAtTime",
+        "endedAtTime",
+        "issuedAt",
+        "timestamp"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "http://www.w3.org/ns/ssn/",
+      "urn:iof:schema:internal#originContext": "domains[IoT] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "ssn:observationSamplingTime",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "timestamp"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://cidoc-crm.org/",
+      "urn:iof:schema:internal#originContext": "domains[heritage] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "crm:P87_is_identified_by",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "timestamp"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://eur-lex.europa.eu",
+      "urn:iof:schema:internal#originContext": "regions[EU] / domains[compliance]",
+      "urn:iof:schema:internal#rawField": "entryIntoForceDate",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "countries[*]/nodes[CreativeWork]",
+      "urn:iof:schema:internal#rawField": "dateCreated",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "created",
+        "testedAt"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "domains[publishing] / nodes[*] | countries[*] / regions[DACH]",
+      "urn:iof:schema:internal#rawField": "datePublished",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "created",
+        "issuedAt",
+        "testedAt",
+        "timestamp",
+        "validFrom"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://schema.org",
+      "urn:iof:schema:internal#originContext": "countries[*] / regions[*]",
+      "urn:iof:schema:internal#rawField": "validFrom",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "issuedAt",
+        "created",
+        "datePublished",
+        "timestamp",
+        "testedAt"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.iata.org/",
+      "urn:iof:schema:internal#originContext": "domains[aviation] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "iata:FlightStatus.updateTime",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "timestamp"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/activitystreams",
+      "urn:iof:schema:internal#originContext": "domains[social-platforms] / nodes[federated-api] | domains[social] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "published",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "created",
+        "issuedAt",
+        "timestamp",
+        "validFrom"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/prov",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[*] | domains[workflow]/nodes[prov:Activity] | domains[infrastructure] / regions[EU] | domains[provenance] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "generatedAtTime",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "created",
+        "datePublished",
+        "issuedAt",
+        "timestamp",
+        "validFrom"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "https://www.w3.org/ns/prov",
+      "urn:iof:schema:internal#originContext": "domains[infrastructure] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "validFrom",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "issuedAt",
+        "created",
+        "datePublished",
+        "timestamp",
+        "testedAt"
+      ]
+    },
+    {
+      "@type": "urn:iof:schema:internal#MappingEntry",
+      "urn:iof:schema:internal#externalSource": "urn:iso:std:iso:20022:tech:xsd",
+      "urn:iof:schema:internal#originContext": "domains[finance] / nodes[*]",
+      "urn:iof:schema:internal#rawField": "iso20022:MsgId",
+      "mappedTo": "urn:iof:schema:time#created",
+      "detected_aliases": [
+        "validFrom",
+        "issuedAt",
+        "created",
+        "timestamp"
+      ]
+    }
+  ]
+}
