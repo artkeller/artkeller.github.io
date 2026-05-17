@@ -26,6 +26,7 @@ Um zu verstehen, warum die gängige Dokumentation im Netz Sie im Stich lässt, m
 * **Die Anlaufstelle:** [schema.org](https://schema.org)
 * **Das Versprechen:** „Strukturiere deine Daten, damit Google deine Event-Termine, Kochrezepte oder Produktpreise mit Sternchen in den Suchergebnissen anzeigt.“
 * **Die Reality:** Diese Welt hat das Vokabular monopolisiert. Weil 95 % aller JSON-LD-Dateien im Netz für Google-Bots geschrieben werden, sind 95 % aller Forenbeiträge (StackOverflow, Blogs) rein auf dieses starre Korsett fixiert. Wer hier nach Individualität sucht, erntet Fehlermeldungen von den Validatoren.
+* **Hinweis**: Der schema.org Parser unterstützt keinen "fremde" URLs für @context und meldet: *Dieser @context-String ist dem Parser unbekannt und das Abrufen des Remote-JSON-LD-Kontexts wird von uns nicht unterstützt. Verwenden Sie einen bekannten @context-Wert (z. B. „https://schema.org/“) oder definieren Sie einen lokalen Kontext."*
 
 ### Welt B: Die offizielle W3C-Spezifikation (Ihre Welt)
 * **Die Anlaufstellen:** [json-ld.org](https://json-ld.org) und die normative [W3C JSON-LD 1.1 Spezifikation](https://www.w3.org/TR/json-ld11/)
